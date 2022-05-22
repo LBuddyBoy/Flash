@@ -37,6 +37,7 @@ My name is LBuddyBoy or Ethan and I have started a base of a rank core that I wi
 ### Information
 
 I suggest using Redis, so that you get the full experience of this core.
+I will also be doing updates very often on this, so dm me on Telegram or Discord if you have any suggestions on what to add.
 
 ### Contact Me
 
