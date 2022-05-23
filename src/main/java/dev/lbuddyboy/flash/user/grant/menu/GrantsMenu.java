@@ -33,7 +33,7 @@ public class GrantsMenu extends PagedMenu<Grant> {
 
     public GrantsMenu(UUID uuid) {
         this.uuid = uuid;
-        this.objects = Flash.getInstance().getUserHandler().getUser(uuid, true).getGrants();
+        this.objects = Flash.getInstance().getUserHandler().tryUser(uuid, true).getGrants();
     }
 
     @Override
@@ -47,13 +47,13 @@ public class GrantsMenu extends PagedMenu<Grant> {
         List<Button> buttons = new ArrayList<>();
 
         int i = 1;
-        User user = Flash.getInstance().getUserHandler().getUser(uuid, true);
+        User user = Flash.getInstance().getUserHandler().tryUser(uuid, true);
         if (view.equals("permissions")) {
-            for (UserPermission permission : user.getPermissions()) {
+            for (UserPermission permission : user.getSortedPermissions()) {
                 buttons.add(new PermissionButton(uuid, permission, i++));
             }
         } else {
-            for (Grant grant : user.getGrants()) {
+            for (Grant grant : user.getSortedGrants()) {
                 buttons.add(new GrantButton(uuid, grant, i++));
             }
         }
@@ -82,15 +82,17 @@ public class GrantsMenu extends PagedMenu<Grant> {
 
         @Override
         public int getSlot() {
-            return 5;
+            return menu.getView().equals("permissions") ? FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_RANKS_SLOT.getInt() : FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_PERMISSIONS_SLOT.getInt();
         }
 
         @Override
         public ItemStack getItem() {
-            String name = menu.getView().equals("permissions") ? "&b&lView Ranks" : "&e&lView Permissions";
-            Material material = menu.getView().equals("permissions") ? Material.DIAMOND : Material.PAPER;
+            String name = menu.getView().equals("permissions") ? FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_RANKS_NAME.getString() : FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_PERMISSIONS_NAME.getString();
+            List<String> lore = menu.getView().equals("permissions") ? FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_RANKS_LORE.getStringList() : FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_PERMISSIONS_LORE.getStringList();
+            Material material = menu.getView().equals("permissions") ? FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_RANKS_MATERIAL.getMaterial() : FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_PERMISSIONS_MATERIAL.getMaterial();
+            int data = menu.getView().equals("permissions") ? FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_RANKS_DATA.getInt() : FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_PERMISSIONS_DATA.getInt();
 
-            return new ItemBuilder(material).setName(name).create();
+            return new ItemBuilder(material).setName(name).setLore(lore).setDurability(data).create();
         }
 
         @Override
@@ -157,15 +159,18 @@ public class GrantsMenu extends PagedMenu<Grant> {
 
         @Override
         public void action(InventoryClickEvent event) {
-            event.setCancelled(true);
+            if (!(event.getWhoClicked() instanceof Player)) return;
+
+            Player player = (Player) event.getWhoClicked();
+
             if (grant.isRemoved()) {
                 return;
             }
 
-            GrantListener.grantRemoveMap.put(event.getWhoClicked().getName(), grant);
-            GrantListener.grantTargetRemoveMap.put(event.getWhoClicked().getName(), target);
-            event.getWhoClicked().closeInventory();
-            event.getWhoClicked().sendMessage(CC.translate("&aType the reason for removing this grant. Type 'cancel' to stop this process."));
+            GrantListener.grantRemoveMap.put(player.getName(), grant);
+            GrantListener.grantTargetRemoveMap.put(player.getName(), target);
+            player.closeInventory();
+            player.sendMessage(CC.translate("&aType the reason for removing this grant. Type 'cancel' to stop this process."));
         }
     }
 
@@ -224,15 +229,18 @@ public class GrantsMenu extends PagedMenu<Grant> {
 
         @Override
         public void action(InventoryClickEvent event) {
-            event.setCancelled(true);
+            if (!(event.getWhoClicked() instanceof Player)) return;
+
+            Player player = (Player) event.getWhoClicked();
+
             if (permission.isRemoved()) {
                 return;
             }
 
-            GrantListener.grantRemovePermMap.put(event.getWhoClicked().getName(), permission);
-            GrantListener.grantTargetRemoveMap.put(event.getWhoClicked().getName(), target);
-            event.getWhoClicked().closeInventory();
-            event.getWhoClicked().sendMessage(CC.translate("&aType the reason for removing this grant. Type 'cancel' to stop this process."));
+            GrantListener.grantRemovePermMap.put(player.getName(), permission);
+            GrantListener.grantTargetRemoveMap.put(player.getName(), target);
+            player.closeInventory();
+            player.sendMessage(CC.translate("&aType the reason for removing this grant. Type 'cancel' to stop this process."));
         }
     }
 }

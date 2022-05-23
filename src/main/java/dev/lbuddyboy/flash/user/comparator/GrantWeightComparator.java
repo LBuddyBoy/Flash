@@ -1,4 +1,4 @@
-package dev.lbuddyboy.flash.user.grant.comparator;
+package dev.lbuddyboy.flash.user.comparator;
 
 import dev.lbuddyboy.flash.rank.comparator.RankWeightComparator;
 import dev.lbuddyboy.flash.user.model.Grant;

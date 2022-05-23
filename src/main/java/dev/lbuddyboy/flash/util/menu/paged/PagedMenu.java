@@ -34,10 +34,7 @@ public abstract class PagedMenu<T> extends Menu {
 
     @Override
     public String getTitle(Player player) {
-
-        String title = getPageTitle(player) + " (" + page + "/" + getMaxPages(objects) + ")";
-
-        return title.substring(0, 15);
+        return getPageTitle(player) + " (" + page + "/" + getMaxPages(objects) + ")";
     }
 
     @Override

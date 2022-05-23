@@ -3,8 +3,9 @@ package dev.lbuddyboy.flash.user;
 import dev.lbuddyboy.flash.Flash;
 import dev.lbuddyboy.flash.FlashLanguage;
 import dev.lbuddyboy.flash.rank.Rank;
-import dev.lbuddyboy.flash.user.grant.comparator.GrantDateComparator;
-import dev.lbuddyboy.flash.user.grant.comparator.GrantWeightComparator;
+import dev.lbuddyboy.flash.user.comparator.GrantDateComparator;
+import dev.lbuddyboy.flash.user.comparator.GrantWeightComparator;
+import dev.lbuddyboy.flash.user.comparator.UserPermissionDateComparator;
 import dev.lbuddyboy.flash.user.model.Grant;
 import dev.lbuddyboy.flash.user.model.UserPermission;
 import dev.lbuddyboy.flash.util.CC;
@@ -23,11 +24,14 @@ public abstract class User {
     public UUID uuid = null;
     public String name = null;
     public String ip = null;
-    public String lastServer = null;
     public List<UserPermission> permissions = new ArrayList<>();
     public List<String> knownIps = new ArrayList<>();
     public List<Grant> grants = new ArrayList<>();
     public Grant activeGrant = null;
+
+    public boolean online;
+    public String currentServer = null;
+    public String lastServer = null;
 
     public abstract void load();
     public abstract void save(boolean async);
@@ -51,9 +55,22 @@ public abstract class User {
         return this.grants.stream().filter(grant -> !grant.isExpired() && !grant.isRemoved()).collect(Collectors.toList());
     }
 
+    public List<Grant> getSortedGrants() {
+        return this.grants.stream().sorted(new GrantWeightComparator().reversed().thenComparing(new GrantDateComparator().reversed())).collect(Collectors.toList());
+    }
+
+    public List<UserPermission> getActivePermissions() {
+        return this.permissions.stream().filter(permission -> !permission.isExpired() && !permission.isRemoved()).collect(Collectors.toList());
+    }
+
+    public List<UserPermission> getSortedPermissions() {
+        return this.permissions.stream().sorted(new UserPermissionDateComparator().reversed().thenComparing(new UserPermissionDateComparator().reversed())).collect(Collectors.toList());
+    }
+
     public void updateGrants() {
         for (Grant grant : grants) {
-            if (grant.isRemoved() || grant.isExpired()) continue;
+            if (grant.isRemoved()) continue;
+            if (!grant.isExpired()) continue;
 
             grant.setRemovedAt(System.currentTimeMillis());
             grant.setRemovedFor("Expired");
@@ -106,16 +123,15 @@ public abstract class User {
 
         PermissionAttachment attachment = player.addAttachment(Flash.getInstance());
 
-        for (String perm : activeGrant.getRank().getPermissions()) { // Rank perms
+        for (String perm : getActiveRank().getPermissions()) { // Rank perms
             attachment.setPermission(perm, true);
         }
 
-        for (String perm : activeGrant.getRank().getInheritedPermissions()) { // Rank inherited perms
+        for (String perm : getActiveRank().getInheritedPermissions()) { // Rank inherited perms
             attachment.setPermission(perm, true);
         }
 
-        for (UserPermission userPermission : permissions) { // User specific perms
-            if (userPermission.isRemoved()) continue;
+        for (UserPermission userPermission : getActivePermissions()) { // User specific perms
             attachment.setPermission(userPermission.getNode(), true);
         }
 

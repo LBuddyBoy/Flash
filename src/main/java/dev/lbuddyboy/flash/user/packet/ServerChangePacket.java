@@ -24,7 +24,6 @@ public class ServerChangePacket implements JedisPacket {
                 CC.broadCastStaff(FlashLanguage.SERVER_CHANGE_LEAVE_NETWORK.getString(), "%PLAYER%", this.player, "%FROM-SERVER%", this.fromServer);
                 return;
             }
-            CC.broadCastStaff(FlashLanguage.SERVER_CHANGE_LEAVE.getString(), "%PLAYER%", this.player, "%FROM-SERVER%", this.fromServer, "%TO-SERVER%", this.toServer);
             return;
         }
         if (fromServer == null) {

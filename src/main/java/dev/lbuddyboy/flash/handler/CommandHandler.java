@@ -25,17 +25,15 @@ public class CommandHandler {
     public CommandHandler() {
         this.commandManager = new PaperCommandManager(Flash.getInstance());
 
-        this.commandManager.getCommandCompletions().registerCompletion("uuid", c -> {
+        this.commandManager.getCommandContexts().registerContext(UUID.class, new UUIDParam());
+        this.commandManager.getCommandContexts().registerContext(Rank.class, new RankParam());
+
+        this.commandManager.getCommandCompletions().registerCompletion("target", c -> {
             List<String> players = new ArrayList<>();
             for (Player player : Bukkit.getOnlinePlayers()) {
                 if (player.hasMetadata("invisible") || player.hasMetadata("modmode")) continue;
                 players.add(player.getName());
             }
-
-            if (players.isEmpty()) {
-                players.add("No ones online :(");
-            }
-
             return players;
         });
 
@@ -47,9 +45,6 @@ public class CommandHandler {
 
             return ranks;
         });
-
-        this.commandManager.getCommandContexts().registerContext(UUID.class, new UUIDParam());
-        this.commandManager.getCommandContexts().registerContext(Rank.class, new RankParam());
 
         this.commandManager.registerCommand(new RankCommand());
         this.commandManager.registerCommand(new GrantCommand());

@@ -9,7 +9,7 @@ public class UUIDUtils {
 
     public static String formattedName(UUID uuid) {
         try {
-            User user = Flash.getInstance().getUserHandler().getUser(uuid, true);
+            User user = Flash.getInstance().getUserHandler().tryUser(uuid, true);
 
             if (user == null) {
                 return "&4Console";

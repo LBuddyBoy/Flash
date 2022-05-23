@@ -1,14 +1,10 @@
 package dev.lbuddyboy.flash.user.impl;
 
-import com.sun.org.apache.xpath.internal.functions.FuncLast;
 import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.handler.RedisHandler;
 import dev.lbuddyboy.flash.user.User;
 import dev.lbuddyboy.flash.user.model.Grant;
 import dev.lbuddyboy.flash.util.Tasks;
 import dev.lbuddyboy.flash.util.gson.GSONUtils;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.io.IOException;
@@ -36,7 +32,9 @@ public class FlatFileUser extends User {
 
         this.name = config.getString(path + "name");
         this.ip = config.getString(path + "ip");
+        this.online = config.getBoolean(path + "online");
         this.lastServer = config.getString(path + "lastServer");
+        this.currentServer = config.getString(path + "currentServer");
         this.knownIps = config.getStringList(path + "knownIps");
         this.permissions = GSONUtils.getGSON().fromJson(config.getString(path + "permissions"), GSONUtils.USER_PERMISSION);
         this.grants = GSONUtils.getGSON().fromJson(config.getString(path + "grants"), GSONUtils.GRANT);
@@ -60,6 +58,8 @@ public class FlatFileUser extends User {
             config.set(path + "name", this.name);
             config.set(path + "ip", this.ip);
             config.set(path + "lastServer", this.lastServer);
+            config.set(path + "currentServer", this.currentServer);
+            config.set(path + "online", this.online);
             config.set(path + "knownIps", this.knownIps);
             config.set(path + "permissions", GSONUtils.getGSON().toJson(this.permissions, GSONUtils.USER_PERMISSION));
             config.set(path + "grants", GSONUtils.getGSON().toJson(this.grants, GSONUtils.GRANT));

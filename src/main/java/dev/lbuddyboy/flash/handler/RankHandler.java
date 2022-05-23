@@ -5,6 +5,7 @@ import dev.lbuddyboy.flash.FlashLanguage;
 import dev.lbuddyboy.flash.rank.Rank;
 import dev.lbuddyboy.flash.rank.command.RankCommand;
 import dev.lbuddyboy.flash.rank.command.param.RankParam;
+import dev.lbuddyboy.flash.rank.comparator.RankWeightComparator;
 import dev.lbuddyboy.flash.rank.impl.FlatFileRank;
 import dev.lbuddyboy.flash.rank.impl.MongoRank;
 import dev.lbuddyboy.flash.rank.impl.RedisRank;
@@ -20,9 +21,12 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bson.Document;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -45,17 +49,16 @@ public class RankHandler {
         Tasks.run(() -> {
             loadAll();
 
-            boolean needsDefault = true;
             for (Rank rank : ranks.values()) {
                 if (rank.isDefaultRank()) {
-                    needsDefault = false;
                     this.defaultRank = rank;
                     break;
                 }
             }
-            if (needsDefault) {
+            if (getDefaultRank() == null) {
                 this.defaultRank = createRank("Default");
                 this.defaultRank.setDefaultRank();
+                ranks.put(this.defaultRank.getUuid(), this.defaultRank);
             }
 
             new RanksUpdatePacket(this.ranks).send();
@@ -113,6 +116,17 @@ public class RankHandler {
             case "YAML": return new FlatFileRank(name);
             default: return null;
         }
+    }
+
+    public List<Rank> getSortedRanks() {
+        return ranks.values().stream().sorted(new RankWeightComparator().reversed()).collect(Collectors.toList());
+    }
+
+    public Rank getDefaultRank() {
+        for (Rank rank : getRanks().values()) {
+            if (rank.isDefaultRank()) return rank;
+        }
+        return null;
     }
 
 }

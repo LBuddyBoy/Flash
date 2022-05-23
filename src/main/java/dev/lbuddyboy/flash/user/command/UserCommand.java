@@ -6,12 +6,13 @@ import dev.lbuddyboy.flash.Flash;
 import dev.lbuddyboy.flash.FlashLanguage;
 import dev.lbuddyboy.flash.rank.Rank;
 import dev.lbuddyboy.flash.user.User;
-import dev.lbuddyboy.flash.user.impl.RedisUser;
 import dev.lbuddyboy.flash.user.model.Grant;
 import dev.lbuddyboy.flash.user.model.UserPermission;
+import dev.lbuddyboy.flash.user.packet.GlobalMessagePacket;
 import dev.lbuddyboy.flash.user.packet.UserUpdatePacket;
 import dev.lbuddyboy.flash.util.CC;
 import dev.lbuddyboy.flash.util.JavaUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -20,34 +21,36 @@ import java.util.UUID;
 @CommandAlias("user|profile")
 public class UserCommand extends BaseCommand {
 
+    @Default
+    public static void help(CommandSender sender) {
+
+    }
+
     @Subcommand("info")
-    public static void info(CommandSender sender, @Name("user") UUID uuid) {
-        User user = Flash.getInstance().getUserHandler().getUser(uuid, true);
+    @CommandCompletion("@target")
+    public static void info(CommandSender sender, @Name("target") UUID uuid) {
+        User user = Flash.getInstance().getUserHandler().tryUser(uuid, true);
 
         if (user == null) {
             sender.sendMessage(CC.translate(FlashLanguage.INVALID_USER.getString()));
             return;
         }
 
-        sender.sendMessage(CC.translate(user.getUuid().toString()));
-        sender.sendMessage(CC.translate(user.getName()));
-        sender.sendMessage(CC.translate(user.getIp()));
-        sender.sendMessage(CC.translate(user.getActiveRank().getColoredName()));
-        if (user instanceof RedisUser) {
-            sender.sendMessage(CC.translate(((RedisUser) user).toJson()));
-        }
+
     }
 
     @Subcommand("addperm|addpermission")
+    @CommandCompletion("@target")
     public static void permissionAdd(CommandSender sender, @Name("user") UUID uuid, @Single @Name("permission") String permission, @Single @Name("duration") String duration, @Name("reason") String reason) {
         long time = JavaUtils.parse(duration);
         if (duration.equalsIgnoreCase("perm")) time = Long.MAX_VALUE;
 
         if (time <= 0) {
+            sender.sendMessage(CC.translate("&cInvalid duration."));
             return;
         }
 
-        User user = Flash.getInstance().getUserHandler().getUser(uuid, true);
+        User user = Flash.getInstance().getUserHandler().tryUser(uuid, true);
 
         if (user == null) {
             sender.sendMessage(CC.translate(FlashLanguage.INVALID_USER.getString()));
@@ -61,23 +64,31 @@ public class UserCommand extends BaseCommand {
 
         new UserUpdatePacket(uuid, user).send();
 
-        sender.sendMessage(CC.translate(FlashLanguage.GRANTED_USER_PERMISSION.getString(),
+        sender.sendMessage(CC.translate(FlashLanguage.GRANTED_USER_PERMISSION_SENDER.getString(),
                 "%PLAYER_DISPLAY%", user.getDisplayName(),
                 "%PERMISSION%", userPermission.getNode(),
                 "%DURATION%", userPermission.getExpireString()));
 
+        String message = CC.translate(FlashLanguage.GRANTED_USER_PERMISSION_TARGET.getString(),
+                "%PERMISSION%", userPermission.getNode(),
+                "%DURATION%", userPermission.getExpireString());
+
+        new GlobalMessagePacket(uuid, message).send();
+
     }
 
     @Subcommand("addrank|grant")
+    @CommandCompletion("@target @rank")
     public static void rankAdd(CommandSender sender, @Name("user") UUID uuid, @Single @Name("rank") Rank rank, @Name("duration") @Single String duration, @Name("scopes") @Split String[] scopes, @Name("reason") String reason) {
         long time = JavaUtils.parse(duration);
         if (duration.equalsIgnoreCase("perm")) time = Long.MAX_VALUE;
 
         if (time <= 0) {
+            sender.sendMessage(CC.translate("&cInvalid duration."));
             return;
         }
 
-        User user = Flash.getInstance().getUserHandler().getUser(uuid, true);
+        User user = Flash.getInstance().getUserHandler().tryUser(uuid, true);
 
         if (user == null) {
             sender.sendMessage(CC.translate(FlashLanguage.INVALID_USER.getString()));
@@ -92,10 +103,16 @@ public class UserCommand extends BaseCommand {
 
         new UserUpdatePacket(uuid, user).send();
 
-        sender.sendMessage(CC.translate(FlashLanguage.GRANTED_USER_RANK.getString(),
+        sender.sendMessage(CC.translate(FlashLanguage.GRANTED_USER_RANK_SENDER.getString(),
                 "%PLAYER_DISPLAY%", user.getDisplayName(),
                 "%RANK%", rank.getDisplayName(),
                 "%DURATION%", grant.getExpireString()));
+
+        String message = CC.translate(FlashLanguage.GRANTED_USER_RANK_TARGET.getString(),
+                "%RANK%", rank.getDisplayName(),
+                "%DURATION%", grant.getExpireString());
+
+        new GlobalMessagePacket(uuid, message).send();
 
     }
 

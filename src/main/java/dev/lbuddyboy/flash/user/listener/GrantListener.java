@@ -48,7 +48,16 @@ public class GrantListener implements Listener {
         Grant grant = grantRemoveMap.remove(event.getPlayer().getName());
         UUID uuid = grantTargetRemoveMap.remove(event.getPlayer().getName());
 
-        User user = Flash.getInstance().getUserHandler().getUser(uuid, true);
+        if (event.getMessage().equalsIgnoreCase("cancel")) {
+            Tasks.run(() -> {
+                GrantsMenu grantsMenu = new GrantsMenu(uuid);
+                grantsMenu.setView("ranks");
+                grantsMenu.openMenu(event.getPlayer());
+            });
+            return;
+        }
+
+        User user = Flash.getInstance().getUserHandler().tryUser(uuid, true);
 
         grant.setRemovedFor(event.getMessage());
         grant.setRemovedAt(System.currentTimeMillis());
@@ -71,8 +80,13 @@ public class GrantListener implements Listener {
 
         event.setCancelled(true);
 
-        GrantBuild grantBuild = grantTargetMap.get(event.getPlayer().getName());
+        GrantBuild grantBuild = grantTargetMap.remove(event.getPlayer().getName());
         UUID target = grantBuild.getTarget();
+
+        if (event.getMessage().equalsIgnoreCase("cancel")) {
+            Tasks.run(() -> new GrantMenu(target).openMenu(event.getPlayer()));
+            return;
+        }
 
         if (grantBuild.getReason() == null) {
 
@@ -108,8 +122,13 @@ public class GrantListener implements Listener {
 
         event.setCancelled(true);
 
-        PermissionBuild permissionBuild = grantPermissionTargetMap.get(event.getPlayer().getName());
+        PermissionBuild permissionBuild = grantPermissionTargetMap.remove(event.getPlayer().getName());
         UUID target = permissionBuild.getTarget();
+
+        if (event.getMessage().equalsIgnoreCase("cancel")) {
+            Tasks.run(() -> new GrantMenu(target).openMenu(event.getPlayer()));
+            return;
+        }
 
         if (permissionBuild.getNode() == null) {
 
@@ -146,7 +165,16 @@ public class GrantListener implements Listener {
         UserPermission permission = grantRemovePermMap.remove(event.getPlayer().getName());
         UUID uuid = grantTargetRemoveMap.remove(event.getPlayer().getName());
 
-        User user = Flash.getInstance().getUserHandler().getUser(uuid, true);
+        if (event.getMessage().equalsIgnoreCase("cancel")) {
+            Tasks.run(() -> {
+                GrantsMenu grantsMenu = new GrantsMenu(uuid);
+                grantsMenu.setView("permissions");
+                grantsMenu.openMenu(event.getPlayer());
+            });
+            return;
+        }
+
+        User user = Flash.getInstance().getUserHandler().tryUser(uuid, true);
 
         permission.setRemovedFor(event.getMessage());
         permission.setRemovedAt(System.currentTimeMillis());

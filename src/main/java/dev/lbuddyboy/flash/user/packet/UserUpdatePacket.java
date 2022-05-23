@@ -17,14 +17,14 @@ public class UserUpdatePacket implements JedisPacket {
     @Override
     public void onReceive() {
         Tasks.runAsync(() -> {
-            User user = Flash.getInstance().getUserHandler().getUser(this.uuid, false);
+            User user = Flash.getInstance().getUserHandler().tryUser(this.uuid, false);
 
             if (user == null) {
                 // return here because we only want to update them if they are in the cache
                 return;
             }
 
-            user.setLastServer(newUser.getLastServer());
+            user.setCurrentServer(newUser.getCurrentServer());
             user.setIp(newUser.getIp());
             user.setName(newUser.getName());
             user.setGrants(newUser.getGrants());

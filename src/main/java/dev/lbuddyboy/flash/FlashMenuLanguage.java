@@ -39,6 +39,14 @@ public enum FlashMenuLanguage {
     )),
     GRANT_MENU_PERMISSION_BUTTON_MATERIAL("GRANT_MENU.PERMISSION-BUTTON.MATERIAL", "PAPER"),
 
+    GRANT_MENU_RANK_MENU_TITLE("GRANT_MENU.RANK-MENU.TITLE", "All Ranks"),
+    GRANT_MENU_RANK_MENU_RANK_BUTTON_NAME("GRANT_MENU.RANK-MENU.RANK-BUTTON.NAME", "%RANK_COLORED%"),
+    GRANT_MENU_RANK_MENU_RANK_BUTTON_LORE("GRANT_MENU.RANK-MENU.RANK-BUTTON.LORE", Arrays.asList(
+            CC.MENU_BAR,
+            "&fClick to grant &r%PLAYER%&f the &r%RANK_COLORED% &frank.",
+            CC.MENU_BAR
+    )),
+
     GRANTS_MENU_DEFAULT_GRANT_BUTTON_NAME("GRANTS_MENU.GRANT-DEFAULT-BUTTON.NAME", "&4%ADDEDAT%"),
     GRANTS_MENU_DEFAULT_GRANT_BUTTON_DATA("GRANTS_MENU.GRANT-DEFAULT-BUTTON.DATA", 5),
     GRANTS_MENU_DEFAULT_GRANT_BUTTON_LORE("GRANTS_MENU.GRANT-DEFAULT-BUTTON.LORE", Arrays.asList(
@@ -46,6 +54,7 @@ public enum FlashMenuLanguage {
             "&4Added By&7:&f %ADDEDBY%",
             "&4Added For&7:&f %ADDEDFOR%",
             "&4Added Rank&7: &f%RANK%",
+            "&4Scopes&7: &f%SCOPES%",
             "&4Time Left&7: &f%TIMELEFT%",
             "",
             "&fClick to remove this grant.",
@@ -62,6 +71,7 @@ public enum FlashMenuLanguage {
             "&4Added By&7:&f %ADDEDBY%",
             "&4Added For&7:&f %ADDEDFOR%",
             "&4Added Rank&7: &f%RANK%",
+            "&4Scopes&7: &f%SCOPES%",
             CC.MENU_BAR,
             "&4&lRemoved Information",
             CC.MENU_BAR,
@@ -80,6 +90,7 @@ public enum FlashMenuLanguage {
             "&4Added By&7:&f %ADDEDBY%",
             "&4Added For&7:&f %ADDEDFOR%",
             "&4Added Permission&7: &f%PERMISSION%",
+            "&4Scopes&7: &f%SCOPES%",
             "&4Time Left&7: &f%TIMELEFT%",
             "",
             "&fClick to remove this permission.",
@@ -96,6 +107,7 @@ public enum FlashMenuLanguage {
             "&4Added By&7:&f %ADDEDBY%",
             "&4Added For&7:&f %ADDEDFOR%",
             "&4Added Permission&7: &f%PERMISSION%",
+            "&4Scopes&7: &f%SCOPES%",
             CC.MENU_BAR,
             "&4&lRemoved Information",
             CC.MENU_BAR,
@@ -104,7 +116,27 @@ public enum FlashMenuLanguage {
             "&4Removed At&7: &f%REMOVEDAT%",
             CC.MENU_BAR
     )),
-    GRANTS_MENU_REMOVED_PERMISSION_BUTTON_MATERIAL("GRANT_MENU.PERMISSION-REMOVED-BUTTON.MATERIAL", "WOOL");
+    GRANTS_MENU_REMOVED_PERMISSION_BUTTON_MATERIAL("GRANT_MENU.PERMISSION-REMOVED-BUTTON.MATERIAL", "WOOL"),
+
+    GRANTS_MENU_SWITCH_BUTTON_RANKS_NAME("GRANTS_MENU.SWITCH-BUTTON.RANKS.NAME", "&b&lView Ranks"),
+    GRANTS_MENU_SWITCH_BUTTON_RANKS_DATA("GRANTS_MENU.SWITCH-BUTTON.RANKS.DATA", 0),
+    GRANTS_MENU_SWITCH_BUTTON_RANKS_SLOT("GRANTS_MENU.SWITCH-BUTTON.RANKS.SLOT", 5),
+    GRANTS_MENU_SWITCH_BUTTON_RANKS_LORE("GRANTS_MENU.SWITCH-BUTTON.RANKS.LORE", Arrays.asList(
+            CC.MENU_BAR,
+            "&fClick to view all &brank&f grants.",
+            CC.MENU_BAR
+    )),
+    GRANTS_MENU_SWITCH_BUTTON_RANKS_MATERIAL("GRANTS_MENU.SWITCH-BUTTON.RANKS.MATERIAL", "DIAMOND"),
+
+    GRANTS_MENU_SWITCH_BUTTON_PERMISSIONS_NAME("GRANTS_MENU.SWITCH-BUTTON.PERMISSIONS.NAME", "&e&lView Permissions"),
+    GRANTS_MENU_SWITCH_BUTTON_PERMISSIONS_DATA("GRANTS_MENU.SWITCH-BUTTON.PERMISSIONS.DATA", 0),
+    GRANTS_MENU_SWITCH_BUTTON_PERMISSIONS_SLOT("GRANTS_MENU.SWITCH-BUTTON.PERMISSIONS.SLOT", 5),
+    GRANTS_MENU_SWITCH_BUTTON_PERMISSIONS_LORE("GRANTS_MENU.SWITCH-BUTTON.PERMISSIONS.LORE", Arrays.asList(
+            CC.MENU_BAR,
+            "&fClick to view all &epermission&f grants.",
+            CC.MENU_BAR
+    )),
+    GRANTS_MENU_SWITCH_BUTTON_PERMISSIONS_MATERIAL("GRANTS_MENU.SWITCH-BUTTON.PERMISSIONS.MATERIAL", "PAPER");
 
 
     private final String path;
@@ -147,6 +179,8 @@ public enum FlashMenuLanguage {
     }
 
     public void loadDefault() {
+        if (Flash.getInstance().getMenusYML().gc().contains(this.path)) return;
+
         Flash.getInstance().getMenusYML().gc().set(this.path, this.value);
         try {
             Flash.getInstance().getMenusYML().save();

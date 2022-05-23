@@ -13,11 +13,16 @@ import org.bukkit.command.CommandSender;
 @CommandAlias("rank|ranks")
 public class RankCommand extends BaseCommand {
 
+    @Default
+    public static void help(CommandSender sender) {
+
+    }
+
     @Subcommand("list|dump")
     public static void list(CommandSender sender) {
         for (String s : FlashLanguage.RANK_LIST_HEADER.getStringList()) sender.sendMessage(CC.translate(s));
 
-        for (Rank rank : Flash.getInstance().getRankHandler().getRanks().values()) {
+        for (Rank rank : Flash.getInstance().getRankHandler().getSortedRanks()) {
             sender.sendMessage(CC.translate(FlashLanguage.RANK_LIST_FORMAT.getString(),
                     "%rank%", rank.getName(),
                     "%display%", rank.getDisplayName(),
@@ -33,7 +38,13 @@ public class RankCommand extends BaseCommand {
     @Subcommand("create")
     @CommandPermission("flash.command.rank.create")
     public static void create(CommandSender sender, @Name("rank") String name) {
-        Rank rank = Flash.getInstance().getRankHandler().createRank(name);
+        Rank rank = Flash.getInstance().getRankHandler().getRank(name);
+
+        if (rank != null) {
+            sender.sendMessage(CC.translate(FlashLanguage.RANK_EXISTS.getString()));
+            return;
+        }
+        rank = Flash.getInstance().getRankHandler().createRank(name);
 
         rank.setDisplayName(name);
         rank.save(true);
@@ -48,6 +59,7 @@ public class RankCommand extends BaseCommand {
 
     @Subcommand("delete")
     @CommandPermission("flash.command.rank.delete")
+    @CommandCompletion("@rank")
     public static void delete(CommandSender sender, @Name("rank") Rank rank) {
         if (FlashLanguage.CACHE_TYPE.getString().equalsIgnoreCase("YAML") || FlashLanguage.CACHE_TYPE.getString().equalsIgnoreCase("FLATFILE")) {
             sender.sendMessage(CC.translate("&cRanks cannot be deleted due to the cache type you are using. Delete it manually in the ranks.yml."));
@@ -62,7 +74,8 @@ public class RankCommand extends BaseCommand {
 
     @Subcommand("toggledefault")
     @CommandPermission("flash.command.rank.toggledefault")
-    public static void toggleDefault(CommandSender sender, @Name("rank") @Flags("rank") Rank rank) {
+    @CommandCompletion("@rank")
+    public static void toggleDefault(CommandSender sender, @Name("rank") Rank rank) {
         String previous = rank.isDefaultRank() ? "True" : "False";
 
         rank.setDefaultRank();
@@ -76,7 +89,8 @@ public class RankCommand extends BaseCommand {
 
     @Subcommand("setname|name|rename")
     @CommandPermission("flash.command.rank.setname")
-    public static void setName(CommandSender sender, @Name("rank") @Flags("rank") Rank rank, @Name("newName") String newName) {
+    @CommandCompletion("@rank")
+    public static void setName(CommandSender sender, @Name("rank") Rank rank, @Name("newName") String newName) {
         String previous = rank.getColoredName();
 
         rank.setName(newName);
@@ -90,7 +104,8 @@ public class RankCommand extends BaseCommand {
 
     @Subcommand("setdisplayname|displayname|setdisplay")
     @CommandPermission("flash.command.rank.setdisplayname")
-    public static void setDisplayName(CommandSender sender, @Name("rank") @Flags("rank") Rank rank, @Name("newDisplay") String newDisplayName) {
+    @CommandCompletion("@rank")
+    public static void setDisplayName(CommandSender sender, @Name("rank") Rank rank, @Name("newDisplay") String newDisplayName) {
         String previous = rank.getDisplayName();
 
         rank.setDisplayName(newDisplayName);
@@ -104,7 +119,8 @@ public class RankCommand extends BaseCommand {
 
     @Subcommand("setcolor|color|setdisplaycolor")
     @CommandPermission("flash.command.rank.setcolor")
-    public static void setColor(CommandSender sender, @Name("rank") @Flags("rank") Rank rank, @Name("newColor") String color) {
+    @CommandCompletion("@rank @chatcolors")
+    public static void setColor(CommandSender sender, @Name("rank") Rank rank, @Name("newColor") String color) {
         String previous = rank.getColor() + rank.getColor().name();
 
         ChatColor chatColor = null;
@@ -125,7 +141,8 @@ public class RankCommand extends BaseCommand {
 
     @Subcommand("setweight|weight|setpriority")
     @CommandPermission("flash.command.rank.setweight")
-    public static void setWeight(CommandSender sender, @Name("rank") @Flags("rank") Rank rank, @Name("newWeight") int weight) {
+    @CommandCompletion("@rank")
+    public static void setWeight(CommandSender sender, @Name("rank") Rank rank, @Name("newWeight") int weight) {
         int previous = rank.getWeight();
         
         rank.setWeight(weight);
@@ -139,7 +156,8 @@ public class RankCommand extends BaseCommand {
 
     @Subcommand("setprefix|prefix")
     @CommandPermission("flash.command.rank.setprefix")
-    public static void setPrefix(CommandSender sender, @Name("rank") @Flags("rank") Rank rank, @Name("prefix") String prefix) {
+    @CommandCompletion("@rank")
+    public static void setPrefix(CommandSender sender, @Name("rank") Rank rank, @Name("prefix") String prefix) {
         String previous = rank.getPrefix();
         
         rank.setPrefix(prefix);
@@ -153,7 +171,8 @@ public class RankCommand extends BaseCommand {
 
     @Subcommand("setsuffix|suffix")
     @CommandPermission("flash.command.rank.setsuffix")
-    public static void setSuffix(CommandSender sender, @Name("rank") @Flags("rank") Rank rank, @Name("prefix") String suffix) {
+    @CommandCompletion("@rank")
+    public static void setSuffix(CommandSender sender, @Name("rank") Rank rank, @Name("prefix") String suffix) {
         String previous = rank.getPrefix();
         
         rank.setSuffix(suffix);
@@ -167,7 +186,8 @@ public class RankCommand extends BaseCommand {
 
     @Subcommand("addpermission|addperm")
     @CommandPermission("flash.command.rank.addpermission")
-    public static void addPermission(CommandSender sender, @Name("rank") @Flags("rank") Rank rank, @Name("permission") String permission) {
+    @CommandCompletion("@rank")
+    public static void addPermission(CommandSender sender, @Name("rank") Rank rank, @Name("permission") String permission) {
 
         if (rank.getPermissions().contains(permission)) {
             sender.sendMessage(CC.translate("&cThat rank already has that permission."));
@@ -185,7 +205,8 @@ public class RankCommand extends BaseCommand {
 
     @Subcommand("removepermission|removeperm")
     @CommandPermission("flash.command.rank.removepermission")
-    public static void removePermission(CommandSender sender, @Name("rank") @Flags("rank") Rank rank, @Name("permission") String permission) {
+    @CommandCompletion("@rank")
+    public static void removePermission(CommandSender sender, @Name("rank") Rank rank, @Name("permission") String permission) {
 
         if (!rank.getPermissions().contains(permission)) {
             sender.sendMessage(CC.translate("&cThat rank does not have that permission."));

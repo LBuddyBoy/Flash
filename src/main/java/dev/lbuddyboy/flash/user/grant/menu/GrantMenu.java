@@ -123,12 +123,12 @@ public class GrantMenu extends Menu {
 
         public RanksMenu(UUID uuid) {
             this.uuid = uuid;
-            this.objects = new ArrayList<>(Flash.getInstance().getRankHandler().getRanks().values());
+            this.objects = Flash.getInstance().getRankHandler().getSortedRanks();
         }
 
         @Override
         public String getPageTitle(Player player) {
-            return "All Ranks";
+            return CC.translate(FlashMenuLanguage.GRANT_MENU_RANK_MENU_TITLE.getString());
         }
 
         @Override
@@ -174,8 +174,8 @@ public class GrantMenu extends Menu {
         public ItemStack getItem() {
             return new ItemBuilder(Material.WOOL)
                     .setDurability(ColorUtil.COLOR_MAP.get(rank.getColor()).getWoolData())
-                    .setName(rank.getColoredName())
-                    .setLore("&aClick to grant the " + rank.getColoredName() + "&a rank to " + UUIDUtils.formattedName(target) + "&a.")
+                    .setName(CC.applyRank(CC.applyPlayer(FlashMenuLanguage.GRANT_MENU_RANK_MENU_RANK_BUTTON_NAME.getString(), target), rank))
+                    .setLore(CC.applyRank(CC.applyPlayer(FlashMenuLanguage.GRANT_MENU_RANK_MENU_RANK_BUTTON_LORE.getStringList(), target), rank))
                     .create();
         }
 

@@ -34,22 +34,19 @@ public class UserListener implements Listener {
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         Tasks.runAsync(() -> {
-            User user = Flash.getInstance().getUserHandler().getUser(event.getPlayer().getUniqueId(), false);
+            User user = Flash.getInstance().getUserHandler().tryUser(event.getPlayer().getUniqueId(), true);
 
-            if (player.hasPermission("flash.staff")) {
-                Tasks.runAsyncLater(() -> {
-                    if (user.getLastServer() == null) {
-                        new ServerChangePacket(true, player.getDisplayName(), null, user.getLastServer()).send();
-                    } else {
-                        new ServerChangePacket(true, player.getDisplayName(), FlashLanguage.SERVER_NAME.getString(), user.getLastServer()).send();
-                    }
-                }, 10);
-            }
+            user.setCurrentServer(FlashLanguage.SERVER_NAME.getString());
 
             user.updatePerms();
             user.updateGrants();
             user.buildPlayer();
-            user.setLastServer(FlashLanguage.SERVER_NAME.getString());
+
+            if (player.hasPermission("flash.staff")) {
+                new ServerChangePacket(true, player.getDisplayName(), FlashLanguage.SERVER_NAME.getString(), user.getLastServer()).send();
+            }
+
+            user.setLastServer(null);
         });
 
     }
@@ -60,7 +57,8 @@ public class UserListener implements Listener {
 
         User user = Flash.getInstance().getUserHandler().getUsers().remove(player.getUniqueId());
 
-        user.setLastServer(null);
+        user.setCurrentServer(null);
+        user.setLastServer(FlashLanguage.SERVER_NAME.getString());
         user.updateGrants();
 
         user.save(true);
@@ -69,13 +67,11 @@ public class UserListener implements Listener {
             Tasks.runAsyncLater(() -> {
                 User staff = Flash.getInstance().getUserHandler().getUser(player.getUniqueId(), true);
 
-                if (staff.getLastServer() == null) {
+                if (staff.getCurrentServer() == null) {
                     new ServerChangePacket(false, player.getDisplayName(), null, FlashLanguage.SERVER_NAME.getString()).send();
-                    return;
                 }
 
-                new ServerChangePacket(false, player.getDisplayName(), user.getLastServer(), FlashLanguage.SERVER_NAME.getString()).send();
-            }, 10);
+            }, 20);
         }
 
     }

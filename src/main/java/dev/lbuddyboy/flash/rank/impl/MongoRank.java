@@ -89,7 +89,9 @@ public class MongoRank extends Rank {
             document.put("weight", this.weight);
             document.put("prefix", this.prefix);
             document.put("suffix", this.suffix);
+            document.put("default", this.defaultRank);
             document.put("permissions", GSONUtils.getGSON().toJson(this.permissions, GSONUtils.STRING));
+            document.put("inheritance", GSONUtils.getGSON().toJson(this.inheritance, GSONUtils.STRING));
 
             Flash.getInstance().getMongoHandler().getRankCollection().replaceOne(Filters.eq("uuid", this.uuid.toString()), document, new ReplaceOptions().upsert(true));
 

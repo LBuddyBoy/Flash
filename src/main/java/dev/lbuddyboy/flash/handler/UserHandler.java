@@ -67,6 +67,14 @@ public class UserHandler {
         return users.get(uuid);
     }
 
+    public User tryUser(UUID uuid, boolean searchDb) {
+        try {
+            return getUser(uuid, searchDb);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
     public User createUser(UUID uuid, String name) {
         switch (FlashLanguage.CACHE_TYPE.getString().toUpperCase()) {
             case "REDIS":

@@ -3,7 +3,6 @@ package dev.lbuddyboy.flash.user.impl;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.ReplaceOptions;
 import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.handler.RedisHandler;
 import dev.lbuddyboy.flash.user.User;
 import dev.lbuddyboy.flash.user.model.Grant;
 import dev.lbuddyboy.flash.util.Tasks;
@@ -23,33 +22,38 @@ public class MongoUser extends User {
 
     @Override
     public void load() {
-        Document document = Flash.getInstance().getMongoHandler().getUserCollection().find(Filters.eq("uuid", this.uuid.toString())).first();
+        try {
+            Document document = Flash.getInstance().getMongoHandler().getUserCollection().find(Filters.eq("uuid", this.uuid.toString())).first();
 
-        if (document == null) {
+            if (document.containsKey("name"))
+                this.name = document.getString("name");
+
+            if (document.containsKey("ip"))
+                this.ip = document.getString("ip");
+
+            if (document.containsKey("currentServer"))
+                this.currentServer = document.getString("currentServer");
+
+            if (document.containsKey("lastServer"))
+                this.lastServer = document.getString("lastServer");
+
+            if (document.containsKey("online"))
+                this.online = document.getBoolean("online");
+
+            if (document.containsKey("permissions"))
+                this.permissions = GSONUtils.getGSON().fromJson(document.getString("permissions"), GSONUtils.USER_PERMISSION);
+
+            if (document.containsKey("knownIps"))
+                this.knownIps = GSONUtils.getGSON().fromJson(document.getString("knownIps"), GSONUtils.STRING);
+
+            if (document.containsKey("grants"))
+                this.grants = GSONUtils.getGSON().fromJson(document.getString("grants"), GSONUtils.GRANT);
+
+            if (getActiveGrants().isEmpty()) {
+                this.grants.add(Grant.defaultGrant());
+            }
+        } catch (Exception ignored) {
             save(true, true);
-            return;
-        }
-
-        if (document.containsKey("name"))
-            this.name = document.getString("name");
-
-        if (document.containsKey("ip"))
-            this.ip = document.getString("ip");
-
-        if (document.containsKey("lastServer"))
-            this.lastServer = document.getString("lastServer");
-
-        if (document.containsKey("permissions"))
-            this.permissions = GSONUtils.getGSON().fromJson(document.getString("permissions"), GSONUtils.USER_PERMISSION);
-
-        if (document.containsKey("knownIps"))
-            this.knownIps = GSONUtils.getGSON().fromJson(document.getString("knownIps"), GSONUtils.STRING);
-
-        if (document.containsKey("grants"))
-            this.grants = GSONUtils.getGSON().fromJson(document.getString("grants"), GSONUtils.STRING);
-
-        if (this.grants.isEmpty()) {
-            this.grants.add(Grant.defaultGrant());
         }
     }
 
@@ -64,10 +68,10 @@ public class MongoUser extends User {
 
             document.put("uuid", this.uuid.toString());
             document.put("name", this.name);
-            document.put("lastServer", this.lastServer);
+            document.put("lastServer", this.currentServer);
             document.put("permissions", GSONUtils.getGSON().toJson(this.permissions, GSONUtils.USER_PERMISSION));
             document.put("knownIps", GSONUtils.getGSON().toJson(this.knownIps, GSONUtils.STRING));
-            document.put("grants", GSONUtils.getGSON().toJson(this.grants, GSONUtils.STRING));
+            document.put("grants", GSONUtils.getGSON().toJson(this.grants, GSONUtils.GRANT));
 
             Flash.getInstance().getMongoHandler().getUserCollection().replaceOne(Filters.eq("uuid", this.uuid.toString()), document, new ReplaceOptions().upsert(true));
 

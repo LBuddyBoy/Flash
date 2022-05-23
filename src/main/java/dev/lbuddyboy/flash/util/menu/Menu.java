@@ -34,7 +34,11 @@ public abstract class Menu {
     }
 
     public Inventory makeInventory(Player player) {
-        Inventory inventory = Bukkit.createInventory(null, getSize(player), getTitle(player));
+        String title = this.getTitle(player);
+
+        if (title.length() > 32) title = title.substring(0, 32);
+
+        Inventory inventory = Bukkit.createInventory(null, getSize(player), title);
 
         if (autoFill()) {
             for (int i = 0; i < inventory.getSize(); i++) {

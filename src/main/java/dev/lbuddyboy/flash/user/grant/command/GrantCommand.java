@@ -2,6 +2,7 @@ package dev.lbuddyboy.flash.user.grant.command;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Name;
 import dev.lbuddyboy.flash.Flash;
@@ -16,9 +17,10 @@ import java.util.UUID;
 public class GrantCommand extends BaseCommand {
 
     @Default
+    @CommandCompletion("@target")
     public static void grant(Player sender, @Name("target") UUID uuid) {
 
-        if (Flash.getInstance().getUserHandler().getUser(uuid, true) == null) {
+        if (Flash.getInstance().getUserHandler().tryUser(uuid, true) == null) {
             sender.sendMessage(CC.translate(FlashLanguage.INVALID_USER.getString()));
             return;
         }

@@ -39,7 +39,7 @@ public class Grant {
     }
 
     public boolean isRemoved() {
-        return removedBy != null;
+        return removedBy != null || removedAt > 0 || removedFor != null;
     }
 
     public boolean isExpired() {

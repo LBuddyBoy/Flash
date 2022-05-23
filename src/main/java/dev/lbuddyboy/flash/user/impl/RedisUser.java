@@ -3,14 +3,9 @@ package dev.lbuddyboy.flash.user.impl;
 import dev.lbuddyboy.flash.handler.RedisHandler;
 import dev.lbuddyboy.flash.user.User;
 import dev.lbuddyboy.flash.user.model.Grant;
-import dev.lbuddyboy.flash.user.model.UserPermission;
 import dev.lbuddyboy.flash.util.Tasks;
 import dev.lbuddyboy.flash.util.gson.GSONUtils;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 public class RedisUser extends User {
@@ -30,6 +25,7 @@ public class RedisUser extends User {
             this.name = user.getName();
             this.ip = user.getIp();
             this.lastServer = user.getLastServer();
+            this.currentServer = user.getCurrentServer();
             this.permissions = user.getPermissions();
             this.knownIps = user.getKnownIps();
             this.grants = user.getGrants();

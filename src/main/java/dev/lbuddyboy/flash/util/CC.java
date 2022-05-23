@@ -1,6 +1,8 @@
 package dev.lbuddyboy.flash.util;
 
 import dev.lbuddyboy.flash.Flash;
+import dev.lbuddyboy.flash.rank.Rank;
+import dev.lbuddyboy.flash.user.User;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
@@ -11,6 +13,7 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class CC {
@@ -71,6 +74,80 @@ public class CC {
 
 	public static String applySender(String message, String sender) {
 		return message.replaceAll("%SENDER%", sender);
+	}
+
+	public static String applyPlayer(String message, UUID uuid) {
+		User user = Flash.getInstance().getUserHandler().tryUser(uuid, true);
+		if (user == null) {
+			return CC.translate(message,
+					"%PLAYER%", Flash.getInstance().getCacheHandler().getUserCache().getName(uuid),
+					"%PLAYER_DISPLAY%", UUIDUtils.formattedName(uuid),
+					"%PLAYER_UUID%", uuid.toString()
+			);
+		}
+		Rank rank = user.getActiveRank();
+
+		return CC.translate(message,
+				"%PLAYER%", Flash.getInstance().getCacheHandler().getUserCache().getName(uuid),
+				"%PLAYER_DISPLAY%", UUIDUtils.formattedName(uuid),
+				"%PLAYER_UUID%", uuid.toString(),
+				"%PLAYER_RANK_NAME%", rank.getName(),
+				"%PLAYER_RANK_WEIGHT%", rank.getWeight(),
+				"%PLAYER_RANK_COLOR%", rank.getColor().name(),
+				"%PLAYER_RANK_DISPLAY%", rank.getDisplayName(),
+				"%PLAYER_RANK_PREFIX%", rank.getPrefix(),
+				"%PLAYER_RANK_SUFFIX%", rank.getSuffix(),
+				"%PLAYER_RANK_COLORED%", rank.getColoredName()
+		);
+	}
+
+	public static List<String> applyPlayer(List<String> message, UUID uuid) {
+		User user = Flash.getInstance().getUserHandler().tryUser(uuid, true);
+		if (user == null) {
+			return CC.translate(message,
+					"%PLAYER%", Flash.getInstance().getCacheHandler().getUserCache().getName(uuid),
+					"%PLAYER_DISPLAY%", UUIDUtils.formattedName(uuid),
+					"%PLAYER_UUID%", uuid.toString()
+			);
+		}
+		Rank rank = user.getActiveRank();
+
+		return CC.translate(message,
+				"%PLAYER%", Flash.getInstance().getCacheHandler().getUserCache().getName(uuid),
+				"%PLAYER_DISPLAY%", UUIDUtils.formattedName(uuid),
+				"%PLAYER_UUID%", uuid.toString(),
+				"%PLAYER_RANK_NAME%", rank.getName(),
+				"%PLAYER_RANK_WEIGHT%", rank.getWeight(),
+				"%PLAYER_RANK_COLOR%", rank.getColor().name(),
+				"%PLAYER_RANK_DISPLAY%", rank.getDisplayName(),
+				"%PLAYER_RANK_PREFIX%", rank.getPrefix(),
+				"%PLAYER_RANK_SUFFIX%", rank.getSuffix(),
+				"%PLAYER_RANK_COLORED%", rank.getColoredName()
+		);
+	}
+
+	public static String applyRank(String message, Rank rank) {
+		return CC.translate(message,
+                "%RANK_NAME%", rank.getName(),
+                "%RANK_WEIGHT%", rank.getWeight(),
+                "%RANK_COLOR%", rank.getColor().name(),
+                "%RANK_DISPLAY%", rank.getDisplayName(),
+                "%RANK_PREFIX%", rank.getPrefix(),
+                "%RANK_SUFFIX%", rank.getSuffix(),
+                "%RANK_COLORED%", rank.getColoredName()
+                );
+	}
+
+	public static List<String> applyRank(List<String> message, Rank rank) {
+		return CC.translate(message,
+                "%RANK_NAME%", rank.getName(),
+                "%RANK_WEIGHT%", rank.getWeight(),
+                "%RANK_COLOR%", rank.getColor().name(),
+                "%RANK_DISPLAY%", rank.getDisplayName(),
+                "%RANK_PREFIX%", rank.getPrefix(),
+                "%RANK_SUFFIX%", rank.getSuffix(),
+                "%RANK_COLORED%", rank.getColoredName()
+                );
 	}
 
 	public static String applyAll(String message, String sender, String victim) {
