@@ -48,7 +48,7 @@ public class UserListener implements Listener {
 
             user.updatePerms();
             user.updateGrants();
-            user.buildPlayer(event.getPlayer());
+            user.buildPlayer();
             user.setLastServer(FlashLanguage.SERVER_NAME.getString());
         });
 

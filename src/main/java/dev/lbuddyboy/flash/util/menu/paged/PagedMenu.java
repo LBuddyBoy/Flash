@@ -35,7 +35,7 @@ public abstract class PagedMenu<T> extends Menu {
     @Override
     public String getTitle(Player player) {
 
-        String title = CC.translate(getPageTitle(player) + " &7(" + page + "/" + getMaxPages(objects) + ")");
+        String title = getPageTitle(player) + " (" + page + "/" + getMaxPages(objects) + ")";
 
         return title.substring(0, 15);
     }

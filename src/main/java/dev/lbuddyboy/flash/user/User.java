@@ -1,7 +1,10 @@
 package dev.lbuddyboy.flash.user;
 
 import dev.lbuddyboy.flash.Flash;
+import dev.lbuddyboy.flash.FlashLanguage;
 import dev.lbuddyboy.flash.rank.Rank;
+import dev.lbuddyboy.flash.user.grant.comparator.GrantDateComparator;
+import dev.lbuddyboy.flash.user.grant.comparator.GrantWeightComparator;
 import dev.lbuddyboy.flash.user.model.Grant;
 import dev.lbuddyboy.flash.user.model.UserPermission;
 import dev.lbuddyboy.flash.util.CC;
@@ -11,10 +14,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Data
 public abstract class User {
@@ -46,27 +47,8 @@ public abstract class User {
         return active.getRank();
     }
 
-    public void setActiveGrant(Grant grant) {
-        activeGrant = grant;
-        Player player = Bukkit.getPlayer(uuid);
-        if (player != null) {
-            player.setDisplayName(getDisplayName());
-            setupPermissionsAttachment(player);
-        }
-
-    }
-
-    public void activateNextGrant() {
-        List<Grant> grants = new ArrayList<>(this.grants);
-        grants.sort(Comparator.comparingInt(grant -> grant.getRank().getWeight()));
-
-        for (Grant grant : grants) {
-            if (grant.getRank() == null) continue;
-            if (!grant.isRemoved() && !grant.isExpired()) {
-                setActiveGrant(grant);
-            }
-        }
-
+    public List<Grant> getActiveGrants() {
+        return this.grants.stream().filter(grant -> !grant.isExpired() && !grant.isRemoved()).collect(Collectors.toList());
     }
 
     public void updateGrants() {
@@ -81,15 +63,14 @@ public abstract class User {
             }
         }
 
-        if (activeGrant == null) {
-            activateNextGrant();
-            if (activeGrant != null) {
-                return;
-            }
+        List<Grant> grants = this.getActiveGrants().stream().sorted(new GrantWeightComparator().reversed().thenComparing(new GrantDateComparator().reversed())).collect(Collectors.toList());
 
-            Grant grant = Grant.defaultGrant();
-            grants.add(grant);
-            setActiveGrant(grant);
+        for (Grant grant : grants) {
+            if (Arrays.stream(grant.getScopes()).map(String::toLowerCase).collect(Collectors.toList()).contains("global") || Arrays.asList(grant.getScopes()).contains(FlashLanguage.SERVER_NAME.getString())) {
+                activeGrant = grant;
+                buildPlayer();
+                break;
+            }
         }
     }
 
@@ -105,7 +86,10 @@ public abstract class User {
         }
     }
 
-    public void buildPlayer(Player player) {
+    public void buildPlayer() {
+        Player player = Bukkit.getPlayer(uuid);
+        if (player == null) return;
+
         setupPermissionsAttachment(player);
 
         player.setDisplayName(getDisplayName());

@@ -21,6 +21,8 @@ public class ButtonListener implements Listener {
             if (button.getSlot() - 1 == event.getSlot()) {
                 button.action(event);
                 event.setCancelled(button.cancels());
+            } else {
+                event.setCancelled(true);
             }
         }
     }

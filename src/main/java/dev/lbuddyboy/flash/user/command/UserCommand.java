@@ -24,6 +24,11 @@ public class UserCommand extends BaseCommand {
     public static void info(CommandSender sender, @Name("user") UUID uuid) {
         User user = Flash.getInstance().getUserHandler().getUser(uuid, true);
 
+        if (user == null) {
+            sender.sendMessage(CC.translate(FlashLanguage.INVALID_USER.getString()));
+            return;
+        }
+
         sender.sendMessage(CC.translate(user.getUuid().toString()));
         sender.sendMessage(CC.translate(user.getName()));
         sender.sendMessage(CC.translate(user.getIp()));
@@ -43,6 +48,12 @@ public class UserCommand extends BaseCommand {
         }
 
         User user = Flash.getInstance().getUserHandler().getUser(uuid, true);
+
+        if (user == null) {
+            sender.sendMessage(CC.translate(FlashLanguage.INVALID_USER.getString()));
+            return;
+        }
+
         UserPermission userPermission = new UserPermission(permission, time, System.currentTimeMillis(), (sender instanceof Player) ? ((Player) sender).getUniqueId() : null, reason);
 
         user.getPermissions().add(userPermission);
@@ -67,6 +78,12 @@ public class UserCommand extends BaseCommand {
         }
 
         User user = Flash.getInstance().getUserHandler().getUser(uuid, true);
+
+        if (user == null) {
+            sender.sendMessage(CC.translate(FlashLanguage.INVALID_USER.getString()));
+            return;
+        }
+
         Grant grant = new Grant(UUID.randomUUID(), rank.getUuid(), rank.getName(), (sender instanceof Player) ? ((Player) sender).getUniqueId() : null, reason, System.currentTimeMillis(), time, scopes);
 
         user.getGrants().add(grant);

@@ -42,8 +42,6 @@ public class RankHandler {
                 break;
         }
 
-        Flash.getInstance().getCommandHandler().getCommandManager().registerCommand(new RankCommand());
-
         Tasks.run(() -> {
             loadAll();
 

@@ -48,7 +48,11 @@ public class RedisCache extends UserCache {
 
     @Override
     public void update(UUID uuid, String name) {
-        Tasks.runAsync(() -> RedisHandler.requestJedis().getResource().hset(KEY, uuid.toString(), name));
+        Tasks.runAsync(() -> {
+            RedisHandler.requestJedis().getResource().hset(KEY, uuid.toString(), name);
+            uuidNameMap.put(uuid, name);
+            nameUUIDMap.put(name, uuid);
+        });
     }
 
 }

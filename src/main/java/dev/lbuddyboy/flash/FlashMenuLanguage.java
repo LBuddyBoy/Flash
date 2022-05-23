@@ -15,10 +15,11 @@ public enum FlashMenuLanguage {
 
     GRANT_MENU_TITLE("GRANT_MENU.TITLE", "Granting: %PLAYER%"),
     GRANT_MENU_SIZE("GRANT_MENU.SIZE", 27),
+    GRANT_MENU_FILL("GRANT_MENU.FILL", true),
 
     GRANTS_MENU_TITLE("GRANTS_MENU.TITLE", "Grants: %PLAYER%"),
 
-    GRANT_MENU_RANK_BUTTON_NAME("GRANT_MENU.RANK-BUTTON.NAME", "Grant a Rank"),
+    GRANT_MENU_RANK_BUTTON_NAME("GRANT_MENU.RANK-BUTTON.NAME", "&bGrant a Rank"),
     GRANT_MENU_RANK_BUTTON_DATA("GRANT_MENU.RANK-BUTTON.DATA", 0),
     GRANT_MENU_RANK_BUTTON_SLOT("GRANT_MENU.RANK-BUTTON.SLOT", 13),
     GRANT_MENU_RANK_BUTTON_LORE("GRANT_MENU.RANK-BUTTON.LORE", Arrays.asList(
@@ -28,7 +29,7 @@ public enum FlashMenuLanguage {
     )),
     GRANT_MENU_RANK_BUTTON_MATERIAL("GRANT_MENU.RANK-BUTTON.MATERIAL", "DIAMOND"),
 
-    GRANT_MENU_PERMISSION_BUTTON_NAME("GRANT_MENU.PERMISSION-BUTTON.NAME", "Grant a Permission"),
+    GRANT_MENU_PERMISSION_BUTTON_NAME("GRANT_MENU.PERMISSION-BUTTON.NAME", "&dGrant a Permission"),
     GRANT_MENU_PERMISSION_BUTTON_DATA("GRANT_MENU.PERMISSION-BUTTON.DATA", 0),
     GRANT_MENU_PERMISSION_BUTTON_SLOT("GRANT_MENU.PERMISSION-BUTTON.SLOT", 15),
     GRANT_MENU_PERMISSION_BUTTON_LORE("GRANT_MENU.PERMISSION-BUTTON.LORE", Arrays.asList(
@@ -115,6 +116,14 @@ public enum FlashMenuLanguage {
         loadDefault();
 
         return String.valueOf(this.value);
+    }
+
+    public boolean getBoolean() {
+        if (Flash.getInstance().getMenusYML().gc().contains(this.path)) return Flash.getInstance().getMenusYML().gc().getBoolean(this.path);
+
+        loadDefault();
+
+        return Boolean.parseBoolean(String.valueOf(this.value));
     }
 
     public Material getMaterial() {

@@ -4,6 +4,7 @@ import co.aikar.commands.PaperCommandManager;
 import dev.lbuddyboy.flash.Flash;
 import dev.lbuddyboy.flash.command.param.UUIDParam;
 import dev.lbuddyboy.flash.rank.Rank;
+import dev.lbuddyboy.flash.rank.command.RankCommand;
 import dev.lbuddyboy.flash.rank.command.param.RankParam;
 import dev.lbuddyboy.flash.user.command.UserCommand;
 import dev.lbuddyboy.flash.user.grant.command.GrantCommand;
@@ -50,6 +51,7 @@ public class CommandHandler {
         this.commandManager.getCommandContexts().registerContext(UUID.class, new UUIDParam());
         this.commandManager.getCommandContexts().registerContext(Rank.class, new RankParam());
 
+        this.commandManager.registerCommand(new RankCommand());
         this.commandManager.registerCommand(new GrantCommand());
         this.commandManager.registerCommand(new GrantsCommand());
         this.commandManager.registerCommand(new UserCommand());

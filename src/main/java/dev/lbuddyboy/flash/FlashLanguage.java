@@ -17,6 +17,8 @@ public enum FlashLanguage {
     SERVER_NAME("SETTINGS.SERVER_NAME", "Flash"),
     TIMEZONE("SETTINGS.TIMEZONE", "EST"),
 
+    INVALID_USER("INVALID_USER", "&cCould not find that user in our database."),
+
     SERVER_CHANGE_JOIN("SERVER_CHANGE_JOIN", "&4&l[Staff] &c%PLAYER% &fhas just &ajoined&f &9%TO-SERVER% &ffrom &9%FROM-SERVER%&f."),
     SERVER_CHANGE_JOIN_NETWORK("SERVER_CHANGE_JOIN_NETWORK", "&4&l[Staff] &c%PLAYER% &fhas just &ajoined&f the network."),
     SERVER_CHANGE_LEAVE("SERVER_CHANGE_LEAVE", "&4&l[Staff] &c%PLAYER% &fhas just &cleft&f &9%FROM-SERVER% &ffrom &9%TO-SERVER%&f."),

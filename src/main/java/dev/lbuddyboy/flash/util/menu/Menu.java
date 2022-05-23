@@ -95,7 +95,7 @@ public abstract class Menu {
     }
 
     public ItemStack autoFillItem() {
-        return new ItemBuilder(Material.STAINED_GLASS_PANE).setDurability(15).create();
+        return new ItemBuilder(Material.STAINED_GLASS_PANE).setName(" ").setDurability(15).create();
     }
 
     static {
