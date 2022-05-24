@@ -11,7 +11,10 @@ public interface JedisPacket {
     void onReceive();
 
     default void send() {
-        if (!RedisHandler.isEnabled()) return;
+        if (!RedisHandler.isEnabled()) {
+            onReceive();
+            return;
+        }
 
         new Thread(() -> {
             try (Jedis jedis = RedisHandler.requestJedis().getResource()) {

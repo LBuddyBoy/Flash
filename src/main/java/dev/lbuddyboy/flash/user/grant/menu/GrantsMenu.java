@@ -16,10 +16,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,6 +65,11 @@ public class GrantsMenu extends PagedMenu<Grant> {
 
     @Override
     public boolean autoUpdate() {
+        return true;
+    }
+
+    @Override
+    public boolean autoFill() {
         return true;
     }
 
@@ -124,6 +131,7 @@ public class GrantsMenu extends PagedMenu<Grant> {
                                 "%ADDEDBY%", UUIDUtils.formattedName(grant.getAddedBy()),
                                 "%ADDEDFOR%", grant.getAddedReason(),
                                 "%TIMELEFT%", grant.getExpireString(),
+                                "%SCOPES%", StringUtils.join(grant.getScopes(), ", "),
                                 "%REMOVEDAT%", grant.getRemovedAt(),
                                 "%REMOVEDBY%", UUIDUtils.formattedName(grant.getRemovedBy()),
                                 "%REMOVEDFOR%", grant.getRemovedFor(),
@@ -132,6 +140,7 @@ public class GrantsMenu extends PagedMenu<Grant> {
                                 "%ADDEDAT%", grant.getAddedAtDate(),
                                 "%ADDEDBY%", UUIDUtils.formattedName(grant.getAddedBy()),
                                 "%ADDEDFOR%", grant.getAddedReason(),
+                                "%SCOPES%", StringUtils.join(grant.getScopes(), ", "),
                                 "%TIMELEFT%", grant.getExpireString(),
                                 "%REMOVEDAT%", grant.getRemovedAt(),
                                 "%REMOVEDBY%", UUIDUtils.formattedName(grant.getRemovedBy()),
@@ -146,11 +155,13 @@ public class GrantsMenu extends PagedMenu<Grant> {
                             "%ADDEDBY%", UUIDUtils.formattedName(grant.getAddedBy()),
                             "%ADDEDFOR%", grant.getAddedReason(),
                             "%TIMELEFT%", grant.getExpireString(),
+                            "%SCOPES%", StringUtils.join(grant.getScopes(), ", "),
                             "%RANK%", grant.getRank().getDisplayName())
                     .setLore(FlashMenuLanguage.GRANTS_MENU_DEFAULT_GRANT_BUTTON_LORE.getStringList(),
                             "%ADDEDAT%", grant.getAddedAtDate(),
                             "%ADDEDBY%", UUIDUtils.formattedName(grant.getAddedBy()),
                             "%ADDEDFOR%", grant.getAddedReason(),
+                            "%SCOPES%", StringUtils.join(grant.getScopes(), ", "),
                             "%TIMELEFT%", grant.getExpireString(),
                             "%RANK%", grant.getRank().getDisplayName()
                     )

@@ -15,6 +15,37 @@ public enum FlashLanguage {
     SERVER_NAME("SETTINGS.SERVER_NAME", "Flash"),
     TIMEZONE("SETTINGS.TIMEZONE", "EST"),
 
+    PUNISHMENT_WARN_COLOR("PUNISHMENTS.WARN.COLOR", "GRAY"),
+    PUNISHMENT_KICK_COLOR("PUNISHMENTS.KICK.COLOR", "GREEN"),
+    PUNISHMENT_MUTE_COLOR("PUNISHMENTS.MUTE.COLOR", "YELLOW"),
+    PUNISHMENT_BAN_COLOR("PUNISHMENTS.BAN.COLOR", "RED"),
+    PUNISHMENT_IP_BAN_COLOR("PUNISHMENTS.IP_BAN.COLOR", "AQUA"),
+    PUNISHMENT_BLACKLIST_COLOR("PUNISHMENTS.BLACKLIST.COLOR", "BLACK"),
+
+    PUNISHMENTS_DEFAULT_PUNISH_TIME("PUNISHMENTS.HIGHER-PRIORITY", "7d"),
+
+    PUNISHMENT_KICK_FORMAT("PUNISHMENTS.KICK.KICK-FORMAT", "&cYour have been kicked from the Flash Network.\n&cReason: %REASON%"),
+    PUNISHMENT_BAN_KICK_FORMAT("PUNISHMENTS.BAN.KICK-FORMAT", "&cYour account is banned from the Flash Network.\n%TEMP-FORMAT%\n\n&cIf you feel this punishment is unjust, you may appeal at:\nhttp://www.lbuddyboy.me"),
+    PUNISHMENT_IP_BAN_KICK_FORMAT("PUNISHMENTS.IP_BAN.KICK-FORMAT", "&cYour account is ip banned from the Flash Network.\n%TEMP-FORMAT%\n\n&cIf you feel this punishment is unjust, you may appeal at:\nhttp://www.lbuddyboy.me"),
+    PUNISHMENT_BLACKLIST_KICK_FORMAT("PUNISHMENTS.BLACKLIST.KICK-FORMAT", "&cYour account is blacklisted from the Flash Network.\n%TEMP-FORMAT%\n\n&cThis punishment can not be appealed."),
+    PUNISHMENTS_ALREADY_PUNISHED("PUNISHMENTS.ALREADY-PUNISHED", "&cThat player is already %FORMAT%."),
+    PUNISHMENTS_NOT_PUNISHED("PUNISHMENTS.NOT-PUNISHED", "&cThat player is not %FORMAT%."),
+    PUNISHMENTS_HIGHER_PRIORITY("PUNISHMENTS.HIGHER-PRIORITY", "&cYou cannot punish that player, as their rank has more priority than yours."),
+
+    PUNISHMENT_MUTED_FORMAT("PUNISHMENTS.MUTE.FORMAT", Arrays.asList(
+            "&cYou are currently muted!",
+            "&c- Reason: %REASON%",
+            "&c- Expires in: %TIME-LEFT%"
+    )),
+
+    PUNISHMENT_TEMPORARY_FORMAT("PUNISHMENTS.TEMPORARY-FORMAT", "&cExpires: %TIME%"),
+    PUNISHMENT_BANNED_IP_RELATIVE("PUNISHMENTS.IP_BAN.KICK-ALT-FORMAT", "&cYour account is banned from the Flash Network.\n&cDue to having relations with %OWNER%"),
+    PUNISHMENT_PUNISH_PUBLIC_BROADCAST_FORMAT("PUNISHMENTS.PUNISH.PUBLIC-BROADCAST-FORMAT", "&r%TARGET_COLORED%&a has just been %TIME%&a %FORMAT% by &r%SENDER_DISPLAY%&a."),
+    PUNISHMENT_PUNISH_SILENT_BROADCAST_FORMAT("PUNISHMENTS.PUNISH.SILENT-BROADCAST-FORMAT", "&r%TARGET_COLORED%&a has just been %TIME% &esilently&a %FORMAT% by &r%SENDER_DISPLAY%&a."),
+
+    PUNISHMENT_UNPUNISH_PUBLIC_BROADCAST_FORMAT("PUNISHMENTS.UNPUNISH.PUBLIC-BROADCAST-FORMAT", "&r%TARGET_COLORED%&a has just been&a %FORMAT% by &r%SENDER_DISPLAY%&a."),
+    PUNISHMENT_UNPUNISH_SILENT_BROADCAST_FORMAT("PUNISHMENTS.UNPUNISH.SILENT-BROADCAST-FORMAT", "&r%TARGET_COLORED%&a has just been &esilently&a %FORMAT% by &r%SENDER_DISPLAY%&a."),
+
     SERVER_CHANGE_JOIN("GLOBAL.SERVER_CHANGE_JOIN", "&4&l[Staff] &c%PLAYER% &fhas just &ajoined&f &9%TO-SERVER% &ffrom &9%FROM-SERVER%&f."),
     SERVER_CHANGE_JOIN_NETWORK("GLOBAL.SERVER_CHANGE_JOIN_NETWORK", "&4&l[Staff] &c%PLAYER% &fhas just &ajoined&f the network."),
     SERVER_CHANGE_LEAVE("GLOBAL.SERVER_CHANGE_LEAVE", "&4&l[Staff] &c%PLAYER% &fhas just &cleft&f &9%FROM-SERVER% &ffrom &9%TO-SERVER%&f."),

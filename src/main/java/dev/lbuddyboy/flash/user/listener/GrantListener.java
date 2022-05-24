@@ -63,10 +63,12 @@ public class GrantListener implements Listener {
         grant.setRemovedAt(System.currentTimeMillis());
         grant.setRemovedBy(event.getPlayer().getUniqueId());
 
-        user.updateGrants();
         user.save(true);
 
-        event.getPlayer().sendMessage(CC.translate("&a"));
+        event.getPlayer().sendMessage(CC.translate("&aRemoved the grant from " + user.getColoredName() +"&a."));
+
+        user.updateGrants();
+        user.buildPlayer();
 
         new UserUpdatePacket(uuid, user).send();
         Tasks.run(() -> new GrantsMenu(uuid).openMenu(event.getPlayer()));
@@ -80,7 +82,7 @@ public class GrantListener implements Listener {
 
         event.setCancelled(true);
 
-        GrantBuild grantBuild = grantTargetMap.remove(event.getPlayer().getName());
+        GrantBuild grantBuild = grantTargetMap.get(event.getPlayer().getName());
         UUID target = grantBuild.getTarget();
 
         if (event.getMessage().equalsIgnoreCase("cancel")) {
@@ -112,6 +114,8 @@ public class GrantListener implements Listener {
             UserCommand.rankAdd(event.getPlayer(), target, grantBuild.getRank(), grantBuild.getTime(), grantBuild.getScopes(), grantBuild.getReason());
 
             Tasks.run(() -> new GrantMenu(target).openMenu(event.getPlayer()));
+
+            grantTargetMap.remove(event.getPlayer().getName());
         }
     }
 
@@ -122,7 +126,7 @@ public class GrantListener implements Listener {
 
         event.setCancelled(true);
 
-        PermissionBuild permissionBuild = grantPermissionTargetMap.remove(event.getPlayer().getName());
+        PermissionBuild permissionBuild = grantPermissionTargetMap.get(event.getPlayer().getName());
         UUID target = permissionBuild.getTarget();
 
         if (event.getMessage().equalsIgnoreCase("cancel")) {
@@ -151,6 +155,9 @@ public class GrantListener implements Listener {
             permissionBuild.setTime(event.getMessage());
             UserCommand.permissionAdd(event.getPlayer(), target, permissionBuild.getNode(), permissionBuild.getTime(), permissionBuild.getReason());
 
+            Tasks.run(() -> new GrantMenu(target).openMenu(event.getPlayer()));
+
+            grantPermissionTargetMap.remove(event.getPlayer().getName());
         }
 
     }

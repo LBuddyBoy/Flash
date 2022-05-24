@@ -32,11 +32,11 @@ public class FlatFileUser extends User {
 
         this.name = config.getString(path + "name");
         this.ip = config.getString(path + "ip");
-        this.online = config.getBoolean(path + "online");
         this.lastServer = config.getString(path + "lastServer");
         this.currentServer = config.getString(path + "currentServer");
         this.knownIps = config.getStringList(path + "knownIps");
         this.permissions = GSONUtils.getGSON().fromJson(config.getString(path + "permissions"), GSONUtils.USER_PERMISSION);
+        this.punishments = GSONUtils.getGSON().fromJson(config.getString(path + "punishments"), GSONUtils.PUNISHMENTS);
         this.grants = GSONUtils.getGSON().fromJson(config.getString(path + "grants"), GSONUtils.GRANT);
 
         if (this.grants.isEmpty()) {
@@ -59,8 +59,8 @@ public class FlatFileUser extends User {
             config.set(path + "ip", this.ip);
             config.set(path + "lastServer", this.lastServer);
             config.set(path + "currentServer", this.currentServer);
-            config.set(path + "online", this.online);
             config.set(path + "knownIps", this.knownIps);
+            config.set(path + "punishments", this.punishments);
             config.set(path + "permissions", GSONUtils.getGSON().toJson(this.permissions, GSONUtils.USER_PERMISSION));
             config.set(path + "grants", GSONUtils.getGSON().toJson(this.grants, GSONUtils.GRANT));
 

@@ -11,14 +11,19 @@ import dev.lbuddyboy.flash.user.impl.FlatFileUser;
 import dev.lbuddyboy.flash.user.impl.MongoUser;
 import dev.lbuddyboy.flash.user.impl.RedisUser;
 import dev.lbuddyboy.flash.user.listener.GrantListener;
+import dev.lbuddyboy.flash.user.listener.PunishmentListener;
 import dev.lbuddyboy.flash.user.listener.UserListener;
 import dev.lbuddyboy.flash.util.Tasks;
 import dev.lbuddyboy.flash.util.YamlDoc;
 import lombok.Getter;
+import org.bson.Document;
 import org.bukkit.Bukkit;
+import redis.clients.jedis.JedisPool;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
@@ -45,6 +50,7 @@ public class UserHandler {
         }, 20 * 5, 20 * 5);
 
         Flash.getInstance().getServer().getPluginManager().registerEvents(new GrantListener(), Flash.getInstance());
+        Flash.getInstance().getServer().getPluginManager().registerEvents(new PunishmentListener(), Flash.getInstance());
         Flash.getInstance().getServer().getPluginManager().registerEvents(new UserListener(), Flash.getInstance());
     }
 
@@ -87,6 +93,41 @@ public class UserHandler {
             default:
                 return null;
         }
+    }
+
+    public void relativeAlts(String ip, List<UUID> alts) {
+        CompletableFuture.supplyAsync(() -> {
+            switch (FlashLanguage.CACHE_TYPE.getString().toUpperCase()) {
+                case "REDIS":
+                    JedisPool pool = RedisHandler.requestJedis();
+                    for (Map.Entry<String, String> entry : pool.getResource().hgetAll("Users").entrySet()) {
+                        RedisUser user = new RedisUser(UUID.fromString(entry.getKey()), null, true);
+                        if (!user.getIp().equals(ip)) continue;
+
+                        alts.add(user.getUuid());
+                    }
+
+                    break;
+                case "MONGO":
+                    for (Document document : Flash.getInstance().getMongoHandler().getUserCollection().find()) {
+                        String altIP = document.getString("ip");
+                        if (!altIP.equals(ip)) continue;
+
+                        alts.add(UUID.fromString(document.getString("uuid")));
+                    }
+                    break;
+                case "FLATFILE":
+                case "YAML":
+                    for (String key : this.usersYML.gc().getConfigurationSection("users").getKeys(false)) {
+                        String altIP = this.usersYML.gc().getString("users." + key + ".ip");
+                        if (!ip.equals(altIP)) continue;
+
+                        alts.add(UUID.fromString(key));
+                    }
+                    break;
+            }
+            return true;
+        });
     }
 
 }

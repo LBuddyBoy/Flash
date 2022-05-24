@@ -41,7 +41,7 @@ public class GrantMenu extends Menu {
 
     @Override
     public boolean autoFill() {
-        return FlashMenuLanguage.GRANT_MENU_TITLE.getBoolean();
+        return FlashMenuLanguage.GRANT_MENU_FILL.getBoolean();
     }
 
     @Override

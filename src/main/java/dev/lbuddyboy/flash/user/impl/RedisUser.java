@@ -29,6 +29,7 @@ public class RedisUser extends User {
             this.permissions = user.getPermissions();
             this.knownIps = user.getKnownIps();
             this.grants = user.getGrants();
+            this.punishments.addAll(user.getPunishments());
 
             if (this.grants.isEmpty()) {
                 this.grants.add(Grant.defaultGrant());

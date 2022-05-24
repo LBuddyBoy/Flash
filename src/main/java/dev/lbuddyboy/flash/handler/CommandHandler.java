@@ -9,6 +9,8 @@ import dev.lbuddyboy.flash.rank.command.param.RankParam;
 import dev.lbuddyboy.flash.user.command.UserCommand;
 import dev.lbuddyboy.flash.user.grant.command.GrantCommand;
 import dev.lbuddyboy.flash.user.grant.command.GrantsCommand;
+import dev.lbuddyboy.flash.user.punishment.command.*;
+import dev.lbuddyboy.flash.user.punishment.command.resolve.UnBanCommand;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -45,6 +47,16 @@ public class CommandHandler {
 
             return ranks;
         });
+
+        this.commandManager.registerCommand(new UnBanCommand());
+
+        this.commandManager.registerCommand(new BanCommand());
+        this.commandManager.registerCommand(new BlacklistCommand());
+        this.commandManager.registerCommand(new CheckPunishmentsCommand());
+        this.commandManager.registerCommand(new IPBanCommand());
+        this.commandManager.registerCommand(new KickCommand());
+        this.commandManager.registerCommand(new MuteCommand());
+        this.commandManager.registerCommand(new WarnCommand());
 
         this.commandManager.registerCommand(new RankCommand());
         this.commandManager.registerCommand(new GrantCommand());

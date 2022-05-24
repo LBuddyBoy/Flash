@@ -6,6 +6,7 @@ import com.google.gson.reflect.TypeToken;
 import dev.lbuddyboy.flash.rank.impl.RedisRank;
 import dev.lbuddyboy.flash.user.impl.RedisUser;
 import dev.lbuddyboy.flash.user.model.Grant;
+import dev.lbuddyboy.flash.user.model.Punishment;
 import dev.lbuddyboy.flash.user.model.UserPermission;
 import lombok.Getter;
 import org.bukkit.Location;
@@ -19,6 +20,7 @@ public class GSONUtils {
     @Getter public static Gson GSON = new GsonBuilder().setPrettyPrinting().serializeNulls().enableComplexMapKeySerialization().create();
 
     public static final Type USER_PERMISSION = new TypeToken<List<UserPermission>>() {}.getType();
+    public static final Type PUNISHMENTS = new TypeToken<List<Punishment>>() {}.getType();
     public static final Type REDIS_USER = new TypeToken<RedisUser>() {}.getType();
     public static final Type REDIS_RANK = new TypeToken<RedisRank>() {}.getType();
     public static final Type STRING = new TypeToken<List<String>>() {}.getType();

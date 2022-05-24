@@ -37,8 +37,8 @@ public class MongoUser extends User {
             if (document.containsKey("lastServer"))
                 this.lastServer = document.getString("lastServer");
 
-            if (document.containsKey("online"))
-                this.online = document.getBoolean("online");
+            if (document.containsKey("punishments"))
+                this.punishments = GSONUtils.getGSON().fromJson(document.getString("punishments"), GSONUtils.PUNISHMENTS);
 
             if (document.containsKey("permissions"))
                 this.permissions = GSONUtils.getGSON().fromJson(document.getString("permissions"), GSONUtils.USER_PERMISSION);
@@ -68,7 +68,9 @@ public class MongoUser extends User {
 
             document.put("uuid", this.uuid.toString());
             document.put("name", this.name);
-            document.put("lastServer", this.currentServer);
+            document.put("currentServer", this.currentServer);
+            document.put("lastServer", this.lastServer);
+            document.put("punishments", GSONUtils.getGSON().toJson(this.punishments, GSONUtils.PUNISHMENTS));
             document.put("permissions", GSONUtils.getGSON().toJson(this.permissions, GSONUtils.USER_PERMISSION));
             document.put("knownIps", GSONUtils.getGSON().toJson(this.knownIps, GSONUtils.STRING));
             document.put("grants", GSONUtils.getGSON().toJson(this.grants, GSONUtils.GRANT));
