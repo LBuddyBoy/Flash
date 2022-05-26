@@ -11,6 +11,7 @@ import dev.lbuddyboy.flash.user.model.UserPermission;
 import dev.lbuddyboy.flash.util.CC;
 import lombok.Data;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.permissions.PermissionAttachmentInfo;
@@ -34,6 +35,7 @@ public abstract class User {
     public String lastServer = null;
 
     public abstract void load();
+
     public abstract void save(boolean async);
 
     public String getDisplayName() {
@@ -75,7 +77,8 @@ public abstract class User {
 
     public Grant getActiveGrant() {
         Grant active = activeGrant;
-        if (active == null) return this.grants.stream().filter(grant -> grant.getRank() != null && grant.getRank().isDefaultRank()).collect(Collectors.toList()).get(0);
+        if (active == null)
+            return this.grants.stream().filter(grant -> grant.getRank() != null && grant.getRank().isDefaultRank()).collect(Collectors.toList()).get(0);
 
         return active;
     }
@@ -112,11 +115,12 @@ public abstract class User {
         List<Grant> grants = this.getActiveGrants().stream().sorted(new GrantWeightComparator().reversed().thenComparing(new GrantDateComparator().reversed())).collect(Collectors.toList());
 
         for (Grant grant : grants) {
-            if (Arrays.stream(grant.getScopes()).map(String::toLowerCase).collect(Collectors.toList()).contains("global") || Arrays.asList(grant.getScopes()).contains(FlashLanguage.SERVER_NAME.getString())) {
-                activeGrant = grant;
-                buildPlayer();
-                break;
-            }
+            if (!Arrays.stream(grant.getScopes()).map(String::toLowerCase).collect(Collectors.toList()).contains("global") && !Arrays.asList(grant.getScopes()).contains(FlashLanguage.SERVER_NAME.getString()))
+                continue;
+
+            activeGrant = grant;
+            buildPlayer();
+            break;
         }
     }
 
@@ -144,26 +148,30 @@ public abstract class User {
 
     public void setupPermissionsAttachment(Player player) {
         for (PermissionAttachmentInfo attachmentInfo : player.getEffectivePermissions()) {
-            if (attachmentInfo.getAttachment() == null) {
-                continue;
-            }
+            if (attachmentInfo.getAttachment() == null) continue;
+
             attachmentInfo.getAttachment().getPermissions().forEach((permission, value) -> attachmentInfo.getAttachment().unsetPermission(permission));
         }
 
         PermissionAttachment attachment = player.addAttachment(Flash.getInstance());
 
-        for (String perm : getActiveRank().getPermissions()) { // Rank perms
-            attachment.setPermission(perm, true);
-        }
-
-        for (String perm : getActiveRank().getInheritedPermissions()) { // Rank inherited perms
-            attachment.setPermission(perm, true);
-        }
-
-        for (UserPermission userPermission : getActivePermissions()) { // User specific perms
-            attachment.setPermission(userPermission.getNode(), true);
-        }
+        getActiveRank().getPermissions().forEach(permission -> attachment.setPermission(permission, true));
+        getActiveRank().getInheritedPermissions().forEach(permission -> attachment.setPermission(permission, true));
+        getActivePermissions().stream().map(UserPermission::getNode).forEach(permission -> attachment.setPermission(permission, true));
 
         player.recalculatePermissions();
     }
+
+    public String colorAlt() {
+        ChatColor color = ChatColor.GRAY;
+
+        if (Bukkit.getPlayer(uuid) != null) color = ChatColor.GREEN;
+        if (hasActivePunishment(PunishmentType.MUTE)) color = ChatColor.GOLD;
+        if (hasActivePunishment(PunishmentType.BAN)) color = ChatColor.RED;
+        if (hasActivePunishment(PunishmentType.IP_BAN)) color = ChatColor.YELLOW;
+        if (hasActivePunishment(PunishmentType.BLACKLIST)) color = ChatColor.DARK_RED;
+
+        return color + name;
+    }
+
 }

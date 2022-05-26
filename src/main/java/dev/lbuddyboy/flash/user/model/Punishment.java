@@ -59,7 +59,7 @@ public class Punishment {
         return sdf.format(sentAt);
     }
 
-    public String getRemovedAt() {
+    public String getRemovedAtDate() {
         SimpleDateFormat sdf = new SimpleDateFormat();
         sdf.setTimeZone(TimeZone.getTimeZone(FlashLanguage.TIMEZONE.getString()));
         return sdf.format(removedAt);

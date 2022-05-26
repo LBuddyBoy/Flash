@@ -1,6 +1,7 @@
 package dev.lbuddyboy.flash;
 
 import dev.lbuddyboy.flash.util.CC;
+import dev.lbuddyboy.flash.util.UUIDUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.bukkit.Material;
@@ -13,8 +14,51 @@ import java.util.List;
 @Getter
 public enum FlashMenuLanguage {
 
+    PUNISHMENT_SELECTION_MENU_TITLE("PUNISHMENT_SELECTION_MENU.TITLE", "Punishment Selection"),
+    PUNISHMENTS_SELECTION_MENU_FILL("PUNISHMENT_SELECTION_MENU.FILL", true),
+
+    PUNISHMENTS_SELECTION_SELECT_BUTTON_NAME("PUNISHMENT_SELECTION_MENU.SELECT-BUTTON.NAME", "%PUNISHMENT_TYPE%'s"),
+    PUNISHMENTS_SELECTION_SELECT_BUTTON_LORE("PUNISHMENT_SELECTION_MENU.SELECT-BUTTON.LORE", Arrays.asList(
+            " ",
+            "&7Click to view the %PUNISHMENT_PLURAL%&7 of %TARGET_COLORED%&7.",
+            " "
+    )),
+
     PUNISHMENTS_MENU_TITLE("PUNISHMENTS_MENU.TITLE", "%PLAYER_DISPLAY%'s %PUNISHMENTS%"),
     PUNISHMENTS_MENU_FILL("PUNISHMENTS_MENU.FILL", true),
+
+    PUNISHMENTS_MENU_REMOVED_PUNISHMENT_BUTTON_NAME("PUNISHMENTS_MENU.PUNISHMENT-REMOVED-BUTTON.NAME", "&4%ADDEDAT%"),
+    PUNISHMENTS_MENU_REMOVED_PUNISHMENT_BUTTON_DATA("PUNISHMENTS_MENU.PUNISHMENT-REMOVED-BUTTON.DATA", 14),
+    PUNISHMENTS_MENU_REMOVED_PUNISHMENT_BUTTON_LORE("PUNISHMENTS_MENU.PUNISHMENT-REMOVED-BUTTON.LORE", Arrays.asList(
+            CC.MENU_BAR,
+            "&4&lAdded Information",
+            CC.MENU_BAR,
+            "&4Added By&7:&f %ADDEDBY%",
+            "&4Added For&7:&f %ADDEDFOR%",
+            "&4Added On&7:&f %SERVER%",
+            CC.MENU_BAR,
+            "&4&lRemoved Information",
+            CC.MENU_BAR,
+            "&4Removed By&7:&f %REMOVEDBY%",
+            "&4Removed For&7:&f %REMOVEDFOR%",
+            "&4Removed At&7: &f%REMOVEDAT%",
+            CC.MENU_BAR
+    )),
+    PUNISHMENTS_MENU_REMOVED_PUNISHMENT_BUTTON_MATERIAL("PUNISHMENTS_MENU.PUNISHMENT-REMOVED-BUTTON.MATERIAL", "WOOL"),
+
+    PUNISHMENTS_MENU_PUNISHMENT_BUTTON_NAME("PUNISHMENTS_MENU.PUNISHMENT-BUTTON.NAME", "&4%ADDEDAT%"),
+    PUNISHMENTS_MENU_PUNISHMENT_BUTTON_DATA("PUNISHMENTS_MENU.PUNISHMENT-BUTTON.DATA", 5),
+    PUNISHMENTS_MENU_PUNISHMENT_BUTTON_LORE("PUNISHMENTS_MENU.PUNISHMENT-BUTTON.LORE", Arrays.asList(
+            CC.MENU_BAR,
+            "&4Added By&7:&f %ADDEDBY%",
+            "&4Added For&7:&f %ADDEDFOR%",
+            "&4Added On&7:&f %SERVER%",
+            "&4Time Left&7: &f%TIMELEFT%",
+            "",
+            "&fClick to remove this punishment.",
+            CC.MENU_BAR
+    )),
+    PUNISHMENTS_MENU_PUNISHMENT_BUTTON_MATERIAL("PUNISHMENTS_MENU.PUNISHMENT-BUTTON.MATERIAL", "WOOL"),
 
     GRANT_MENU_TITLE("GRANT_MENU.TITLE", "Granting: %PLAYER%"),
     GRANT_MENU_SIZE("GRANT_MENU.SIZE", 27),

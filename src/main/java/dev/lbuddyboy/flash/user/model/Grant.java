@@ -4,12 +4,10 @@ import dev.lbuddyboy.flash.Flash;
 import dev.lbuddyboy.flash.FlashLanguage;
 import dev.lbuddyboy.flash.rank.Rank;
 import dev.lbuddyboy.flash.util.TimeUtils;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 import java.text.SimpleDateFormat;
-import java.util.List;
 import java.util.TimeZone;
 import java.util.UUID;
 
@@ -61,7 +59,7 @@ public class Grant {
         return sdf.format(addedAt);
     }
 
-    public String getRemovedAt() {
+    public String getRemovedAtDate() {
         SimpleDateFormat sdf = new SimpleDateFormat();
         sdf.setTimeZone(TimeZone.getTimeZone(FlashLanguage.TIMEZONE.getString()));
         return sdf.format(removedAt);

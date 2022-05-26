@@ -5,12 +5,12 @@ import dev.lbuddyboy.flash.FlashLanguage;
 import dev.lbuddyboy.flash.user.User;
 import dev.lbuddyboy.flash.user.model.Punishment;
 import dev.lbuddyboy.flash.user.model.PunishmentType;
-import dev.lbuddyboy.flash.user.model.UserPermission;
+import dev.lbuddyboy.flash.user.packet.PunishmentRemovePacket;
 import dev.lbuddyboy.flash.user.packet.PunishmentSendPacket;
-import dev.lbuddyboy.flash.user.packet.UserUpdatePacket;
-import dev.lbuddyboy.flash.user.punishment.menu.PunishmentHistoryMenu;
+import dev.lbuddyboy.flash.user.menu.PunishmentHistoryMenu;
 import dev.lbuddyboy.flash.util.CC;
 import dev.lbuddyboy.flash.util.Tasks;
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -35,10 +35,13 @@ public class PunishmentListener implements Listener {
 
             User user = Flash.getInstance().getUserHandler().tryUser(punishment.getTarget(), true);
 
-            user.save(true);
+            if (Bukkit.getPlayer(punishment.getTarget()) != null) {
+                user.save(true);
+            } else {
+                new PunishmentRemovePacket(punishment.getTarget(), punishment).send();
+            }
 
             new PunishmentSendPacket(punishment).send();
-            new UserUpdatePacket(user.getUuid(), user).send();
 
             Tasks.run(() -> new PunishmentHistoryMenu(punishment.getTarget(), punishment.getType()).openMenu(event.getPlayer()));
 

@@ -15,22 +15,15 @@ public class ServerChangePacket implements JedisPacket {
 
     private boolean join;
     private String player;
-    private String toServer, fromServer;
+    private String server;
 
     @Override
     public void onReceive() {
         if (!join) {
-            if (toServer == null) {
-                CC.broadCastStaff(FlashLanguage.SERVER_CHANGE_LEAVE_NETWORK.getString(), "%PLAYER%", this.player, "%FROM-SERVER%", this.fromServer);
-                return;
-            }
+            CC.broadCastStaff(FlashLanguage.SERVER_CHANGE_LEAVE.getString(), "%PLAYER%", this.player, "%SERVER%", this.server);
             return;
         }
-        if (fromServer == null) {
-            CC.broadCastStaff(FlashLanguage.SERVER_CHANGE_JOIN_NETWORK.getString(), "%PLAYER%", this.player, "%TO-SERVER%", this.toServer);
-            return;
-        }
-        CC.broadCastStaff(FlashLanguage.SERVER_CHANGE_JOIN.getString(), "%PLAYER%", this.player, "%FROM-SERVER%", this.fromServer, "%TO-SERVER%", this.toServer);
+        CC.broadCastStaff(FlashLanguage.SERVER_CHANGE_JOIN.getString(), "%PLAYER%", this.player, "%SERVER%", this.server);
     }
 
 }

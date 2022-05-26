@@ -1,29 +1,23 @@
 package dev.lbuddyboy.flash.user.listener;
 
 import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.FlashLanguage;
 import dev.lbuddyboy.flash.user.User;
-import dev.lbuddyboy.flash.user.command.UserCommand;
-import dev.lbuddyboy.flash.user.grant.menu.GrantMenu;
-import dev.lbuddyboy.flash.user.grant.menu.GrantsMenu;
+import dev.lbuddyboy.flash.command.user.UserCommand;
+import dev.lbuddyboy.flash.user.menu.GrantMenu;
+import dev.lbuddyboy.flash.user.menu.GrantsMenu;
 import dev.lbuddyboy.flash.user.model.Grant;
 import dev.lbuddyboy.flash.user.model.GrantBuild;
 import dev.lbuddyboy.flash.user.model.PermissionBuild;
 import dev.lbuddyboy.flash.user.model.UserPermission;
-import dev.lbuddyboy.flash.user.packet.ServerChangePacket;
-import dev.lbuddyboy.flash.user.packet.UserUpdatePacket;
+import dev.lbuddyboy.flash.user.packet.GrantRemovePacket;
+import dev.lbuddyboy.flash.user.packet.PermissionRemovePacket;
 import dev.lbuddyboy.flash.util.CC;
-import dev.lbuddyboy.flash.util.EncryptionHandler;
 import dev.lbuddyboy.flash.util.Tasks;
 import dev.lbuddyboy.flash.util.UUIDUtils;
-import org.bukkit.entity.Player;
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -63,14 +57,16 @@ public class GrantListener implements Listener {
         grant.setRemovedAt(System.currentTimeMillis());
         grant.setRemovedBy(event.getPlayer().getUniqueId());
 
-        user.save(true);
+        if (Bukkit.getPlayer(uuid) == null) {
+            new GrantRemovePacket(uuid, grant).send();
+        } else {
+            user.save(true);
+            user.updateGrants();
+            user.buildPlayer();
+        }
 
         event.getPlayer().sendMessage(CC.translate("&aRemoved the grant from " + user.getColoredName() +"&a."));
 
-        user.updateGrants();
-        user.buildPlayer();
-
-        new UserUpdatePacket(uuid, user).send();
         Tasks.run(() -> new GrantsMenu(uuid).openMenu(event.getPlayer()));
 
     }
@@ -188,12 +184,15 @@ public class GrantListener implements Listener {
         permission.setRemovedBy(event.getPlayer().getUniqueId());
         permission.setRemoved(true);
 
-        user.updatePerms();
-        user.save(true);
+        if (Bukkit.getPlayer(uuid) == null) {
+            new PermissionRemovePacket(uuid, permission).send();
+        } else {
+            user.updatePerms();
+            user.save(true);
+        }
 
         event.getPlayer().sendMessage(CC.translate("&a"));
 
-        new UserUpdatePacket(uuid, user).send();
         Tasks.run(() -> {
             GrantsMenu grantsMenu = new GrantsMenu(uuid);
             grantsMenu.setView("permissions");

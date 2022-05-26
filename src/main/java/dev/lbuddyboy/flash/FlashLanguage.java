@@ -46,10 +46,10 @@ public enum FlashLanguage {
     PUNISHMENT_UNPUNISH_PUBLIC_BROADCAST_FORMAT("PUNISHMENTS.UNPUNISH.PUBLIC-BROADCAST-FORMAT", "&r%TARGET_COLORED%&a has just been&a %FORMAT% by &r%SENDER_DISPLAY%&a."),
     PUNISHMENT_UNPUNISH_SILENT_BROADCAST_FORMAT("PUNISHMENTS.UNPUNISH.SILENT-BROADCAST-FORMAT", "&r%TARGET_COLORED%&a has just been &esilently&a %FORMAT% by &r%SENDER_DISPLAY%&a."),
 
-    SERVER_CHANGE_JOIN("GLOBAL.SERVER_CHANGE_JOIN", "&4&l[Staff] &c%PLAYER% &fhas just &ajoined&f &9%TO-SERVER% &ffrom &9%FROM-SERVER%&f."),
-    SERVER_CHANGE_JOIN_NETWORK("GLOBAL.SERVER_CHANGE_JOIN_NETWORK", "&4&l[Staff] &c%PLAYER% &fhas just &ajoined&f the network."),
-    SERVER_CHANGE_LEAVE("GLOBAL.SERVER_CHANGE_LEAVE", "&4&l[Staff] &c%PLAYER% &fhas just &cleft&f &9%FROM-SERVER% &ffrom &9%TO-SERVER%&f."),
-    SERVER_CHANGE_LEAVE_NETWORK("GLOBAL.SERVER_CHANGE_LEAVE_NETWORK", "&4&l[Staff] &c%PLAYER% &fhas just &cleft&f the network from &9%FROM-SERVER%&f."),
+    SERVER_CHANGE_JOIN("GLOBAL.SERVER_CHANGE_JOIN", "&4&l[Staff] &c%PLAYER% &fhas just &ajoined&f &9%SERVER%&f."),
+//    SERVER_CHANGE_JOIN_NETWORK("GLOBAL.SERVER_CHANGE_JOIN_NETWORK", "&4&l[Staff] &c%PLAYER% &fhas just &ajoined&f the network."),
+    SERVER_CHANGE_LEAVE("GLOBAL.SERVER_CHANGE_LEAVE", "&4&l[Staff] &c%PLAYER% &fhas just &cleft&f &9%SERVER%&f."),
+//    SERVER_CHANGE_LEAVE_NETWORK("GLOBAL.SERVER_CHANGE_LEAVE_NETWORK", "&4&l[Staff] &c%PLAYER% &fhas just &cleft&f the network from &9%FROM-SERVER%&f."),
 
     RANK_EXISTS("RANK.EXISTS", "&cThat rank already exists."),
     RANK_DOES_NOT_EXIST("RANK.DOES_NOT_EXIST", "&cThat rank does not exist."),

@@ -95,7 +95,7 @@ public class UserListener implements Listener {
                 Tasks.runAsyncLater(() -> {
                     User staff = Flash.getInstance().getUserHandler().getUser(player.getUniqueId(), true);
 
-                    new ServerChangePacket(true, player.getDisplayName(), FlashLanguage.SERVER_NAME.getString(), staff.getLastServer()).send();
+                    new ServerChangePacket(true, player.getDisplayName(), FlashLanguage.SERVER_NAME.getString()).send();
                 }, 40);
             }
 
@@ -116,30 +116,9 @@ public class UserListener implements Listener {
         user.save(true);
 
         if (player.hasPermission("flash.staff")) {
-            staffLeave(player);
+            new ServerChangePacket(false, player.getDisplayName(), FlashLanguage.SERVER_NAME.getString()).send();
         }
 
-    }
-
-
-    /*
-
-      NOTES
-
-      We pull from the db the profile and saved variables. If their current server is null, which
-      it can only be null if they do not rejoin. It will send a network leave packet and provide the
-      server they left from. When they join it sets their current server. We delay this task, so we
-      can give them a chance to update these variables.
-
-    */
-    private void staffLeave(Player player) {
-        Tasks.runAsyncLater(() -> {
-            User staff = Flash.getInstance().getUserHandler().getUser(player.getUniqueId(), true);
-
-            if (staff.getCurrentServer() == null) {
-                new ServerChangePacket(false, player.getDisplayName(), null, FlashLanguage.SERVER_NAME.getString()).send();
-            }
-        }, 40);
     }
 
 }

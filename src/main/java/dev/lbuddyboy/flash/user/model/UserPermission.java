@@ -2,9 +2,7 @@ package dev.lbuddyboy.flash.user.model;
 
 import dev.lbuddyboy.flash.FlashLanguage;
 import dev.lbuddyboy.flash.util.TimeUtils;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.text.SimpleDateFormat;
@@ -44,7 +42,7 @@ public class UserPermission {
         return sdf.format(sentAt);
     }
 
-    public String getRemovedAt() {
+    public String getRemovedAtDate() {
         SimpleDateFormat sdf = new SimpleDateFormat();
         sdf.setTimeZone(TimeZone.getTimeZone(FlashLanguage.TIMEZONE.getString()));
         return sdf.format(removedAt);

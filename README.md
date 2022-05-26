@@ -3,11 +3,12 @@
 Mongo, YAML, & Redis Based Rank/Punishment/Essential Core, below is my todo list.
 > This core is very flexible due to it not being very demanding for the database storage.
 
-- Make a /grant menu that is configurable (WIP)
-- Make a /grants menu that is configurable (Done 75%)
-- Make Profiling Base for players globally (Done)
-- Make Permission Attachments for players (Done)
-- Start a basis of Punishments (WIP)
+- Make a /grant menu that is configurable (DONE)
+- Make a /grants menu that is configurable (DONE)
+- Make Profiling Base for players globally (DONE)
+- Make Permission Attachments for players (DONE)
+- Punishments Base, Commands, & Profiling (DONE)
+- Vault & Placeholder API Implementation (WIP)
 - Start on essential commands (WIP)
 
 ***
@@ -18,7 +19,7 @@ Mongo, YAML, & Redis Based Rank/Punishment/Essential Core, below is my todo list
 - Punishments (Ban, Kick, Warn, etc)
 - Ranks (Permissions)
 - Per player perms & timed perms
-- Essentials (Messaging, Bans)
+- Essentials (Messaging, Bans, etc)
 - Vault Integration
 - PlaceholderAPI Integration
 

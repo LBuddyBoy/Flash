@@ -101,6 +101,58 @@ public class CC {
 		);
 	}
 
+	public static String applyTarget(String message, UUID uuid) {
+		User user = Flash.getInstance().getUserHandler().tryUser(uuid, true);
+		if (user == null) {
+			return CC.translate(message,
+					"%TARGET%", Flash.getInstance().getCacheHandler().getUserCache().getName(uuid),
+					"%TARGET_DISPLAY%", UUIDUtils.formattedName(uuid),
+					"%TARGET_UUID%", uuid.toString()
+			);
+		}
+		Rank rank = user.getActiveRank();
+
+		return CC.translate(message,
+				"%TARGET%", Flash.getInstance().getCacheHandler().getUserCache().getName(uuid),
+				"%TARGET_DISPLAY%", UUIDUtils.formattedName(uuid),
+				"%TARGET_UUID%", uuid.toString(),
+				"%TARGET_RANK_NAME%", rank.getName(),
+				"%TARGET_RANK_WEIGHT%", rank.getWeight(),
+				"%TARGET_RANK_COLOR%", rank.getColor().name(),
+				"%TARGET_RANK_DISPLAY%", rank.getDisplayName(),
+				"%TARGET_RANK_PREFIX%", rank.getPrefix(),
+				"%TARGET_RANK_SUFFIX%", rank.getSuffix(),
+				"%TARGET_RANK_COLORED%", rank.getColoredName()
+		);
+	}
+
+	public static List<String> applyTarget(List<String> message, UUID uuid) {
+		User user = Flash.getInstance().getUserHandler().tryUser(uuid, true);
+		if (user == null) {
+			return CC.translate(message,
+					"%TARGET%", Flash.getInstance().getCacheHandler().getUserCache().getName(uuid),
+					"%TARGET_COLORED%", UUIDUtils.formattedName(uuid),
+					"%TARGET_DISPLAY%", UUIDUtils.formattedName(uuid),
+					"%TARGET_UUID%", uuid.toString()
+			);
+		}
+		Rank rank = user.getActiveRank();
+
+		return CC.translate(message,
+				"%TARGET%", Flash.getInstance().getCacheHandler().getUserCache().getName(uuid),
+				"%TARGET_COLORED%", UUIDUtils.formattedName(uuid),
+				"%TARGET_DISPLAY%", UUIDUtils.formattedName(uuid),
+				"%TARGET_UUID%", uuid.toString(),
+				"%TARGET_RANK_NAME%", rank.getName(),
+				"%TARGET_RANK_WEIGHT%", rank.getWeight(),
+				"%TARGET_RANK_COLOR%", rank.getColor().name(),
+				"%TARGET_RANK_DISPLAY%", rank.getDisplayName(),
+				"%TARGET_RANK_PREFIX%", rank.getPrefix(),
+				"%TARGET_RANK_SUFFIX%", rank.getSuffix(),
+				"%TARGET_RANK_COLORED%", rank.getColoredName()
+		);
+	}
+
 	public static List<String> applyPlayer(List<String> message, UUID uuid) {
 		User user = Flash.getInstance().getUserHandler().tryUser(uuid, true);
 		if (user == null) {
