@@ -1,9 +1,9 @@
 package dev.lbuddyboy.flash.user.model;
 
 import dev.lbuddyboy.flash.FlashLanguage;
-import dev.lbuddyboy.flash.util.CC;
+import dev.lbuddyboy.flash.util.bukkit.CC;
 import dev.lbuddyboy.flash.util.TimeUtils;
-import dev.lbuddyboy.flash.util.UUIDUtils;
+import dev.lbuddyboy.flash.util.bukkit.UserUtils;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
@@ -65,10 +65,16 @@ public class Punishment {
         return sdf.format(removedAt);
     }
 
+    public String getExpiresAtDate() {
+        SimpleDateFormat sdf = new SimpleDateFormat();
+        sdf.setTimeZone(TimeZone.getTimeZone(FlashLanguage.TIMEZONE.getString()));
+        return sdf.format(sentAt + duration);
+    }
+
     public void announce() {
         if (this.removed) {
-            String sender = UUIDUtils.formattedName(this.removedBy);
-            String target = UUIDUtils.formattedName(this.target);
+            String sender = UserUtils.formattedName(this.removedBy);
+            String target = UserUtils.formattedName(this.target);
 
             String format = this.sentSilent ? FlashLanguage.PUNISHMENT_UNPUNISH_SILENT_BROADCAST_FORMAT.getString() : FlashLanguage.PUNISHMENT_UNPUNISH_PUBLIC_BROADCAST_FORMAT.getString();
 
@@ -92,8 +98,8 @@ public class Punishment {
 
             return;
         }
-        String sender = UUIDUtils.formattedName(this.sentBy);
-        String target = UUIDUtils.formattedName(this.target);
+        String sender = UserUtils.formattedName(this.sentBy);
+        String target = UserUtils.formattedName(this.target);
 
         String format = this.sentSilent ? FlashLanguage.PUNISHMENT_PUNISH_SILENT_BROADCAST_FORMAT.getString() : FlashLanguage.PUNISHMENT_PUNISH_PUBLIC_BROADCAST_FORMAT.getString();
 

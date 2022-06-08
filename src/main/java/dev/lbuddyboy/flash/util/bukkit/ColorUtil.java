@@ -1,4 +1,4 @@
-package dev.lbuddyboy.flash.util;
+package dev.lbuddyboy.flash.util.bukkit;
 
 import com.google.common.collect.ImmutableMap;
 import lombok.experimental.UtilityClass;

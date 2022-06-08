@@ -9,9 +9,10 @@ import dev.lbuddyboy.flash.user.model.Punishment;
 import dev.lbuddyboy.flash.user.model.PunishmentType;
 import dev.lbuddyboy.flash.user.packet.PunishmentAddPacket;
 import dev.lbuddyboy.flash.user.packet.PunishmentSendPacket;
-import dev.lbuddyboy.flash.util.CC;
+import dev.lbuddyboy.flash.util.bukkit.CC;
 import dev.lbuddyboy.flash.util.JavaUtils;
 import dev.lbuddyboy.flash.util.TimeUtils;
+import dev.lbuddyboy.flash.util.bukkit.UserUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -42,6 +43,11 @@ public class BanCommand extends BaseCommand {
             return;
         }
 
+        if (user.hasActivePunishment(PunishmentType.BAN)) {
+            sender.sendMessage(CC.translate(FlashLanguage.PUNISHMENTS_ALREADY_PUNISHED.getString(), "%FORMAT%", PunishmentType.BAN.getFormat()));
+            return;
+        }
+
         if (sender instanceof Player) {
             User senderUser = Flash.getInstance().getUserHandler().tryUser(senderUUID, true);
             Player senderPlayer = (Player) sender;
@@ -58,11 +64,7 @@ public class BanCommand extends BaseCommand {
                 sender.sendMessage(CC.translate(FlashLanguage.PUNISHMENTS_HIGHER_PRIORITY.getString()));
                 return;
             }
-        }
 
-        if (user.hasActivePunishment(PunishmentType.BAN)) {
-            sender.sendMessage(CC.translate(FlashLanguage.PUNISHMENTS_ALREADY_PUNISHED.getString(), "%FORMAT%", PunishmentType.BAN.getFormat()));
-            return;
         }
 
         Punishment punishment = new Punishment(UUID.randomUUID(), PunishmentType.BAN, uuid, senderUUID, System.currentTimeMillis(), duration, reason, FlashLanguage.SERVER_NAME.getString(), !isPub);
@@ -75,6 +77,7 @@ public class BanCommand extends BaseCommand {
         }
 
         new PunishmentSendPacket(punishment).send();
+        if (senderUUID != null) UserUtils.addPunishment(senderUUID, punishment);
 
     }
 

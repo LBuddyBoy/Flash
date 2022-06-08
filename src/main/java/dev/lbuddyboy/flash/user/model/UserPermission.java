@@ -25,6 +25,9 @@ public class UserPermission {
     private boolean removed;
 
     public String getExpireString() {
+        if (isPermanent()) {
+            return "Never";
+        }
         return TimeUtils.formatLongIntoDetailedString((getExpiry() - System.currentTimeMillis()) / 1000);
     }
 
@@ -33,7 +36,12 @@ public class UserPermission {
     }
 
     public boolean isExpired() {
+        if (isPermanent()) return false;
         return getExpiry() < System.currentTimeMillis();
+    }
+
+    public boolean isPermanent() {
+        return this.duration == Long.MAX_VALUE;
     }
 
     public String getAddedAtDate() {

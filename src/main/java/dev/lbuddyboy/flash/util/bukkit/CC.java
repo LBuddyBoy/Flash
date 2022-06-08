@@ -1,4 +1,4 @@
-package dev.lbuddyboy.flash.util;
+package dev.lbuddyboy.flash.util.bukkit;
 
 import dev.lbuddyboy.flash.Flash;
 import dev.lbuddyboy.flash.rank.Rank;
@@ -7,7 +7,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.DyeColor;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -81,7 +80,7 @@ public class CC {
 		if (user == null) {
 			return CC.translate(message,
 					"%PLAYER%", Flash.getInstance().getCacheHandler().getUserCache().getName(uuid),
-					"%PLAYER_DISPLAY%", UUIDUtils.formattedName(uuid),
+					"%PLAYER_DISPLAY%", UserUtils.formattedName(uuid),
 					"%PLAYER_UUID%", uuid.toString()
 			);
 		}
@@ -89,7 +88,7 @@ public class CC {
 
 		return CC.translate(message,
 				"%PLAYER%", Flash.getInstance().getCacheHandler().getUserCache().getName(uuid),
-				"%PLAYER_DISPLAY%", UUIDUtils.formattedName(uuid),
+				"%PLAYER_DISPLAY%", UserUtils.formattedName(uuid),
 				"%PLAYER_UUID%", uuid.toString(),
 				"%PLAYER_RANK_NAME%", rank.getName(),
 				"%PLAYER_RANK_WEIGHT%", rank.getWeight(),
@@ -106,7 +105,7 @@ public class CC {
 		if (user == null) {
 			return CC.translate(message,
 					"%TARGET%", Flash.getInstance().getCacheHandler().getUserCache().getName(uuid),
-					"%TARGET_DISPLAY%", UUIDUtils.formattedName(uuid),
+					"%TARGET_DISPLAY%", UserUtils.formattedName(uuid),
 					"%TARGET_UUID%", uuid.toString()
 			);
 		}
@@ -114,7 +113,7 @@ public class CC {
 
 		return CC.translate(message,
 				"%TARGET%", Flash.getInstance().getCacheHandler().getUserCache().getName(uuid),
-				"%TARGET_DISPLAY%", UUIDUtils.formattedName(uuid),
+				"%TARGET_DISPLAY%", UserUtils.formattedName(uuid),
 				"%TARGET_UUID%", uuid.toString(),
 				"%TARGET_RANK_NAME%", rank.getName(),
 				"%TARGET_RANK_WEIGHT%", rank.getWeight(),
@@ -131,8 +130,8 @@ public class CC {
 		if (user == null) {
 			return CC.translate(message,
 					"%TARGET%", Flash.getInstance().getCacheHandler().getUserCache().getName(uuid),
-					"%TARGET_COLORED%", UUIDUtils.formattedName(uuid),
-					"%TARGET_DISPLAY%", UUIDUtils.formattedName(uuid),
+					"%TARGET_COLORED%", UserUtils.formattedName(uuid),
+					"%TARGET_DISPLAY%", UserUtils.formattedName(uuid),
 					"%TARGET_UUID%", uuid.toString()
 			);
 		}
@@ -140,8 +139,8 @@ public class CC {
 
 		return CC.translate(message,
 				"%TARGET%", Flash.getInstance().getCacheHandler().getUserCache().getName(uuid),
-				"%TARGET_COLORED%", UUIDUtils.formattedName(uuid),
-				"%TARGET_DISPLAY%", UUIDUtils.formattedName(uuid),
+				"%TARGET_COLORED%", UserUtils.formattedName(uuid),
+				"%TARGET_DISPLAY%", UserUtils.formattedName(uuid),
 				"%TARGET_UUID%", uuid.toString(),
 				"%TARGET_RANK_NAME%", rank.getName(),
 				"%TARGET_RANK_WEIGHT%", rank.getWeight(),
@@ -158,7 +157,7 @@ public class CC {
 		if (user == null) {
 			return CC.translate(message,
 					"%PLAYER%", Flash.getInstance().getCacheHandler().getUserCache().getName(uuid),
-					"%PLAYER_DISPLAY%", UUIDUtils.formattedName(uuid),
+					"%PLAYER_DISPLAY%", UserUtils.formattedName(uuid),
 					"%PLAYER_UUID%", uuid.toString()
 			);
 		}
@@ -166,7 +165,7 @@ public class CC {
 
 		return CC.translate(message,
 				"%PLAYER%", Flash.getInstance().getCacheHandler().getUserCache().getName(uuid),
-				"%PLAYER_DISPLAY%", UUIDUtils.formattedName(uuid),
+				"%PLAYER_DISPLAY%", UserUtils.formattedName(uuid),
 				"%PLAYER_UUID%", uuid.toString(),
 				"%PLAYER_RANK_NAME%", rank.getName(),
 				"%PLAYER_RANK_WEIGHT%", rank.getWeight(),
@@ -175,6 +174,31 @@ public class CC {
 				"%PLAYER_RANK_PREFIX%", rank.getPrefix(),
 				"%PLAYER_RANK_SUFFIX%", rank.getSuffix(),
 				"%PLAYER_RANK_COLORED%", rank.getColoredName()
+		);
+	}
+
+	public static List<String> applyPlayer(List<String> message, UUID uuid, Object... objects) {
+		User user = Flash.getInstance().getUserHandler().tryUser(uuid, true);
+		if (user == null) {
+			return CC.translate(message,
+					"%PLAYER%", Flash.getInstance().getCacheHandler().getUserCache().getName(uuid),
+					"%PLAYER_DISPLAY%", UserUtils.formattedName(uuid),
+					"%PLAYER_UUID%", uuid.toString(), objects
+			);
+		}
+		Rank rank = user.getActiveRank();
+
+		return CC.translate(message,
+				"%PLAYER%", Flash.getInstance().getCacheHandler().getUserCache().getName(uuid),
+				"%PLAYER_DISPLAY%", UserUtils.formattedName(uuid),
+				"%PLAYER_UUID%", uuid.toString(),
+				"%PLAYER_RANK_NAME%", rank.getName(),
+				"%PLAYER_RANK_WEIGHT%", rank.getWeight(),
+				"%PLAYER_RANK_COLOR%", rank.getColor().name(),
+				"%PLAYER_RANK_DISPLAY%", rank.getDisplayName(),
+				"%PLAYER_RANK_PREFIX%", rank.getPrefix(),
+				"%PLAYER_RANK_SUFFIX%", rank.getSuffix(),
+				"%PLAYER_RANK_COLORED%", rank.getColoredName(), objects
 		);
 	}
 

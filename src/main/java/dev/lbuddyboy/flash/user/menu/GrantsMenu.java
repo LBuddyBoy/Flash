@@ -6,9 +6,9 @@ import dev.lbuddyboy.flash.user.User;
 import dev.lbuddyboy.flash.user.listener.GrantListener;
 import dev.lbuddyboy.flash.user.model.Grant;
 import dev.lbuddyboy.flash.user.model.UserPermission;
-import dev.lbuddyboy.flash.util.CC;
-import dev.lbuddyboy.flash.util.ItemBuilder;
-import dev.lbuddyboy.flash.util.UUIDUtils;
+import dev.lbuddyboy.flash.util.bukkit.CC;
+import dev.lbuddyboy.flash.util.bukkit.ItemBuilder;
+import dev.lbuddyboy.flash.util.bukkit.UserUtils;
 import dev.lbuddyboy.flash.util.menu.Button;
 import dev.lbuddyboy.flash.util.menu.paged.PagedMenu;
 import lombok.AllArgsConstructor;
@@ -125,22 +125,22 @@ public class GrantsMenu extends PagedMenu<Grant> {
                         .setDurability(FlashMenuLanguage.GRANTS_MENU_REMOVED_GRANT_BUTTON_DATA.getInt())
                         .setName(FlashMenuLanguage.GRANTS_MENU_REMOVED_GRANT_BUTTON_NAME.getString(),
                                 "%ADDEDAT%", grant.getAddedAtDate(),
-                                "%ADDEDBY%", UUIDUtils.formattedName(grant.getAddedBy()),
+                                "%ADDEDBY%", UserUtils.formattedName(grant.getAddedBy()),
                                 "%ADDEDFOR%", grant.getAddedReason(),
                                 "%TIMELEFT%", grant.getExpireString(),
                                 "%SCOPES%", StringUtils.join(grant.getScopes(), ", "),
                                 "%REMOVEDAT%", grant.getRemovedAtDate(),
-                                "%REMOVEDBY%", UUIDUtils.formattedName(grant.getRemovedBy()),
+                                "%REMOVEDBY%", UserUtils.formattedName(grant.getRemovedBy()),
                                 "%REMOVEDFOR%", grant.getRemovedFor(),
                                 "%RANK%", grant.getRank().getDisplayName())
                         .setLore(FlashMenuLanguage.GRANTS_MENU_REMOVED_GRANT_BUTTON_LORE.getStringList(),
                                 "%ADDEDAT%", grant.getAddedAtDate(),
-                                "%ADDEDBY%", UUIDUtils.formattedName(grant.getAddedBy()),
+                                "%ADDEDBY%", UserUtils.formattedName(grant.getAddedBy()),
                                 "%ADDEDFOR%", grant.getAddedReason(),
                                 "%SCOPES%", StringUtils.join(grant.getScopes(), ", "),
                                 "%TIMELEFT%", grant.getExpireString(),
                                 "%REMOVEDAT%", grant.getRemovedAtDate(),
-                                "%REMOVEDBY%", UUIDUtils.formattedName(grant.getRemovedBy()),
+                                "%REMOVEDBY%", UserUtils.formattedName(grant.getRemovedBy()),
                                 "%REMOVEDFOR%", grant.getRemovedFor(),
                                 "%RANK%", grant.getRank().getDisplayName())
                         .create();
@@ -149,14 +149,14 @@ public class GrantsMenu extends PagedMenu<Grant> {
                     .setDurability(FlashMenuLanguage.GRANTS_MENU_DEFAULT_GRANT_BUTTON_DATA.getInt())
                     .setName(FlashMenuLanguage.GRANTS_MENU_DEFAULT_GRANT_BUTTON_NAME.getString(),
                             "%ADDEDAT%", grant.getAddedAtDate(),
-                            "%ADDEDBY%", UUIDUtils.formattedName(grant.getAddedBy()),
+                            "%ADDEDBY%", UserUtils.formattedName(grant.getAddedBy()),
                             "%ADDEDFOR%", grant.getAddedReason(),
                             "%TIMELEFT%", grant.getExpireString(),
                             "%SCOPES%", StringUtils.join(grant.getScopes(), ", "),
                             "%RANK%", grant.getRank().getDisplayName())
                     .setLore(FlashMenuLanguage.GRANTS_MENU_DEFAULT_GRANT_BUTTON_LORE.getStringList(),
                             "%ADDEDAT%", grant.getAddedAtDate(),
-                            "%ADDEDBY%", UUIDUtils.formattedName(grant.getAddedBy()),
+                            "%ADDEDBY%", UserUtils.formattedName(grant.getAddedBy()),
                             "%ADDEDFOR%", grant.getAddedReason(),
                             "%SCOPES%", StringUtils.join(grant.getScopes(), ", "),
                             "%TIMELEFT%", grant.getExpireString(),
@@ -201,18 +201,18 @@ public class GrantsMenu extends PagedMenu<Grant> {
                         .setDurability(FlashMenuLanguage.GRANTS_MENU_REMOVED_PERMISSION_BUTTON_DATA.getInt())
                         .setName(FlashMenuLanguage.GRANTS_MENU_REMOVED_PERMISSION_BUTTON_NAME.getString(),
                                 "%ADDEDAT%", permission.getAddedAtDate(),
-                                "%ADDEDBY%", UUIDUtils.formattedName(permission.getSentBy()),
+                                "%ADDEDBY%", UserUtils.formattedName(permission.getSentBy()),
                                 "%ADDEDFOR%", permission.getSentFor(),
                                 "%REMOVEDAT%", permission.getRemovedAtDate(),
-                                "%REMOVEDBY%", UUIDUtils.formattedName(permission.getRemovedBy()),
+                                "%REMOVEDBY%", UserUtils.formattedName(permission.getRemovedBy()),
                                 "%REMOVEDFOR%", permission.getRemovedFor(),
                                 "%PERMISSION%", permission.getNode())
                         .setLore(FlashMenuLanguage.GRANTS_MENU_REMOVED_PERMISSION_BUTTON_LORE.getStringList(),
                                 "%ADDEDAT%", permission.getAddedAtDate(),
-                                "%ADDEDBY%", UUIDUtils.formattedName(permission.getSentBy()),
+                                "%ADDEDBY%", UserUtils.formattedName(permission.getSentBy()),
                                 "%ADDEDFOR%", permission.getSentFor(),
                                 "%REMOVEDAT%", permission.getRemovedAtDate(),
-                                "%REMOVEDBY%", UUIDUtils.formattedName(permission.getRemovedBy()),
+                                "%REMOVEDBY%", UserUtils.formattedName(permission.getRemovedBy()),
                                 "%REMOVEDFOR%", permission.getRemovedFor(),
                                 "%PERMISSION%", permission.getNode())
                         .create();
@@ -221,13 +221,13 @@ public class GrantsMenu extends PagedMenu<Grant> {
                     .setDurability(FlashMenuLanguage.GRANTS_MENU_DEFAULT_PERMISSION_BUTTON_DATA.getInt())
                     .setName(FlashMenuLanguage.GRANTS_MENU_DEFAULT_PERMISSION_BUTTON_NAME.getString(),
                             "%ADDEDAT%", permission.getAddedAtDate(),
-                            "%ADDEDBY%", UUIDUtils.formattedName(permission.getSentBy()),
+                            "%ADDEDBY%", UserUtils.formattedName(permission.getSentBy()),
                             "%ADDEDFOR%", permission.getSentFor(),
                             "%TIMELEFT%", permission.getExpireString(),
                             "%PERMISSION%", permission.getNode())
                     .setLore(FlashMenuLanguage.GRANTS_MENU_DEFAULT_PERMISSION_BUTTON_LORE.getStringList(),
                             "%ADDEDAT%", permission.getAddedAtDate(),
-                            "%ADDEDBY%", UUIDUtils.formattedName(permission.getSentBy()),
+                            "%ADDEDBY%", UserUtils.formattedName(permission.getSentBy()),
                             "%TIMELEFT%", permission.getExpireString(),
                             "%ADDEDFOR%", permission.getSentFor(),
                             "%PERMISSION%", permission.getNode()

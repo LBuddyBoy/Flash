@@ -11,9 +11,9 @@ import dev.lbuddyboy.flash.user.model.PermissionBuild;
 import dev.lbuddyboy.flash.user.model.UserPermission;
 import dev.lbuddyboy.flash.user.packet.GrantRemovePacket;
 import dev.lbuddyboy.flash.user.packet.PermissionRemovePacket;
-import dev.lbuddyboy.flash.util.CC;
-import dev.lbuddyboy.flash.util.Tasks;
-import dev.lbuddyboy.flash.util.UUIDUtils;
+import dev.lbuddyboy.flash.util.bukkit.CC;
+import dev.lbuddyboy.flash.util.bukkit.Tasks;
+import dev.lbuddyboy.flash.util.bukkit.UserUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -89,7 +89,7 @@ public class GrantListener implements Listener {
         if (grantBuild.getReason() == null) {
 
             grantBuild.setReason(event.getMessage());
-            event.getPlayer().sendMessage(CC.translate("&aNow, type the duration for granting the " + grantBuild.getRank().getColoredName() + " &arank to " + UUIDUtils.formattedName(target) + "&a."));
+            event.getPlayer().sendMessage(CC.translate("&aNow, type the duration for granting the " + grantBuild.getRank().getColoredName() + " &arank to " + UserUtils.formattedName(target) + "&a."));
 
             return;
         }
@@ -97,7 +97,7 @@ public class GrantListener implements Listener {
         if (grantBuild.getTime() == null) {
 
             grantBuild.setTime(event.getMessage());
-            event.getPlayer().sendMessage(CC.translate("&aNow, type the scopes for granting the " + grantBuild.getRank().getColoredName() + " &arank to " + UUIDUtils.formattedName(target) + "&a."));
+            event.getPlayer().sendMessage(CC.translate("&aNow, type the scopes for granting the " + grantBuild.getRank().getColoredName() + " &arank to " + UserUtils.formattedName(target) + "&a."));
             event.getPlayer().sendMessage(CC.translate("&aSeparate the servers with a command. (Ex: Global,Hub)"));
 
             return;
@@ -133,7 +133,7 @@ public class GrantListener implements Listener {
         if (permissionBuild.getNode() == null) {
 
             permissionBuild.setNode(event.getMessage());
-            event.getPlayer().sendMessage(CC.translate("&aNow, type the reason for granting the " + permissionBuild.getNode() + " &apermission to " + UUIDUtils.formattedName(target) + "&a."));
+            event.getPlayer().sendMessage(CC.translate("&aNow, type the reason for granting the " + permissionBuild.getNode() + " &apermission to " + UserUtils.formattedName(target) + "&a."));
 
             return;
         }
@@ -141,7 +141,7 @@ public class GrantListener implements Listener {
         if (permissionBuild.getReason() == null) {
 
             permissionBuild.setReason(event.getMessage());
-            event.getPlayer().sendMessage(CC.translate("&aNow, type the duration for granting the " + permissionBuild.getNode() + " &apermission to " + UUIDUtils.formattedName(target) + "&a."));
+            event.getPlayer().sendMessage(CC.translate("&aNow, type the duration for granting the " + permissionBuild.getNode() + " &apermission to " + UserUtils.formattedName(target) + "&a."));
 
             return;
         }

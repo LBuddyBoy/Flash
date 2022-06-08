@@ -2,10 +2,11 @@ package dev.lbuddyboy.flash.cache.impl;
 
 import dev.lbuddyboy.flash.Flash;
 import dev.lbuddyboy.flash.cache.UserCache;
-import dev.lbuddyboy.flash.util.CC;
-import org.bson.Document;
+import dev.lbuddyboy.flash.util.bukkit.CC;
 import org.bukkit.Bukkit;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,13 +27,18 @@ public class FlatFileCache extends UserCache {
     }
 
     @Override
+    public List<UUID> allUUIDs() {
+        return new ArrayList<>(nameUUIDMap.values());
+    }
+
+    @Override
     public void load() {
 
         int i = 0;
         try {
-            for (String key : Flash.getInstance().getUserHandler().getUsersYML().gc().getConfigurationSection("users").getKeys(false)) {
+            for (String key : Flash.getInstance().getUserHandler().getUsersYML().gc().getConfigurationSection("profiles").getKeys(false)) {
                 UUID uuid = UUID.fromString(key);
-                String name = Flash.getInstance().getUserHandler().getUsersYML().gc().getString("users." + key + ".name");
+                String name = Flash.getInstance().getUserHandler().getUsersYML().gc().getString("profiles." + key + ".name");
 
                 uuidNameMap.put(uuid, name);
                 nameUUIDMap.put(name, uuid);
@@ -51,6 +57,9 @@ public class FlatFileCache extends UserCache {
     @Override
     public void update(UUID uuid, String name) {
         // User updates will already handle this.
+
+        uuidNameMap.put(uuid, name);
+        nameUUIDMap.put(name, uuid);
     }
 
 }

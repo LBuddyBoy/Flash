@@ -1,8 +1,8 @@
-package dev.lbuddyboy.flash.util;
+package dev.lbuddyboy.flash.util.bukkit;
 
 import dev.lbuddyboy.flash.Flash;
+import dev.lbuddyboy.flash.util.Callable;
 import org.bukkit.Bukkit;
-import org.bukkit.scheduler.BukkitTask;
 
 public class Tasks {
 
@@ -15,25 +15,19 @@ public class Tasks {
     }
 
     public static void runLater(Callable callable, long delay) {
-
         Bukkit.getServer().getScheduler().runTaskLater(Flash.getInstance(), callable::call, delay);
     }
 
-    public static BukkitTask runAsyncLater(Callable callable, long delay) {
-        return Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(Flash.getInstance(), callable::call, delay);
+    public static void runAsyncLater(Callable callable, long delay) {
+        Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(Flash.getInstance(), callable::call, delay);
     }
 
     public static void runTimer(Callable callable, long delay, long interval) {
-
         Bukkit.getServer().getScheduler().runTaskTimer(Flash.getInstance(), callable::call, delay, interval);
     }
 
     public static void runAsyncTimer(Callable callable, long delay, long interval) {
-
         Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(Flash.getInstance(), callable::call, delay, interval);
     }
 
-    public interface Callable {
-        void call();
-    }
 }

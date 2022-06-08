@@ -5,20 +5,18 @@ import dev.lbuddyboy.flash.FlashMenuLanguage;
 import dev.lbuddyboy.flash.user.listener.PunishmentListener;
 import dev.lbuddyboy.flash.user.model.Punishment;
 import dev.lbuddyboy.flash.user.model.PunishmentType;
-import dev.lbuddyboy.flash.util.CC;
-import dev.lbuddyboy.flash.util.ItemBuilder;
-import dev.lbuddyboy.flash.util.UUIDUtils;
+import dev.lbuddyboy.flash.util.bukkit.CC;
+import dev.lbuddyboy.flash.util.bukkit.ItemBuilder;
+import dev.lbuddyboy.flash.util.bukkit.UserUtils;
 import dev.lbuddyboy.flash.util.menu.Button;
 import dev.lbuddyboy.flash.util.menu.button.BackButton;
 import dev.lbuddyboy.flash.util.menu.paged.PagedMenu;
 import lombok.AllArgsConstructor;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -83,39 +81,39 @@ public class PunishmentHistoryMenu extends PagedMenu<Punishment> {
 
         @Override
         public ItemStack getItem() {
-            if (punishment.isRemoved()) {
+            if (punishment.isRemoved() || punishment.isExpired()) {
                 return new ItemBuilder(FlashMenuLanguage.PUNISHMENTS_MENU_REMOVED_PUNISHMENT_BUTTON_MATERIAL.getMaterial())
                         .setLore(FlashMenuLanguage.PUNISHMENTS_MENU_REMOVED_PUNISHMENT_BUTTON_LORE.getStringList(),
-                                "%ADDEDBY%", UUIDUtils.formattedName(punishment.getSentBy()),
+                                "%ADDEDBY%", UserUtils.formattedName(punishment.getSentBy()),
                                 "%ADDEDFOR%", punishment.getSentFor(),
                                 "%ADDEDAT%", punishment.getAddedAtDate(),
                                 "%TIMELEFT%", punishment.getExpireString(),
                                 "%SERVER%", punishment.getServer(),
-                                "%REMOVEDBY%", UUIDUtils.formattedName(punishment.getRemovedBy()),
+                                "%REMOVEDBY%", UserUtils.formattedName(punishment.getRemovedBy()),
                                 "%REMOVEDFOR%", punishment.getRemovedFor(),
                                 "%REMOVEDAT%", punishment.getRemovedAtDate()
                         )
                         .setName(FlashMenuLanguage.PUNISHMENTS_MENU_REMOVED_PUNISHMENT_BUTTON_NAME.getString(),
-                                "%ADDEDBY%", UUIDUtils.formattedName(punishment.getSentBy()),
+                                "%ADDEDBY%", UserUtils.formattedName(punishment.getSentBy()),
                                 "%ADDEDFOR%", punishment.getSentFor(),
                                 "%ADDEDAT%", punishment.getAddedAtDate(),
                                 "%TIMELEFT%", punishment.getExpireString(),
                                 "%SERVER%", punishment.getServer(),
-                                "%REMOVEDBY%", UUIDUtils.formattedName(punishment.getRemovedBy()),
-                                "%REMOVEDFOR%", punishment.getRemovedFor(),
-                                "%REMOVEDAT%", punishment.getRemovedAtDate())
+                                "%REMOVEDBY%", punishment.isExpired() ? "&4Console" : UserUtils.formattedName(punishment.getRemovedBy()),
+                                "%REMOVEDFOR%", punishment.isExpired() ? "Expired" : punishment.getRemovedFor(),
+                                "%REMOVEDAT%", punishment.isExpired() ? punishment.getExpiresAtDate() : punishment.getRemovedAtDate())
                         .setDurability(FlashMenuLanguage.PUNISHMENTS_MENU_REMOVED_PUNISHMENT_BUTTON_DATA.getInt())
                         .create();
             }
             return new ItemBuilder(FlashMenuLanguage.PUNISHMENTS_MENU_PUNISHMENT_BUTTON_MATERIAL.getMaterial())
                     .setName(FlashMenuLanguage.PUNISHMENTS_MENU_PUNISHMENT_BUTTON_NAME.getString(),
-                            "%ADDEDBY%", UUIDUtils.formattedName(punishment.getSentBy()),
+                            "%ADDEDBY%", UserUtils.formattedName(punishment.getSentBy()),
                             "%SERVER%", punishment.getServer(),
                             "%ADDEDFOR%", punishment.getSentFor(),
                             "%ADDEDAT%", punishment.getAddedAtDate(),
                             "%TIMELEFT%", punishment.getExpireString())
                     .setLore(FlashMenuLanguage.PUNISHMENTS_MENU_PUNISHMENT_BUTTON_LORE.getStringList(),
-                            "%ADDEDBY%", UUIDUtils.formattedName(punishment.getSentBy()),
+                            "%ADDEDBY%", UserUtils.formattedName(punishment.getSentBy()),
                             "%SERVER%", punishment.getServer(),
                             "%ADDEDFOR%", punishment.getSentFor(),
                             "%ADDEDAT%", punishment.getAddedAtDate(),

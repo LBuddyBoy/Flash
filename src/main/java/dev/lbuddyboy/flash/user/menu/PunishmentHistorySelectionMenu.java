@@ -2,10 +2,9 @@ package dev.lbuddyboy.flash.user.menu;
 
 import dev.lbuddyboy.flash.FlashMenuLanguage;
 import dev.lbuddyboy.flash.user.model.PunishmentType;
-import dev.lbuddyboy.flash.util.CC;
-import dev.lbuddyboy.flash.util.ColorUtil;
-import dev.lbuddyboy.flash.util.ItemBuilder;
-import dev.lbuddyboy.flash.util.UUIDUtils;
+import dev.lbuddyboy.flash.util.bukkit.CC;
+import dev.lbuddyboy.flash.util.bukkit.ColorUtil;
+import dev.lbuddyboy.flash.util.bukkit.ItemBuilder;
 import dev.lbuddyboy.flash.util.menu.Button;
 import dev.lbuddyboy.flash.util.menu.Menu;
 import lombok.AllArgsConstructor;

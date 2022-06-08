@@ -7,13 +7,13 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 
-public class EncryptionHandler {
+public class HashUtil {
 
     private final Cipher ecipher;
     private final Cipher dcipher;
     private static final String key = "bcD@g@s3%92B&#Zq";
 
-    public EncryptionHandler(SecretKey key) throws Exception {
+    public HashUtil(SecretKey key) throws Exception {
         ecipher = Cipher.getInstance("AES");
         dcipher = Cipher.getInstance("AES");
         ecipher.init(Cipher.ENCRYPT_MODE, key);
@@ -37,10 +37,10 @@ public class EncryptionHandler {
 
     public static String encryptUsingKey(String str) {
         SecretKey secretKey = new SecretKeySpec(key.getBytes(), "AES");
-        EncryptionHandler encrypter;
+        HashUtil encrypter;
 
         try {
-            encrypter = new EncryptionHandler(secretKey);
+            encrypter = new HashUtil(secretKey);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -58,9 +58,9 @@ public class EncryptionHandler {
 
     public static String decryptUsingKey(String str) {
         SecretKey secretKey = new SecretKeySpec(key.getBytes(), "AES");
-        EncryptionHandler encrypter;
+        HashUtil encrypter;
         try {
-            encrypter = new EncryptionHandler(secretKey);
+            encrypter = new HashUtil(secretKey);
         } catch (Exception e) {
             e.printStackTrace();
             return null;

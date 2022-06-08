@@ -2,7 +2,7 @@ package dev.lbuddyboy.flash.handler;
 
 import dev.lbuddyboy.flash.Flash;
 import dev.lbuddyboy.flash.redis.sub.JedisSubscriber;
-import dev.lbuddyboy.flash.util.CC;
+import dev.lbuddyboy.flash.util.bukkit.CC;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import redis.clients.jedis.Jedis;

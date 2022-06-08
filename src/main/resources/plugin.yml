@@ -2,3 +2,7 @@ name: Flash
 main: dev.lbuddyboy.flash.Flash
 author: LBuddyBoy
 version: 1.0
+soft-depend:
+  - LuckPerms
+  - PlaceholderAPI
+  - Vault

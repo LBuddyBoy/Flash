@@ -9,7 +9,8 @@ import dev.lbuddyboy.flash.user.model.Punishment;
 import dev.lbuddyboy.flash.user.model.PunishmentType;
 import dev.lbuddyboy.flash.user.packet.PunishmentAddPacket;
 import dev.lbuddyboy.flash.user.packet.PunishmentSendPacket;
-import dev.lbuddyboy.flash.util.CC;
+import dev.lbuddyboy.flash.util.bukkit.CC;
+import dev.lbuddyboy.flash.util.bukkit.UserUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -42,7 +43,7 @@ public class KickCommand extends BaseCommand {
             }
         }
 
-        Punishment punishment = new Punishment(UUID.randomUUID(), PunishmentType.BAN, uuid, senderUUID, System.currentTimeMillis(), Long.MAX_VALUE, reason, FlashLanguage.SERVER_NAME.getString(), !isPub);
+        Punishment punishment = new Punishment(UUID.randomUUID(), PunishmentType.KICK, uuid, senderUUID, System.currentTimeMillis(), Long.MAX_VALUE, reason, FlashLanguage.SERVER_NAME.getString(), !isPub);
 
         if (Bukkit.getPlayer(uuid) != null) {
             user.getPunishments().add(punishment);
@@ -52,6 +53,7 @@ public class KickCommand extends BaseCommand {
         }
 
         new PunishmentSendPacket(punishment).send();
+        if (senderUUID != null) UserUtils.addPunishment(senderUUID, punishment);
 
     }
 

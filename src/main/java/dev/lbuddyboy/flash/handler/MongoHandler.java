@@ -1,31 +1,24 @@
 package dev.lbuddyboy.flash.handler;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.mongodb.*;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.util.CC;
-import dev.lbuddyboy.flash.util.gson.GSONUtils;
+import dev.lbuddyboy.flash.util.bukkit.CC;
 import lombok.Getter;
 import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import java.lang.reflect.Type;
-import java.util.List;
-import java.util.UUID;
-
+@Getter
 public class MongoHandler {
 
 	MongoClient mongoClient;
 	com.mongodb.client.MongoClient mongoClientURI;
 
-	@Getter private MongoCollection<Document> userCollection;
-	@Getter private MongoCollection<Document> rankCollection;
-	@Getter private MongoDatabase mongoDatabase;
+	private MongoCollection<Document> userCollection, rankCollection, cacheCollection, prefixCollection;
+	private MongoDatabase mongoDatabase;
 
 	public MongoHandler() {
 		if (!Flash.getInstance().getConfig().getBoolean("mongo.use")) {
@@ -76,6 +69,8 @@ public class MongoHandler {
 
 		this.userCollection = getMongoDatabase().getCollection("Users");
 		this.rankCollection = getMongoDatabase().getCollection("Ranks");
+		this.cacheCollection = getMongoDatabase().getCollection("Cache");
+		this.prefixCollection = getMongoDatabase().getCollection("Prefixes");
 	}
 
 }

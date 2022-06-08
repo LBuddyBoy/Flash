@@ -68,6 +68,13 @@
             <artifactId>mongo-java-driver</artifactId>
             <version>3.12.10</version>
         </dependency>
+        <dependency>
+            <groupId>net.lucko</groupId>
+            <artifactId>LuckPerms-Bukkit-5.3.74</artifactId>
+            <version>3.7.0-BETA</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/LuckPerms-Bukkit-5.3.74.jar</systemPath>
+        </dependency>
     </dependencies>
 
 </project>

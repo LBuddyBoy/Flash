@@ -9,7 +9,7 @@ import dev.lbuddyboy.flash.user.model.Punishment;
 import dev.lbuddyboy.flash.user.model.PunishmentType;
 import dev.lbuddyboy.flash.user.packet.PunishmentRemovePacket;
 import dev.lbuddyboy.flash.user.packet.PunishmentSendPacket;
-import dev.lbuddyboy.flash.util.CC;
+import dev.lbuddyboy.flash.util.bukkit.CC;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -55,11 +55,8 @@ public class UnMuteCommand extends BaseCommand {
         punishment.setRemovedSilent(!isPub);
         punishment.setRemovedFor(reason);
 
-        if (Bukkit.getPlayer(uuid) != null) {
-            user.save(true);
-        } else {
-            new PunishmentRemovePacket(uuid, punishment).send();
-        }
+        new PunishmentRemovePacket(uuid, punishment).send();
+        user.save(true);
 
         new PunishmentSendPacket(punishment).send();
 

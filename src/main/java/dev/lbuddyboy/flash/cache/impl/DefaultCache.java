@@ -1,7 +1,7 @@
 package dev.lbuddyboy.flash.cache.impl;
 
 import dev.lbuddyboy.flash.cache.UserCache;
-import dev.lbuddyboy.flash.util.CC;
+import dev.lbuddyboy.flash.util.bukkit.CC;
 import org.bukkit.Bukkit;
 
 import java.util.UUID;

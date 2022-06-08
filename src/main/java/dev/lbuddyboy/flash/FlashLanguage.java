@@ -1,6 +1,6 @@
 package dev.lbuddyboy.flash;
 
-import dev.lbuddyboy.flash.util.CC;
+import dev.lbuddyboy.flash.util.bukkit.CC;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -13,7 +13,30 @@ public enum FlashLanguage {
 
     CACHE_TYPE("SETTINGS.CACHE_TYPE", "REDIS"),
     SERVER_NAME("SETTINGS.SERVER_NAME", "Flash"),
+    SERVER_IP("SETTINGS.SERVER_IP", "lbuddyboy.me"),
     TIMEZONE("SETTINGS.TIMEZONE", "EST"),
+    FORMAT_CHAT("SETTINGS.FORMAT-CHAT", true),
+    CHAT_MUTED("SETTINGS.CHAT-MUTED", false),
+    CHAT_SLOW("SETTINGS.CHAT-SLOW", 0),
+
+    NAMEMC_RANK_CLAIM_COMMANDS("NAMEMC.CLAIMED_COMMANDS", Arrays.asList(
+            "user addrank %TARGET% Flash perm Global Claimed NameMC",
+            "bc &4&l[NAMEMC] &r%TARGET_COLORED% &fhas just liked &c&nlbuddyboy.me&f on NameMC by doing &9&n/namemc&f!"
+    )),
+
+    ESSENTIALS_HELPOP_COOLDOWN("ESSENTIALS.HELPOP.COOLDOWN", 60),
+    ESSENTIALS_HELPOP_SENDER_MESSAGE("ESSENTIALS.HELPOP.MESSAGE.SENDER", "&aYou have requested for assistance and a staff will be with you shortly."),
+    ESSENTIALS_HELPOP_STAFF_MESSAGE("ESSENTIALS.HELPOP.COOLDOWN", Arrays.asList(
+            "&4&l[HELPOP] %PLAYER_COLORED% &fneeds &eassistance&f on &c%SERVER%&f.",
+            "&7 - &cReason&7: &f%REASON%"
+    )),
+    ESSENTIALS_REPORT_SENDER_MESSAGE("ESSENTIALS.REPORT.MESSAGE.SENDER", "&aYou have requested for assistance and a staff will be with you shortly."),
+    ESSENTIALS_REPORT_STAFF_MESSAGE("ESSENTIALS.REPORT.COOLDOWN", Arrays.asList(
+            "&4&l[REPORT] %PLAYER_COLORED% &fneeds &eassistance&f on &c%SERVER%&f.",
+            "&7 - &cReported&7: &f%TARGET_COLORED%",
+            "&7 - &cReason&7: &f%REASON%"
+    )),
+    ESSENTIALS_BROADCAST_PREFIX("ESSENTIALS.BROADCAST.PREFIX", "&7[&cAlert&7] "),
 
     PUNISHMENT_WARN_COLOR("PUNISHMENTS.WARN.COLOR", "GRAY"),
     PUNISHMENT_KICK_COLOR("PUNISHMENTS.KICK.COLOR", "GREEN"),
@@ -61,23 +84,28 @@ public enum FlashLanguage {
     RANK_SET_SUFFIX("RANK.SET_SUFFIX", "&aUpdated the &r%rank%'s&a suffix from &r%old-suffix%&f to &r%new-suffix%&f."),
     RANK_ADD_PERM("RANK.ADD_PERM", "&aAdded the &f%permission%&a to the &r%rank%'s permission list&a."),
     RANK_REMOVE_PERM("RANK.REMOVE_PERM", "&aRemoved the &f%permission%&a from the &r%rank%'s permission list&a."),
+    RANK_ADD_INHERIT("RANK.ADD_INHERIT", "&aAdded the &f%inherit%&a to the &r%rank%'s inheritance&a."),
+    RANK_REMOVE_INHERIT("RANK.REMOVE_INHERIT", "&aRemoved the &f%inherit%&a from the &r%rank%'s inheritance&a."),
     RANK_CREATE("RANK.CREATE", "&aCreated the &r%rank%&f."),
     RANK_DELETE("RANK.DELETE", "&aDeleted the &r%rank%&f."),
-    RANK_SET_DEFAULT("RANK.SET_DEFAULT", "&aDeleted the &r%rank%&f."),
+    RANK_SET_DEFAULT("RANK.SET_DEFAULT", "&aToggled the default status of &r%rank%&f from %old-status% to %new-status%."),
+
     RANK_LIST_HEADER("RANK.LIST_HEADER", Arrays.asList(
             CC.CHAT_BAR,
             "&4&lRank List",
             CC.CHAT_BAR
     )),
     RANK_LIST_FORMAT("RANK.LIST_FORMAT", CC.UNICODE_ARROW_RIGHT + " &r%display%&7 &7(%rank%) (W: %weight%) (P: %prefix%&7) (S: %suffix%&7) (D: %default%)"),
+    RANK_HELP("RANK.HELP_HEADER", Arrays.asList(
+            CC.CHAT_BAR,
+            "&4&lRank Command Help &7(%page%/%max-pages%)",
+            CC.CHAT_BAR
+    )),
 
     INVALID_USER("USER.INVALID_USER", "&cCould not find that user in our database."),
-    USER_COMMAND_HELP("USER.COMMAND_HELP", Arrays.asList(
+    USER_COMMAND_HELP("USER.HELP_HEADER", Arrays.asList(
             CC.CHAT_BAR,
-            "&4&lUser Command Help",
-            CC.CHAT_BAR,
-            "&f/user - displays this message",
-            "&",
+            "&4&lUser Command Help &7(%page%/%max-pages%)",
             CC.CHAT_BAR
     )),
 
@@ -85,7 +113,14 @@ public enum FlashLanguage {
     GRANTED_USER_RANK_TARGET("USER.GRANTED_RANK_TARGET", "&aYou have been granted the &r%RANK%&a rank. Expires in: &e%DURATION%"),
 
     GRANTED_USER_PERMISSION_SENDER("USER.GRANTED_PERMISSION_SENDER", "&aGranted &r%PLAYER_DISPLAY% &athe &r%PERMISSION%&a permission. Expires in: &e%DURATION%"),
-    GRANTED_USER_RANK_SENDER("USER.GRANTED_RANK_SENDER", "&aGranted &r%PLAYER_DISPLAY% &athe &r%RANK%&a rank. Expires in: &e%DURATION%");
+    GRANTED_USER_RANK_SENDER("USER.GRANTED_RANK_SENDER", "&aGranted &r%PLAYER_DISPLAY% &athe &r%RANK%&a rank. Expires in: &e%DURATION%"),
+
+    TIPS_LIST("TIPS.TIPS", Arrays.asList(
+            "&6&l[TIP-1] &fPut something here",
+            "&6&l[TIP-2] &fPut something else here"
+    )),
+
+    TIPS_DELAY_SECONDS("TIPS.DELAY_SECONDS", 60);
 
     private final String path;
     private final Object value;
@@ -97,6 +132,15 @@ public enum FlashLanguage {
         loadDefault();
 
         return String.valueOf(this.value);
+    }
+
+    public boolean getBoolean() {
+        if (Flash.getInstance().getConfig().contains(this.path))
+            return Flash.getInstance().getConfig().getBoolean(this.path);
+
+        loadDefault();
+
+        return Boolean.parseBoolean(String.valueOf(this.value));
     }
 
     public int getInt() {
@@ -113,6 +157,11 @@ public enum FlashLanguage {
         loadDefault();
 
         return (List<String>) this.value;
+    }
+
+    public void update(Object value) {
+        Flash.getInstance().getConfig().set(this.path, value);
+        Flash.getInstance().saveConfig();
     }
 
     public void loadDefault() {

@@ -1,28 +1,23 @@
 package dev.lbuddyboy.flash.handler;
 
+import com.mongodb.client.model.Filters;
 import dev.lbuddyboy.flash.Flash;
 import dev.lbuddyboy.flash.FlashLanguage;
-import dev.lbuddyboy.flash.cache.impl.DefaultCache;
-import dev.lbuddyboy.flash.cache.impl.FlatFileCache;
-import dev.lbuddyboy.flash.cache.impl.MongoCache;
-import dev.lbuddyboy.flash.cache.impl.RedisCache;
+import dev.lbuddyboy.flash.thread.UserUpdateThread;
 import dev.lbuddyboy.flash.user.User;
 import dev.lbuddyboy.flash.user.impl.FlatFileUser;
 import dev.lbuddyboy.flash.user.impl.MongoUser;
 import dev.lbuddyboy.flash.user.impl.RedisUser;
-import dev.lbuddyboy.flash.user.listener.GrantListener;
-import dev.lbuddyboy.flash.user.listener.PunishmentListener;
-import dev.lbuddyboy.flash.user.listener.UserListener;
-import dev.lbuddyboy.flash.util.Tasks;
+import dev.lbuddyboy.flash.user.listener.*;
+import dev.lbuddyboy.flash.user.model.Prefix;
 import dev.lbuddyboy.flash.util.YamlDoc;
+import dev.lbuddyboy.flash.util.gson.GSONUtils;
 import lombok.Getter;
+import lombok.Setter;
 import org.bson.Document;
-import org.bukkit.Bukkit;
 import redis.clients.jedis.JedisPool;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -31,9 +26,12 @@ public class UserHandler {
 
     private final Map<UUID, User> users;
     private YamlDoc usersYML;
+    @Setter
+    private List<Prefix> prefixes;
 
     public UserHandler() {
         this.users = new ConcurrentHashMap<>();
+        this.prefixes = new ArrayList<>();
 
         switch (FlashLanguage.CACHE_TYPE.getString().toUpperCase()) {
             case "FLATFILE":
@@ -42,16 +40,14 @@ public class UserHandler {
                 break;
         }
 
-        Tasks.runAsyncTimer(() -> {
-            for (User user : users.values()) {
-                user.updatePerms();
-                user.updateGrants();
-            }
-        }, 20 * 5, 20 * 5);
+        for (Document document : Flash.getInstance().getMongoHandler().getPrefixCollection().find()) prefixes.add(GSONUtils.getGSON().fromJson(document.toJson(), GSONUtils.PREFIX));
 
+        Flash.getInstance().getServer().getPluginManager().registerEvents(new FreezeListener(), Flash.getInstance());
         Flash.getInstance().getServer().getPluginManager().registerEvents(new GrantListener(), Flash.getInstance());
+        Flash.getInstance().getServer().getPluginManager().registerEvents(new NoteListener(), Flash.getInstance());
         Flash.getInstance().getServer().getPluginManager().registerEvents(new PunishmentListener(), Flash.getInstance());
         Flash.getInstance().getServer().getPluginManager().registerEvents(new UserListener(), Flash.getInstance());
+
     }
 
     public User getUser(UUID uuid, boolean searchDb) {
@@ -95,6 +91,24 @@ public class UserHandler {
         }
     }
 
+    public void deleteUser(UUID uuid) {
+        User user = tryUser(uuid, true);
+        if (user == null) return;
+
+        users.remove(uuid);
+        switch (FlashLanguage.CACHE_TYPE.getString().toUpperCase()) {
+            case "REDIS":
+                RedisHandler.requestJedis().getResource().hdel("Users", uuid.toString());
+            case "MONGO":
+                Flash.getInstance().getMongoHandler().getUserCollection().deleteOne(Filters.eq("uuid", uuid.toString()));
+            case "FLATFILE":
+            case "YAML":
+                // NOT SUPPORTED
+            default:
+                // NOT SUPPORTED
+        }
+    }
+
     public void relativeAlts(String ip, List<UUID> alts) {
         CompletableFuture.supplyAsync(() -> {
             switch (FlashLanguage.CACHE_TYPE.getString().toUpperCase()) {
@@ -128,6 +142,13 @@ public class UserHandler {
             }
             return true;
         });
+    }
+
+    public Prefix getPrefix(String lookUp) {
+        for (Prefix prefix : this.prefixes) {
+            if (prefix.getId().equals(lookUp)) return prefix;
+        }
+        return null;
     }
 
 }

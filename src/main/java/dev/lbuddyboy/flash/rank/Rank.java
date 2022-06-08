@@ -26,6 +26,7 @@ public abstract class Rank {
     public abstract void load();
     public abstract void delete();
     public abstract void save(boolean async);
+    public abstract List<UUID> getUsersWithRank();
 
     public String getColoredName() {
         return this.color + this.name;

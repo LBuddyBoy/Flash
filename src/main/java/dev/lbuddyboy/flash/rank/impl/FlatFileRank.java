@@ -1,14 +1,14 @@
 package dev.lbuddyboy.flash.rank.impl;
 
 import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.handler.RedisHandler;
 import dev.lbuddyboy.flash.rank.Rank;
-import dev.lbuddyboy.flash.util.Tasks;
-import dev.lbuddyboy.flash.util.gson.GSONUtils;
+import dev.lbuddyboy.flash.user.User;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class FlatFileRank extends Rank {
@@ -61,30 +61,40 @@ public class FlatFileRank extends Rank {
     }
 
     private void save(boolean async, boolean reload) {
-        if (!async) {
-            FileConfiguration config = Flash.getInstance().getRankHandler().getRanksYML().gc();
-            String path = "ranks." + getUuid().toString() + ".";
+        FileConfiguration config = Flash.getInstance().getRankHandler().getRanksYML().gc();
+        String path = "ranks." + getUuid().toString() + ".";
 
-            config.set(path + "uuid", this.uuid.toString());
-            config.set(path + "name", this.name);
-            config.set(path + "displayName", this.displayName);
-            config.set(path + "color", this.color.name());
-            config.set(path + "weight", this.weight);
-            config.set(path + "default", this.defaultRank);
-            config.set(path + "prefix", this.prefix);
-            config.set(path + "suffix", this.suffix);
-            config.set(path + "permissions", this.permissions);
-            config.set(path + "inheritance", this.inheritance);
+        config.set(path + "uuid", this.uuid.toString());
+        config.set(path + "name", this.name);
+        config.set(path + "displayName", this.displayName);
+        config.set(path + "color", this.color.name());
+        config.set(path + "weight", this.weight);
+        config.set(path + "default", this.defaultRank);
+        config.set(path + "prefix", this.prefix);
+        config.set(path + "suffix", this.suffix);
+        config.set(path + "permissions", this.permissions);
+        config.set(path + "inheritance", this.inheritance);
 
-            try {
-                Flash.getInstance().getRankHandler().getRanksYML().save();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            if (reload) load();
-            return;
+        try {
+            Flash.getInstance().getRankHandler().getRanksYML().save();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        if (reload) load();
+    }
+
+    @Override
+    public List<UUID> getUsersWithRank() {
+        List<UUID> peopleWithThisRank = new ArrayList<>();
+
+        for (UUID uuid : Flash.getInstance().getCacheHandler().getUserCache().allUUIDs()) {
+            User user = Flash.getInstance().getUserHandler().tryUser(uuid, true);
+
+            if (user == null) continue;
+
+            if (user.getActiveRank() != null && user.getActiveRank().getUuid().toString().equalsIgnoreCase(this.uuid.toString())) peopleWithThisRank.add(uuid);
         }
 
-        Tasks.runAsync(() -> save(false, reload));
+        return peopleWithThisRank;
     }
 }

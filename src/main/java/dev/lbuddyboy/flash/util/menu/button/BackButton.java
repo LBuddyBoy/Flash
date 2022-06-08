@@ -1,6 +1,6 @@
 package dev.lbuddyboy.flash.util.menu.button;
 
-import dev.lbuddyboy.flash.util.ItemBuilder;
+import dev.lbuddyboy.flash.util.bukkit.ItemBuilder;
 import dev.lbuddyboy.flash.util.menu.Button;
 import dev.lbuddyboy.flash.util.menu.Menu;
 import lombok.AllArgsConstructor;

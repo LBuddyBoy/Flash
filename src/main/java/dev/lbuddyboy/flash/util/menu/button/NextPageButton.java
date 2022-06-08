@@ -1,6 +1,6 @@
 package dev.lbuddyboy.flash.util.menu.button;
 
-import dev.lbuddyboy.flash.util.ItemBuilder;
+import dev.lbuddyboy.flash.util.bukkit.ItemBuilder;
 import dev.lbuddyboy.flash.util.menu.Button;
 import dev.lbuddyboy.flash.util.menu.paged.PagedMenu;
 import lombok.AllArgsConstructor;
@@ -8,8 +8,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.List;
 
 @AllArgsConstructor
 public class NextPageButton<T> extends Button {

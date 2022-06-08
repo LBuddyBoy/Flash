@@ -1,11 +1,13 @@
 package dev.lbuddyboy.flash.user.packet;
 
+import dev.lbuddyboy.flash.Flash;
 import dev.lbuddyboy.flash.FlashLanguage;
 import dev.lbuddyboy.flash.redis.JedisPacket;
+import dev.lbuddyboy.flash.user.User;
 import dev.lbuddyboy.flash.user.model.Punishment;
 import dev.lbuddyboy.flash.user.model.PunishmentType;
-import dev.lbuddyboy.flash.util.CC;
-import dev.lbuddyboy.flash.util.Tasks;
+import dev.lbuddyboy.flash.util.bukkit.CC;
+import dev.lbuddyboy.flash.util.bukkit.Tasks;
 import lombok.AllArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -33,7 +35,7 @@ public class PunishmentSendPacket implements JedisPacket {
         );
 
         target.sendMessage(message);
-        if (punishment.getType() == PunishmentType.MUTE ||punishment.getType() == PunishmentType.WARN) return;
+        if (punishment.getType() == PunishmentType.MUTE || punishment.getType() == PunishmentType.WARN) return;
         Tasks.run(() -> target.kickPlayer(message));
 
     }

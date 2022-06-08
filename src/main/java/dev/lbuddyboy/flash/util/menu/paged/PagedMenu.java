@@ -40,28 +40,38 @@ public abstract class PagedMenu<T> extends Menu {
 
         if (page == 1) range = new IntRange(1, getButtonSlots().length);
 
-        int skipped = 1;
+        int skippedSlots = 1;
         int slotIndex = 0;
 
         for (Button button : getPageButtons(player)) {
-            if (skipped < range.getMinimumInteger()) {
-                skipped++;
+            if (skippedSlots < range.getMinimumInteger()) {
+                skippedSlots++;
                 continue;
             }
 
             buttons.add(Button.fromButton(getButtonSlots()[slotIndex], button));
-            if (slotIndex >= getMaxPageButtons(player)) {
+
+            if (slotIndex >= getMaxPageButtons(player) - 1) {
                 break;
             }
+
             slotIndex++;
         }
 
         buttons.addAll(getGlobalButtons(player));
 
-        buttons.add(new PreviousPageButton<T>(this, 20));
-        buttons.add(new NextPageButton<T>(this, 26));
+        buttons.add(new PreviousPageButton<T>(this, getPreviousButtonSlot()));
+        buttons.add(new NextPageButton<T>(this, getNextPageButtonSlot()));
 
         return buttons;
+    }
+
+    public int getPreviousButtonSlot() {
+        return 20;
+    }
+
+    public int getNextPageButtonSlot() {
+        return 26;
     }
 
     @Override
@@ -74,7 +84,7 @@ public abstract class PagedMenu<T> extends Menu {
     }
 
     public int getMaxPageButtons(Player player) {
-        return 14;
+        return DEFAULT_ITEM_SLOTS.length;
     }
 
     public int getMaxPages(List<T> objects) {

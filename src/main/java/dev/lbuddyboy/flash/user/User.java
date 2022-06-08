@@ -4,12 +4,10 @@ import dev.lbuddyboy.flash.Flash;
 import dev.lbuddyboy.flash.FlashLanguage;
 import dev.lbuddyboy.flash.rank.Rank;
 import dev.lbuddyboy.flash.user.comparator.*;
-import dev.lbuddyboy.flash.user.model.Grant;
-import dev.lbuddyboy.flash.user.model.Punishment;
-import dev.lbuddyboy.flash.user.model.PunishmentType;
-import dev.lbuddyboy.flash.user.model.UserPermission;
-import dev.lbuddyboy.flash.util.CC;
+import dev.lbuddyboy.flash.user.model.*;
+import dev.lbuddyboy.flash.util.bukkit.CC;
 import lombok.Data;
+import org.apache.commons.lang.WordUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -27,18 +25,22 @@ public abstract class User {
     public String ip = null;
     public List<UserPermission> permissions = new ArrayList<>();
     public List<String> knownIps = new ArrayList<>();
+    public List<UUID> blocked = new ArrayList<>();
     public List<Grant> grants = new ArrayList<>();
+    public List<Note> notes = new ArrayList<>();
     public List<Punishment> punishments = new ArrayList<>();
     public Grant activeGrant = null;
+    public Prefix activePrefix = null;
 
-    public String currentServer = null;
-    public String lastServer = null;
+    public PlayerInfo playerInfo = new PlayerInfo(true, false, null, -1, -1);
+    public StaffInfo staffInfo = new StaffInfo();
 
     public abstract void load();
 
     public abstract void save(boolean async);
 
     public String getDisplayName() {
+        if (activePrefix != null) return CC.translate(getActivePrefix().getDisplay() + getActiveRank().getPrefix() + name + getActiveRank().getSuffix());
         return CC.translate(getActiveRank().getPrefix() + name + getActiveRank().getSuffix());
     }
 
@@ -54,6 +56,15 @@ public abstract class User {
             return punishment;
         }
         return null;
+    }
+
+    public Note getNote(String title) {
+        return this.notes.stream().filter(note -> note.getTitle().equals(title)).collect(Collectors.toList()).get(0);
+    }
+
+    public Prefix getActivePrefix() {
+        if (activePrefix == null) return null;
+        return Flash.getInstance().getUserHandler().getPrefix(activePrefix.getId());
     }
 
     public boolean hasActivePunishment(PunishmentType type) {
@@ -91,6 +102,10 @@ public abstract class User {
         return this.grants.stream().sorted(new GrantWeightComparator().reversed().thenComparing(new GrantDateComparator().reversed())).collect(Collectors.toList());
     }
 
+    public List<Note> getSortedNotes() {
+        return this.notes.stream().sorted(new NoteDateComparator()).collect(Collectors.toList());
+    }
+
     public List<UserPermission> getActivePermissions() {
         return this.permissions.stream().filter(permission -> !permission.isExpired() && !permission.isRemoved()).collect(Collectors.toList());
     }
@@ -115,6 +130,7 @@ public abstract class User {
         List<Grant> grants = this.getActiveGrants().stream().sorted(new GrantWeightComparator().reversed().thenComparing(new GrantDateComparator().reversed())).collect(Collectors.toList());
 
         for (Grant grant : grants) {
+            if (grant.getRank() == null) continue;
             if (!Arrays.stream(grant.getScopes()).map(String::toLowerCase).collect(Collectors.toList()).contains("global") && !Arrays.asList(grant.getScopes()).contains(FlashLanguage.SERVER_NAME.getString()))
                 continue;
 
@@ -155,6 +171,7 @@ public abstract class User {
 
         PermissionAttachment attachment = player.addAttachment(Flash.getInstance());
 
+        if (player.isOp()) attachment.setPermission("op", true);
         getActiveRank().getPermissions().forEach(permission -> attachment.setPermission(permission, true));
         getActiveRank().getInheritedPermissions().forEach(permission -> attachment.setPermission(permission, true));
         getActivePermissions().stream().map(UserPermission::getNode).forEach(permission -> attachment.setPermission(permission, true));
@@ -162,14 +179,29 @@ public abstract class User {
         player.recalculatePermissions();
     }
 
+    public void addPerm(UserPermission permission) {
+        if (!permission.getNode().startsWith("group.")) {
+            this.permissions.add(permission);
+            return;
+        }
+        String striped = permission.getNode().replaceAll("group", "").replaceAll("\\.", "");
+        String key = WordUtils.capitalize(striped);
+
+        Rank rank = Flash.getInstance().getRankHandler().getRank(key);
+        if (rank == null) return;
+        Grant grant = new Grant(UUID.randomUUID(), rank.getUuid(), key, null, "Imported from LuckPerms", System.currentTimeMillis(), permission.getDuration(), new String[]{"GLOBAL"});
+
+        grants.add(grant);
+    }
+
     public String colorAlt() {
         ChatColor color = ChatColor.GRAY;
 
         if (Bukkit.getPlayer(uuid) != null) color = ChatColor.GREEN;
-        if (hasActivePunishment(PunishmentType.MUTE)) color = ChatColor.GOLD;
-        if (hasActivePunishment(PunishmentType.BAN)) color = ChatColor.RED;
-        if (hasActivePunishment(PunishmentType.IP_BAN)) color = ChatColor.YELLOW;
-        if (hasActivePunishment(PunishmentType.BLACKLIST)) color = ChatColor.DARK_RED;
+        if (hasActivePunishment(PunishmentType.MUTE)) color = getActivePunishment(PunishmentType.MUTE).getType().getColor();
+        if (hasActivePunishment(PunishmentType.BAN)) color = getActivePunishment(PunishmentType.BAN).getType().getColor();
+        if (hasActivePunishment(PunishmentType.IP_BAN)) color = getActivePunishment(PunishmentType.IP_BAN).getType().getColor();
+        if (hasActivePunishment(PunishmentType.BLACKLIST)) color = getActivePunishment(PunishmentType.BLACKLIST).getType().getColor();
 
         return color + name;
     }

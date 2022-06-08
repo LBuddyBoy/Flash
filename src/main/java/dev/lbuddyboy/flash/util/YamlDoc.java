@@ -1,5 +1,6 @@
 package dev.lbuddyboy.flash.util;
 
+import dev.lbuddyboy.flash.util.bukkit.CC;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 

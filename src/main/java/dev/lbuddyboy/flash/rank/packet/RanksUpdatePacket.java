@@ -3,7 +3,7 @@ package dev.lbuddyboy.flash.rank.packet;
 import dev.lbuddyboy.flash.Flash;
 import dev.lbuddyboy.flash.rank.Rank;
 import dev.lbuddyboy.flash.redis.JedisPacket;
-import dev.lbuddyboy.flash.util.CC;
+import dev.lbuddyboy.flash.util.bukkit.CC;
 import lombok.AllArgsConstructor;
 
 import java.util.Map;

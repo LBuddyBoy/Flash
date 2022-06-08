@@ -6,10 +6,7 @@ import co.aikar.commands.contexts.ContextResolver;
 import dev.lbuddyboy.flash.Flash;
 import dev.lbuddyboy.flash.FlashLanguage;
 import dev.lbuddyboy.flash.rank.Rank;
-import dev.lbuddyboy.flash.util.CC;
-import org.bukkit.entity.Player;
-
-import java.util.UUID;
+import dev.lbuddyboy.flash.util.bukkit.CC;
 
 public class RankParam implements ContextResolver<Rank, BukkitCommandExecutionContext> {
 

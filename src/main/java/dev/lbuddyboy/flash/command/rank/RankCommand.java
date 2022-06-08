@@ -5,17 +5,35 @@ import co.aikar.commands.annotation.*;
 import dev.lbuddyboy.flash.Flash;
 import dev.lbuddyboy.flash.FlashLanguage;
 import dev.lbuddyboy.flash.rank.Rank;
+import dev.lbuddyboy.flash.rank.editor.menu.RankEditorMenu;
+import dev.lbuddyboy.flash.rank.menu.RankListMenu;
 import dev.lbuddyboy.flash.rank.packet.RanksUpdatePacket;
-import dev.lbuddyboy.flash.util.CC;
+import dev.lbuddyboy.flash.util.bukkit.CC;
+import dev.lbuddyboy.flash.util.PagedItem;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
+import java.util.Arrays;
+import java.util.List;
 
 @CommandAlias("rank|ranks")
+@CommandPermission("flash.command.rank")
 public class RankCommand extends BaseCommand {
 
     @Default
-    public static void help(CommandSender sender) {
+    public static void def(CommandSender sender, @Name("page") @Default("1") int page) {
+        PagedItem item = new PagedItem(COMMANDS, FlashLanguage.RANK_HELP.getStringList(), 5);
 
+        item.send(sender, page);
+
+        sender.sendMessage(CC.CHAT_BAR);
+    }
+
+    @Subcommand("help")
+    public static void help(CommandSender sender, @Name("page") @Default("1") int page) {
+        def(sender, page);
     }
 
     @Subcommand("list|dump")
@@ -33,6 +51,15 @@ public class RankCommand extends BaseCommand {
             ));
         }
 
+    }
+
+    @Subcommand("info")
+    @CommandPermission("flash.command.rank.info")
+    @CommandCompletion("@rank")
+    public static void info(CommandSender sender, @Name("rank") Rank rank) {
+        sender.sendMessage(CC.translate("&cPermissions: " + StringUtils.join(rank.getPermissions(), ", ")));
+        sender.sendMessage(CC.translate("&cInherited Permissions: " + StringUtils.join(rank.getInheritedPermissions(), ", ")));
+        sender.sendMessage(CC.translate("&cInherited Ranks: " + StringUtils.join(rank.getInheritance(), ", ")));
     }
 
     @Subcommand("create")
@@ -78,7 +105,7 @@ public class RankCommand extends BaseCommand {
     public static void toggleDefault(CommandSender sender, @Name("rank") Rank rank) {
         String previous = rank.isDefaultRank() ? "True" : "False";
 
-        rank.setDefaultRank();
+        rank.setDefaultRank(!rank.isDefaultRank());
         rank.save(true);
 
         sender.sendMessage(CC.translate(FlashLanguage.RANK_SET_DEFAULT.getString(), "%rank%", rank.getColoredName(), "%old-status%", previous, "%new-status%", rank.isDefaultRank() ? "&aTrue" : "&cFalse"));
@@ -117,20 +144,21 @@ public class RankCommand extends BaseCommand {
 
     }
 
+    @Subcommand("editor")
+    @CommandPermission("flash.command.rank.editor")
+    public static void editor(Player sender) {
+        new RankListMenu(((player, rank) -> {
+            new RankEditorMenu(rank).openMenu(player);
+        })).openMenu(sender);
+    }
+
     @Subcommand("setcolor|color|setdisplaycolor")
     @CommandPermission("flash.command.rank.setcolor")
     @CommandCompletion("@rank @chatcolors")
-    public static void setColor(CommandSender sender, @Name("rank") Rank rank, @Name("newColor") String color) {
+    public static void setColor(CommandSender sender, @Name("rank") Rank rank, @Name("newColor") ChatColor color) {
         String previous = rank.getColor() + rank.getColor().name();
 
-        ChatColor chatColor = null;
-        try {
-            chatColor = ChatColor.valueOf(color);
-        } catch (Exception ignored) {
-            sender.sendMessage(CC.translate("&cThat is not that valid color."));
-        }
-        
-        rank.setColor(chatColor);
+        rank.setColor(color);
         rank.save(true);
 
         sender.sendMessage(CC.translate(FlashLanguage.RANK_SET_COLOR.getString(), "%rank%", rank.getColoredName(), "%old-color%", previous, "%new-color%", rank.getColor() + rank.getColor().name()));
@@ -144,7 +172,7 @@ public class RankCommand extends BaseCommand {
     @CommandCompletion("@rank")
     public static void setWeight(CommandSender sender, @Name("rank") Rank rank, @Name("newWeight") int weight) {
         int previous = rank.getWeight();
-        
+
         rank.setWeight(weight);
         rank.save(true);
 
@@ -159,7 +187,7 @@ public class RankCommand extends BaseCommand {
     @CommandCompletion("@rank")
     public static void setPrefix(CommandSender sender, @Name("rank") Rank rank, @Name("prefix") String prefix) {
         String previous = rank.getPrefix();
-        
+
         rank.setPrefix(prefix);
         rank.save(true);
 
@@ -174,7 +202,7 @@ public class RankCommand extends BaseCommand {
     @CommandCompletion("@rank")
     public static void setSuffix(CommandSender sender, @Name("rank") Rank rank, @Name("prefix") String suffix) {
         String previous = rank.getPrefix();
-        
+
         rank.setSuffix(suffix);
         rank.save(true);
 
@@ -203,7 +231,7 @@ public class RankCommand extends BaseCommand {
 
     }
 
-    @Subcommand("removepermission|removeperm")
+    @Subcommand("removepermission|removeperm|delperm|delpermission")
     @CommandPermission("flash.command.rank.removepermission")
     @CommandCompletion("@rank")
     public static void removePermission(CommandSender sender, @Name("rank") Rank rank, @Name("permission") String permission) {
@@ -221,5 +249,61 @@ public class RankCommand extends BaseCommand {
         new RanksUpdatePacket(Flash.getInstance().getRankHandler().getRanks()).send();
 
     }
+
+    @Subcommand("addinheritance|addinherit|addparent")
+    @CommandPermission("flash.command.rank.addinheritance")
+    @CommandCompletion("@rank @rank")
+    public static void addInherit(CommandSender sender, @Name("rank") Rank rank, @Name("rank") String inherit) {
+
+        if (rank.getInheritance().contains(inherit)) {
+            sender.sendMessage(CC.translate("&cThat rank already has that inheritance."));
+            return;
+        }
+
+        rank.getInheritance().add(inherit);
+        rank.save(true);
+
+        sender.sendMessage(CC.translate(FlashLanguage.RANK_ADD_INHERIT.getString(), "%rank%", rank.getColoredName(), "%inherit%", inherit));
+
+        new RanksUpdatePacket(Flash.getInstance().getRankHandler().getRanks()).send();
+
+    }
+
+    @Subcommand("removeinheritance|reminherit|reminheritance|removeinherit|delinherit|delinheritance")
+    @CommandPermission("flash.command.rank.removepermission")
+    @CommandCompletion("@rank @rank")
+    public static void removeInherit(CommandSender sender, @Name("rank") Rank rank, @Name("rank") String inherit) {
+
+        if (!rank.getInheritance().contains(inherit)) {
+            sender.sendMessage(CC.translate("&cThat rank doesn't have that inheritance."));
+            return;
+        }
+
+        rank.getInheritance().remove(inherit);
+        rank.save(true);
+
+        sender.sendMessage(CC.translate(FlashLanguage.RANK_REMOVE_INHERIT.getString(), "%rank%", rank.getColoredName(), "%inherit%", inherit));
+
+        new RanksUpdatePacket(Flash.getInstance().getRankHandler().getRanks()).send();
+
+    }
+
+    private static final int itemsPerPage = 5;
+    private static final List<String> COMMANDS = Arrays.asList(
+            "&c/rank editor &7- &fdisplay a menu to edit all ranks",
+            "&c/rank info <rank> &7- &fdisplay a list of the ranks attributes",
+            "&c/rank create <name> &7- &fcreates a new rank",
+            "&c/rank delete <rank> &7- &fdeletes an existing rank",
+            "&c/rank setname <rank> <name> &7- &fsets the ranks name attribute",
+            "&c/rank setprefix <rank> <prefix> &7- &fsets the ranks prefix attribute",
+            "&c/rank setsuffix <rank> <suffix> &7- &fsets the ranks suffix attribute",
+            "&c/rank addpermission <rank> <permission> &7- &fadds a permission to a rank",
+            "&c/rank delpermission <rank> <permission> &7- &fdeletes a permission from a rank",
+            "&c/rank addinheritance <rank> <rank> &7- &fadds an inheritance to a rank",
+            "&c/rank delinheritance <rank> <rank> &7- &fdeletes an inheritance from a rank",
+            "&c/rank setweight <rank> <weight> &7- &fsets the ranks weight attribute",
+            "&c/rank setdisplayname <rank> <name> &7- &fsets the ranks display name attribute",
+            "&c/rank setcolor <rank> <color> &7- &fsets the ranks color attribute"
+    );
 
 }

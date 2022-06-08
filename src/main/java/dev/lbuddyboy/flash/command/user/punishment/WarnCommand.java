@@ -9,9 +9,10 @@ import dev.lbuddyboy.flash.user.model.Punishment;
 import dev.lbuddyboy.flash.user.model.PunishmentType;
 import dev.lbuddyboy.flash.user.packet.PunishmentAddPacket;
 import dev.lbuddyboy.flash.user.packet.PunishmentSendPacket;
-import dev.lbuddyboy.flash.util.CC;
+import dev.lbuddyboy.flash.util.bukkit.CC;
 import dev.lbuddyboy.flash.util.JavaUtils;
 import dev.lbuddyboy.flash.util.TimeUtils;
+import dev.lbuddyboy.flash.util.bukkit.UserUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -75,6 +76,7 @@ public class WarnCommand extends BaseCommand {
         }
 
         new PunishmentSendPacket(punishment).send();
+        if (senderUUID != null) UserUtils.addPunishment(senderUUID, punishment);
 
     }
 

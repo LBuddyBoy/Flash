@@ -11,20 +11,33 @@ import dev.lbuddyboy.flash.user.model.UserPermission;
 import dev.lbuddyboy.flash.user.packet.GlobalMessagePacket;
 import dev.lbuddyboy.flash.user.packet.GrantAddPacket;
 import dev.lbuddyboy.flash.user.packet.PermissionAddPacket;
-import dev.lbuddyboy.flash.util.CC;
+import dev.lbuddyboy.flash.util.bukkit.CC;
 import dev.lbuddyboy.flash.util.JavaUtils;
+import dev.lbuddyboy.flash.util.PagedItem;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 @CommandAlias("user|profile")
+@CommandPermission("flash.command.user")
 public class UserCommand extends BaseCommand {
 
     @Default
-    public static void help(CommandSender sender) {
+    public static void def(CommandSender sender, @Name("page") @Default("1") int page) {
+        PagedItem item = new PagedItem(COMMANDS, FlashLanguage.USER_COMMAND_HELP.getStringList(), 5);
 
+        item.send(sender, page);
+
+        sender.sendMessage(CC.CHAT_BAR);
+    }
+
+    @Subcommand("help")
+    public static void help(CommandSender sender, @Name("page") @Default("1") int page) {
+        def(sender, page);
     }
 
     @Subcommand("info")
@@ -40,7 +53,7 @@ public class UserCommand extends BaseCommand {
 
     }
 
-    @Subcommand("addperm|addpermission")
+    @Subcommand("grantperm|addperm|addpermission")
     @CommandCompletion("@target")
     public static void permissionAdd(CommandSender sender, @Name("user") UUID uuid, @Single @Name("permission") String permission, @Single @Name("duration") String duration, @Name("reason") String reason) {
         long time = JavaUtils.parse(duration);
@@ -81,7 +94,7 @@ public class UserCommand extends BaseCommand {
 
     }
 
-    @Subcommand("addrank|grant")
+    @Subcommand("grantrank|addrank")
     @CommandCompletion("@target @rank")
     public static void rankAdd(CommandSender sender, @Name("user") UUID uuid, @Single @Name("rank") Rank rank, @Name("duration") @Single String duration, @Name("scopes") @Split String[] scopes, @Name("reason") String reason) {
         long time = JavaUtils.parse(duration);
@@ -121,5 +134,15 @@ public class UserCommand extends BaseCommand {
         new GlobalMessagePacket(uuid, message).send();
 
     }
+
+    private static final int itemsPerPage = 5;
+    private static final List<String> COMMANDS = Arrays.asList(
+            "&c/user editor &7- &fdisplay a menu to edit all users",
+            "&c/user editor <user> &7- &fdisplay a menu to edit a specific user",
+            "&c/user info <target> &7- &fdisplay a list of the users attributes",
+            "&c/grants <target> &7- &fdisplay a list of the users grants (ranks & perms)",
+            "&c/user grantrank <user> <rank> <time> <servers> <reason> &7- &fapplies a rank grant to an user",
+            "&c/user grantperm <user> <permission> <duration> <reason> &7- &fadds a permission to a user"
+    );
 
 }

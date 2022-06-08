@@ -29,7 +29,11 @@ public class Grant {
     private String removedFor;
 
     public Rank getRank() {
-        return Flash.getInstance().getRankHandler().getRanks().get(this.rank);
+        Rank rankLook = Flash.getInstance().getRankHandler().getRanks().get(this.rank);
+        if (rankLook == null) {
+            return Flash.getInstance().getRankHandler().getDefaultRank();
+        }
+        return rankLook;
     }
 
     public String getRankName() {

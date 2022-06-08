@@ -6,10 +6,10 @@ import dev.lbuddyboy.flash.rank.Rank;
 import dev.lbuddyboy.flash.user.listener.GrantListener;
 import dev.lbuddyboy.flash.user.model.GrantBuild;
 import dev.lbuddyboy.flash.user.model.PermissionBuild;
-import dev.lbuddyboy.flash.util.CC;
-import dev.lbuddyboy.flash.util.ColorUtil;
-import dev.lbuddyboy.flash.util.ItemBuilder;
-import dev.lbuddyboy.flash.util.UUIDUtils;
+import dev.lbuddyboy.flash.util.bukkit.CC;
+import dev.lbuddyboy.flash.util.bukkit.ColorUtil;
+import dev.lbuddyboy.flash.util.bukkit.ItemBuilder;
+import dev.lbuddyboy.flash.util.bukkit.UserUtils;
 import dev.lbuddyboy.flash.util.menu.Button;
 import dev.lbuddyboy.flash.util.menu.Menu;
 import dev.lbuddyboy.flash.util.menu.button.BackButton;
@@ -107,7 +107,7 @@ public class GrantMenu extends Menu {
 
             player.closeInventory();
             GrantListener.grantPermissionTargetMap.put(player.getName(), new PermissionBuild(uuid, null, null, null));
-            player.sendMessage(CC.translate("&aNow, type the permission node you would like to grant to " + UUIDUtils.formattedName(uuid) + "&a."));
+            player.sendMessage(CC.translate("&aNow, type the permission node you would like to grant to " + UserUtils.formattedName(uuid) + "&a."));
         }
 
     }
@@ -182,7 +182,7 @@ public class GrantMenu extends Menu {
 
             player.closeInventory();
             GrantListener.grantTargetMap.put(player.getName(), new GrantBuild(target, rank.getUuid(), null, null, null));
-            player.sendMessage(CC.translate("&aNow, type the reason for granting the " + rank.getColoredName() + " &arank to " + UUIDUtils.formattedName(target) + "&a."));
+            player.sendMessage(CC.translate("&aNow, type the reason for granting the " + rank.getColoredName() + " &arank to " + UserUtils.formattedName(target) + "&a."));
         }
     }
 

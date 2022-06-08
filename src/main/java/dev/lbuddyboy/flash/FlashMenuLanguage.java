@@ -1,13 +1,13 @@
 package dev.lbuddyboy.flash;
 
-import dev.lbuddyboy.flash.util.CC;
-import dev.lbuddyboy.flash.util.UUIDUtils;
+import dev.lbuddyboy.flash.util.bukkit.CC;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.bukkit.Material;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @AllArgsConstructor
@@ -18,13 +18,11 @@ public enum FlashMenuLanguage {
     PUNISHMENTS_SELECTION_MENU_FILL("PUNISHMENT_SELECTION_MENU.FILL", true),
 
     PUNISHMENTS_SELECTION_SELECT_BUTTON_NAME("PUNISHMENT_SELECTION_MENU.SELECT-BUTTON.NAME", "%PUNISHMENT_TYPE%'s"),
-    PUNISHMENTS_SELECTION_SELECT_BUTTON_LORE("PUNISHMENT_SELECTION_MENU.SELECT-BUTTON.LORE", Arrays.asList(
-            " ",
-            "&7Click to view the %PUNISHMENT_PLURAL%&7 of %TARGET_COLORED%&7.",
-            " "
+    PUNISHMENTS_SELECTION_SELECT_BUTTON_LORE("PUNISHMENT_SELECTION_MENU.SELECT-BUTTON.LORE", Collections.singletonList(
+            "&7Click to view the %PUNISHMENT_PLURAL%&7 of %TARGET_COLORED%&7."
     )),
 
-    PUNISHMENTS_MENU_TITLE("PUNISHMENTS_MENU.TITLE", "%PLAYER_DISPLAY%'s %PUNISHMENTS%"),
+    PUNISHMENTS_MENU_TITLE("PUNISHMENTS_MENU.TITLE", "%TARGET_DISPLAY%'s %PUNISHMENT_PLURAL%"),
     PUNISHMENTS_MENU_FILL("PUNISHMENTS_MENU.FILL", true),
 
     PUNISHMENTS_MENU_REMOVED_PUNISHMENT_BUTTON_NAME("PUNISHMENTS_MENU.PUNISHMENT-REMOVED-BUTTON.NAME", "&4%ADDEDAT%"),
@@ -64,8 +62,6 @@ public enum FlashMenuLanguage {
     GRANT_MENU_SIZE("GRANT_MENU.SIZE", 27),
     GRANT_MENU_FILL("GRANT_MENU.FILL", true),
 
-    GRANTS_MENU_TITLE("GRANTS_MENU.TITLE", "Grants: %PLAYER%"),
-
     GRANT_MENU_RANK_BUTTON_NAME("GRANT_MENU.RANK-BUTTON.NAME", "&bGrant a Rank"),
     GRANT_MENU_RANK_BUTTON_DATA("GRANT_MENU.RANK-BUTTON.DATA", 0),
     GRANT_MENU_RANK_BUTTON_SLOT("GRANT_MENU.RANK-BUTTON.SLOT", 13),
@@ -93,6 +89,8 @@ public enum FlashMenuLanguage {
             "&fClick to grant &r%PLAYER%&f the &r%RANK_COLORED% &frank.",
             CC.MENU_BAR
     )),
+
+    GRANTS_MENU_TITLE("GRANTS_MENU.TITLE", "Grants: %PLAYER%"),
 
     GRANTS_MENU_DEFAULT_GRANT_BUTTON_NAME("GRANTS_MENU.GRANT-DEFAULT-BUTTON.NAME", "&4%ADDEDAT%"),
     GRANTS_MENU_DEFAULT_GRANT_BUTTON_DATA("GRANTS_MENU.GRANT-DEFAULT-BUTTON.DATA", 5),
@@ -129,6 +127,40 @@ public enum FlashMenuLanguage {
     )),
     GRANTS_MENU_REMOVED_GRANT_BUTTON_MATERIAL("GRANTS_MENU.GRANT-REMOVED-BUTTON.MATERIAL", "WOOL"),
 
+    NOTES_MENU_TITLE("NOTES_MENU.TITLE", "Notes: %PLAYER%"),
+
+    NOTES_MENU_DEFAULT_NOTE_BUTTON_NAME("NOTES_MENU.NOTE-DEFAULT-BUTTON.NAME", "&4%ADDEDTITLE%"),
+    NOTES_MENU_DEFAULT_NOTE_BUTTON_DATA("NOTES_MENU.NOTE-DEFAULT-BUTTON.DATA", 0),
+    NOTES_MENU_DEFAULT_NOTE_BUTTON_LORE("NOTES_MENU.NOTE-DEFAULT-BUTTON.LORE", Arrays.asList(
+            CC.MENU_BAR,
+            "&4Added By&7:&f %ADDEDBY%",
+            "&4Added For&7:&f %ADDEDFOR%",
+            "&4Added At&7:&f %ADDEDAT%",
+            "",
+            "&fClick to remove this note.",
+            CC.MENU_BAR
+    )),
+    NOTES_MENU_DEFAULT_NOTE_BUTTON_MATERIAL("NOTES_MENU.NOTE-DEFAULT-BUTTON.MATERIAL", "PAPER"),
+
+    NOTES_MENU_REMOVED_NOTE_BUTTON_NAME("NOTES_MENU.NOTE-REMOVED-BUTTON.NAME", "&4%ADDEDTITLE%"),
+    NOTES_MENU_REMOVED_NOTE_BUTTON_DATA("NOTES_MENU.NOTE-REMOVED-BUTTON.DATA", 14),
+    NOTES_MENU_REMOVED_NOTE_BUTTON_LORE("NOTES_MENU.NOTE-REMOVED-BUTTON.LORE", Arrays.asList(
+            CC.MENU_BAR,
+            "&4&lAdded Information",
+            CC.MENU_BAR,
+            "&4Added At&7:&f %ADDEDAT%",
+            "&4Added By&7:&f %ADDEDBY%",
+            "&4Added For&7:&f %ADDEDFOR%",
+            CC.MENU_BAR,
+            "&4&lRemoved Information",
+            CC.MENU_BAR,
+            "&4Removed By&7:&f %REMOVEDBY%",
+            "&4Removed For&7:&f %REMOVEDFOR%",
+            "&4Removed At&7: &f%REMOVEDAT%",
+            CC.MENU_BAR
+    )),
+    NOTES_MENU_REMOVED_NOTE_BUTTON_MATERIAL("NOTES_MENU.NOTE-REMOVED-BUTTON.MATERIAL", "WOOL"),
+
 
     GRANTS_MENU_DEFAULT_PERMISSION_BUTTON_NAME("GRANTS_MENU.PERMISSION-DEFAULT-BUTTON.NAME", "&4%ADDEDAT%"),
     GRANTS_MENU_DEFAULT_PERMISSION_BUTTON_DATA("GRANTS_MENU.PERMISSION-DEFAULT-BUTTON.DATA", 5),
@@ -137,7 +169,6 @@ public enum FlashMenuLanguage {
             "&4Added By&7:&f %ADDEDBY%",
             "&4Added For&7:&f %ADDEDFOR%",
             "&4Added Permission&7: &f%PERMISSION%",
-            "&4Scopes&7: &f%SCOPES%",
             "&4Time Left&7: &f%TIMELEFT%",
             "",
             "&fClick to remove this permission.",
@@ -154,7 +185,6 @@ public enum FlashMenuLanguage {
             "&4Added By&7:&f %ADDEDBY%",
             "&4Added For&7:&f %ADDEDFOR%",
             "&4Added Permission&7: &f%PERMISSION%",
-            "&4Scopes&7: &f%SCOPES%",
             CC.MENU_BAR,
             "&4&lRemoved Information",
             CC.MENU_BAR,

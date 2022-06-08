@@ -1,8 +1,8 @@
 package dev.lbuddyboy.flash.util.menu;
 
 import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.util.ItemBuilder;
-import dev.lbuddyboy.flash.util.Tasks;
+import dev.lbuddyboy.flash.util.bukkit.ItemBuilder;
+import dev.lbuddyboy.flash.util.bukkit.Tasks;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

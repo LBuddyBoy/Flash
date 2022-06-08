@@ -1,14 +1,15 @@
 package dev.lbuddyboy.flash.rank.impl;
 
-import com.mongodb.client.model.Filters;
 import dev.lbuddyboy.flash.Flash;
 import dev.lbuddyboy.flash.handler.RedisHandler;
 import dev.lbuddyboy.flash.rank.Rank;
 import dev.lbuddyboy.flash.rank.packet.RanksUpdatePacket;
 import dev.lbuddyboy.flash.user.User;
-import dev.lbuddyboy.flash.util.Tasks;
+import dev.lbuddyboy.flash.util.bukkit.Tasks;
 import dev.lbuddyboy.flash.util.gson.GSONUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class RedisRank extends Rank {
@@ -33,6 +34,7 @@ public class RedisRank extends Rank {
             RedisRank rank = GSONUtils.getGSON().fromJson(RedisHandler.requestJedis().getResource().hget("Ranks", getUuid().toString()), GSONUtils.REDIS_RANK);
 
             this.name = rank.getName();
+            this.uuid = rank.getUuid();
             this.displayName = rank.getDisplayName();
             this.color = rank.getColor();
             this.weight = rank.getWeight();
@@ -72,4 +74,18 @@ public class RedisRank extends Rank {
         return GSONUtils.getGSON().toJson(this, GSONUtils.REDIS_RANK);
     }
 
+    @Override
+    public List<UUID> getUsersWithRank() {
+        List<UUID> peopleWithThisRank = new ArrayList<>();
+
+        for (UUID uuid : Flash.getInstance().getCacheHandler().getUserCache().allUUIDs()) {
+            User user = Flash.getInstance().getUserHandler().tryUser(uuid, true);
+
+            if (user == null) continue;
+
+            if (user.getActiveRank() != null && user.getActiveRank().getUuid().toString().equalsIgnoreCase(this.uuid.toString())) peopleWithThisRank.add(uuid);
+        }
+
+        return peopleWithThisRank;
+    }
 }

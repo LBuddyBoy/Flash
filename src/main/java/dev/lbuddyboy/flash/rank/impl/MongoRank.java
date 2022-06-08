@@ -5,11 +5,14 @@ import com.mongodb.client.model.ReplaceOptions;
 import dev.lbuddyboy.flash.Flash;
 import dev.lbuddyboy.flash.rank.Rank;
 import dev.lbuddyboy.flash.rank.packet.RanksUpdatePacket;
-import dev.lbuddyboy.flash.util.Tasks;
+import dev.lbuddyboy.flash.user.User;
+import dev.lbuddyboy.flash.util.bukkit.Tasks;
 import dev.lbuddyboy.flash.util.gson.GSONUtils;
 import org.bson.Document;
 import org.bukkit.ChatColor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class MongoRank extends Rank {
@@ -101,4 +104,18 @@ public class MongoRank extends Rank {
         Tasks.runAsync(() -> save(false, reload));
     }
 
+    @Override
+    public List<UUID> getUsersWithRank() {
+        List<UUID> peopleWithThisRank = new ArrayList<>();
+
+        for (UUID uuid : Flash.getInstance().getCacheHandler().getUserCache().allUUIDs()) {
+            User user = Flash.getInstance().getUserHandler().tryUser(uuid, true);
+
+            if (user == null) continue;
+
+            if (user.getActiveRank() != null && user.getActiveRank().getUuid().toString().equalsIgnoreCase(this.uuid.toString())) peopleWithThisRank.add(uuid);
+        }
+
+        return peopleWithThisRank;
+    }
 }

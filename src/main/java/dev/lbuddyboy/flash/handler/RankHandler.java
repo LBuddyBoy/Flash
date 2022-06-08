@@ -4,16 +4,18 @@ import dev.lbuddyboy.flash.Flash;
 import dev.lbuddyboy.flash.FlashLanguage;
 import dev.lbuddyboy.flash.rank.Rank;
 import dev.lbuddyboy.flash.rank.comparator.RankWeightComparator;
+import dev.lbuddyboy.flash.rank.editor.listener.RankEditorListener;
 import dev.lbuddyboy.flash.rank.impl.FlatFileRank;
 import dev.lbuddyboy.flash.rank.impl.MongoRank;
 import dev.lbuddyboy.flash.rank.impl.RedisRank;
 import dev.lbuddyboy.flash.rank.packet.RanksUpdatePacket;
-import dev.lbuddyboy.flash.util.Tasks;
+import dev.lbuddyboy.flash.util.bukkit.Tasks;
 import dev.lbuddyboy.flash.util.YamlDoc;
 import dev.lbuddyboy.flash.util.gson.GSONUtils;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.Document;
+import org.bukkit.Bukkit;
 
 import java.util.List;
 import java.util.Map;
@@ -39,23 +41,9 @@ public class RankHandler {
                 break;
         }
 
-        Tasks.run(() -> {
-            loadAll();
+        Bukkit.getServer().getPluginManager().registerEvents(new RankEditorListener(), Flash.getInstance());
 
-            for (Rank rank : ranks.values()) {
-                if (rank.isDefaultRank()) {
-                    this.defaultRank = rank;
-                    break;
-                }
-            }
-            if (getDefaultRank() == null) {
-                this.defaultRank = createRank("Default");
-                this.defaultRank.setDefaultRank();
-                ranks.put(this.defaultRank.getUuid(), this.defaultRank);
-            }
-
-            new RanksUpdatePacket(this.ranks).send();
-        });
+        Tasks.run(this::loadAll);
     }
 
     public void loadAll() {
@@ -92,6 +80,21 @@ public class RankHandler {
                 break;
             }
         }
+
+        for (Rank rank : ranks.values()) {
+            if (rank.isDefaultRank()) {
+                this.defaultRank = rank;
+                break;
+            }
+        }
+        if (getDefaultRank() == null) {
+            this.defaultRank = createRank("Default");
+            this.defaultRank.setDefaultRank(true);
+            ranks.put(this.defaultRank.getUuid(), this.defaultRank);
+            this.defaultRank.save(true);
+        }
+
+        new RanksUpdatePacket(this.ranks).send();
     }
 
     public Rank getRank(String name) {

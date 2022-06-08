@@ -1,9 +1,8 @@
 package dev.lbuddyboy.flash.redis.sub;
 
-import com.google.gson.Gson;
 import dev.lbuddyboy.flash.Flash;
 import dev.lbuddyboy.flash.redis.JedisPacket;
-import dev.lbuddyboy.flash.util.CC;
+import dev.lbuddyboy.flash.util.bukkit.CC;
 import dev.lbuddyboy.flash.util.gson.GSONUtils;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
