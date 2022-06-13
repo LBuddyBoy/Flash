@@ -11,6 +11,7 @@ import org.bukkit.command.CommandSender;
 import java.util.Arrays;
 
 @CommandAlias("rawbroadcast|rawbc|rawalert")
+@CommandPermission("flash.command.rawbc")
 public class RawBroadcastCommand extends BaseCommand {
 
     @Default

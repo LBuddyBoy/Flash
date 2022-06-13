@@ -15,6 +15,6 @@ public abstract class UserCache {
         return new ArrayList<>();
     }
 
-    public abstract void update(UUID uuid, String name);
+    public abstract void update(UUID uuid, String name, boolean save);
 
 }

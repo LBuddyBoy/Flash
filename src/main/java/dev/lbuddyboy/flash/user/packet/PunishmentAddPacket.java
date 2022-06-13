@@ -18,6 +18,7 @@ public class PunishmentAddPacket implements JedisPacket {
     public void onReceive() {
         User user = Flash.getInstance().getUserHandler().tryUser(this.uuid, false);
         if (user == null) return;
+        if (user.hasPunishment(punishment.getId())) return;
 
         user.getPunishments().add(punishment);
         user.save(true);

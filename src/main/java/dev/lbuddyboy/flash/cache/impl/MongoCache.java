@@ -4,9 +4,13 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.ReplaceOptions;
 import dev.lbuddyboy.flash.Flash;
 import dev.lbuddyboy.flash.cache.UserCache;
+import dev.lbuddyboy.flash.cache.packet.CacheDistributePacket;
+import dev.lbuddyboy.flash.handler.RedisHandler;
 import dev.lbuddyboy.flash.util.bukkit.CC;
+import dev.lbuddyboy.flash.util.bukkit.Tasks;
 import org.bson.Document;
 import org.bukkit.Bukkit;
+import redis.clients.jedis.Jedis;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,14 +61,17 @@ public class MongoCache extends UserCache {
     }
 
     @Override
-    public void update(UUID uuid, String name) {
-        if (Flash.getInstance().getMongoHandler().getCacheCollection().find(Filters.eq("uuid", uuid.toString())).first() == null || Flash.getInstance().getMongoHandler().getCacheCollection().find(Filters.eq("name", name)).first() == null) {
-            Document document = new Document();
+    public void update(UUID uuid, String name, boolean save) {
+        if (save) {
+            if (Flash.getInstance().getMongoHandler().getCacheCollection().find(Filters.eq("uuid", uuid.toString())).first() == null || Flash.getInstance().getMongoHandler().getCacheCollection().find(Filters.eq("name", name)).first() == null) {
+                Document document = new Document();
 
-            document.put("uuid", uuid.toString());
-            document.put("name", name);
+                document.put("uuid", uuid.toString());
+                document.put("name", name);
 
-            Flash.getInstance().getMongoHandler().getCacheCollection().replaceOne(Filters.eq("uuid", uuid.toString()), document, new ReplaceOptions().upsert(true));
+                Flash.getInstance().getMongoHandler().getCacheCollection().replaceOne(Filters.eq("uuid", uuid.toString()), document, new ReplaceOptions().upsert(true));
+            }
+            new CacheDistributePacket(uuid, name).send();
         }
 
         uuidNameMap.put(uuid, name);

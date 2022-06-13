@@ -42,6 +42,11 @@ public class ServersMenu extends PagedMenu<Server> {
         return buttons;
     }
 
+    @Override
+    public boolean autoUpdate() {
+        return true;
+    }
+
     @AllArgsConstructor
     private static class ServerButton extends Button {
 
@@ -54,14 +59,19 @@ public class ServersMenu extends PagedMenu<Server> {
         }
 
         @Override
+        public boolean clickUpdate() {
+            return true;
+        }
+
+        @Override
         public ItemStack getItem() {
             return new ItemBuilder(server.isOffline() ? CompatibleMaterial.getMaterial("BARRIER") : CompatibleMaterial.getMaterial("BEACON"))
-                    .setName("&4&l" + server.getName())
+                    .setName("&g&l" + server.getName())
                     .setLore(Arrays.asList(
                             CC.MENU_BAR,
-                            "&cStatus&7: &r" + server.status(),
-                            "&cOnline&7: &f" + server.getOnline() + "/" + server.getMaxPlayers(),
-                            "&cMOTD&7: &f" + server.getMotd(),
+                            "&hStatus&7: &r" + server.status(),
+                            "&hOnline&7: &f" + server.getOnline() + "/" + server.getMaxPlayers(),
+                            "&hMOTD&7: &f" + server.getMotd(),
                             "",
                             "&7Left Click to shut down the server",
                             "&7Right Click to run a server specific command.",
@@ -80,6 +90,8 @@ public class ServersMenu extends PagedMenu<Server> {
                 return;
             }
 
+            player.sendMessage(CC.translate("&aType the command you would like to run on that server."));
+            player.closeInventory();
             ServerListener.serverCommandMap.put(player.getName(), server);
         }
     }

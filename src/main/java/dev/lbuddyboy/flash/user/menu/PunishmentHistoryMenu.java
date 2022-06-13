@@ -89,9 +89,9 @@ public class PunishmentHistoryMenu extends PagedMenu<Punishment> {
                                 "%ADDEDAT%", punishment.getAddedAtDate(),
                                 "%TIMELEFT%", punishment.getExpireString(),
                                 "%SERVER%", punishment.getServer(),
-                                "%REMOVEDBY%", UserUtils.formattedName(punishment.getRemovedBy()),
-                                "%REMOVEDFOR%", punishment.getRemovedFor(),
-                                "%REMOVEDAT%", punishment.getRemovedAtDate()
+                                "%REMOVEDBY%", punishment.isExpired() ? "&4Console" : UserUtils.formattedName(punishment.getRemovedBy()),
+                                "%REMOVEDFOR%", punishment.isExpired() ? "Expired" : punishment.getRemovedFor(),
+                                "%REMOVEDAT%", punishment.isExpired() ? punishment.getExpiresAtDate() : punishment.getRemovedAtDate()
                         )
                         .setName(FlashMenuLanguage.PUNISHMENTS_MENU_REMOVED_PUNISHMENT_BUTTON_NAME.getString(),
                                 "%ADDEDBY%", UserUtils.formattedName(punishment.getSentBy()),

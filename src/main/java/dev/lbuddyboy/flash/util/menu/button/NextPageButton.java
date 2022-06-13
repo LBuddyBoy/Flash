@@ -23,15 +23,15 @@ public class NextPageButton<T> extends Button {
     @Override
     public ItemStack getItem() {
 
-        Material material = menu.page < menu.getMaxPages(menu.objects) ? Material.REDSTONE_TORCH_ON : Material.LEVER;
-        String name = menu.page < menu.getMaxPages(menu.objects) ? "&c&lNext Page" : "&c&lNo Next Page";
+        Material material = menu.page < menu.getMaxPages() ? Material.REDSTONE_TORCH_ON : Material.LEVER;
+        String name = menu.page < menu.getMaxPages() ? "&c&lNext Page" : "&c&lNo Next Page";
 
         return new ItemBuilder(material).setName(name).create();
     }
 
     @Override
     public void action(InventoryClickEvent event) {
-        if (event.getClick().isLeftClick() && menu.page < menu.getMaxPages(menu.objects)) {
+        if (event.getClick().isLeftClick() && menu.page < menu.getMaxPages()) {
             menu.page += 1;
             menu.openMenu((Player) event.getWhoClicked());
         }

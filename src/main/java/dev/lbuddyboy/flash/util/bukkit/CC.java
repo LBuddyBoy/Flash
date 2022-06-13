@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 public class CC {
 
+	public static List<CustomColor> customColors = new ArrayList<>();
 	public static final String BLUE = ChatColor.BLUE.toString();
 	public static final String AQUA = ChatColor.AQUA.toString();
 	public static final String YELLOW = ChatColor.YELLOW.toString();
@@ -54,6 +55,9 @@ public class CC {
 	public static java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("<G:([0-9A-Fa-f]{6})>(.*?)</G:([0-9A-Fa-f]{6})>");
 
 	public static String translate(String string) {
+		for (CustomColor customColor : customColors) {
+			string = string.replaceAll(customColor.getCode(), customColor.getColor());
+		}
 		return ChatColor.translateAlternateColorCodes('&', string.replaceAll("&g", "&x&0&6&9&2&f&f"));
 	}
 
@@ -158,6 +162,7 @@ public class CC {
 			return CC.translate(message,
 					"%PLAYER%", Flash.getInstance().getCacheHandler().getUserCache().getName(uuid),
 					"%PLAYER_DISPLAY%", UserUtils.formattedName(uuid),
+					"%PLAYER_COLORED%", UserUtils.formattedName(uuid),
 					"%PLAYER_UUID%", uuid.toString()
 			);
 		}
@@ -166,6 +171,7 @@ public class CC {
 		return CC.translate(message,
 				"%PLAYER%", Flash.getInstance().getCacheHandler().getUserCache().getName(uuid),
 				"%PLAYER_DISPLAY%", UserUtils.formattedName(uuid),
+				"%PLAYER_COLORED%", UserUtils.formattedName(uuid),
 				"%PLAYER_UUID%", uuid.toString(),
 				"%PLAYER_RANK_NAME%", rank.getName(),
 				"%PLAYER_RANK_WEIGHT%", rank.getWeight(),

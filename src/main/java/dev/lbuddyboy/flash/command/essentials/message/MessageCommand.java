@@ -43,12 +43,12 @@ public class MessageCommand extends BaseCommand {
             return;
         }
 
-        if (targetUser.getBlocked().contains(senderUUID)) {
+        if (targetUser.getBlocked().contains(senderUUID) && !senderPlayer.hasPermission("flash.message.bypass")) {
             sender.sendMessage(CC.translate("&cThat player currently has you blocked."));
             return;
         }
 
-        if (senderUser.getBlocked().contains(senderUUID)) {
+        if (senderUser.getBlocked().contains(senderUUID) && !senderPlayer.hasPermission("flash.message.bypass")) {
             sender.sendMessage(CC.translate("&cYou currently have that player blocked."));
             return;
         }
@@ -58,7 +58,7 @@ public class MessageCommand extends BaseCommand {
             return;
         }
 
-        if (!targetUser.getPlayerInfo().isPmsOn()) {
+        if (!targetUser.getPlayerInfo().isPmsOn() && !senderPlayer.hasPermission("flash.message.bypass")) {
             sender.sendMessage(CC.translate("&cThat players messages are currently toggled off."));
             return;
         }

@@ -22,11 +22,14 @@ public class Prefix {
         prefixDocument.remove("_id");
 
         Document query = new Document("_id", id);
-        Document kitUpdate = new Document("$set", prefixDocument);
+        Document prefixUpdate = new Document("$set", prefixDocument);
 
-        Flash.getInstance().getMongoHandler().getPrefixCollection().updateOne(query, kitUpdate, new UpdateOptions().upsert(true));
+        Flash.getInstance().getMongoHandler().getPrefixCollection().updateOne(query, prefixUpdate, new UpdateOptions().upsert(true));
+    }
 
-        new PrefixesUpdatePacket(Flash.getInstance().getUserHandler().getPrefixes()).send();
+    public void delete() {
+        Document query = new Document("_id", id);
+        Flash.getInstance().getMongoHandler().getPrefixCollection().deleteOne(query);
     }
 
 }

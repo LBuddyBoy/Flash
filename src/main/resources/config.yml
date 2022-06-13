@@ -10,6 +10,7 @@ redis:
 mongo:
   use: false
   use-uri: false
+  uri-string: ""
   host: "localhost"
   port: 27017
   database: "Flash" # use this to determine the db name

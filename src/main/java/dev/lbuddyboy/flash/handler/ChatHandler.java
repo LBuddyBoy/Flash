@@ -45,8 +45,8 @@ public class ChatHandler implements Listener {
         }
 
         long lastSent = user.getPlayerInfo().getLastMessageSent();
-        if (getSlowChat() > 0 && !bypassesSlowChat(player) && lastSent + (getSlowChat() * 1000L) < System.currentTimeMillis() && lastSent == -1) {
-            player.sendMessage(CC.translate("&cChat is currently slowed. You may talk in " + TimeUtils.formatLongIntoMMSS(((lastSent + (getSlowChat() * 1000L)) / 1000))));
+        if (getSlowChat() > 0 && !bypassesSlowChat(player) && ((lastSent + (getSlowChat() * 1000L)) - System.currentTimeMillis()) > 0 && lastSent != -1) {
+            player.sendMessage(CC.translate("&cChat is currently slowed. You may talk in " + TimeUtils.formatLongIntoMMSS((((lastSent + (getSlowChat() * 1000L)) - System.currentTimeMillis()) / 1000))));
             event.setCancelled(true);
             return;
         }

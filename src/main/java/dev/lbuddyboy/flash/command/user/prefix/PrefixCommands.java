@@ -38,12 +38,13 @@ public class PrefixCommands extends BaseCommand {
 
     @Subcommand("delete")
     @CommandPermission("flash.command.prefix.delete")
-    public static void delete(CommandSender sender, @Name("prefix") Prefix prefix, @Name("name") @Single String name) {
-
-        sender.sendMessage(CC.translate("&aDeleted a prefix under the name: " + name + "."));
+    @CommandCompletion("@prefixes")
+    public static void delete(CommandSender sender, @Name("prefix") Prefix prefix) {
+        prefix.delete();
         Flash.getInstance().getUserHandler().getPrefixes().remove(prefix);
         new PrefixesUpdatePacket(Flash.getInstance().getUserHandler().getPrefixes()).send();
 
+        sender.sendMessage(CC.translate("&aDeleted a prefix under the name: " + prefix.getId() + "."));
     }
 
     @Subcommand("setweight|weight")

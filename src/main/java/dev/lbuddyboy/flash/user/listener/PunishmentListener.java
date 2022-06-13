@@ -12,6 +12,7 @@ import dev.lbuddyboy.flash.util.bukkit.CC;
 import dev.lbuddyboy.flash.util.bukkit.Tasks;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
@@ -22,7 +23,7 @@ public class PunishmentListener implements Listener {
 
     public static Map<String, Punishment> punishmentRemovePermMap = new HashMap<>();
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onChat(AsyncPlayerChatEvent event) {
         if (punishmentRemovePermMap.containsKey(event.getPlayer().getName())) {
             Punishment punishment = punishmentRemovePermMap.remove(event.getPlayer().getName());
@@ -35,12 +36,8 @@ public class PunishmentListener implements Listener {
 
             User user = Flash.getInstance().getUserHandler().tryUser(punishment.getTarget(), true);
 
-            if (Bukkit.getPlayer(punishment.getTarget()) != null) {
-                user.save(true);
-            } else {
-                new PunishmentRemovePacket(punishment.getTarget(), punishment).send();
-            }
-
+            user.save(true);
+            new PunishmentRemovePacket(punishment.getTarget(), punishment).send();
             new PunishmentSendPacket(punishment).send();
 
             Tasks.run(() -> new PunishmentHistoryMenu(punishment.getTarget(), punishment.getType()).openMenu(event.getPlayer()));

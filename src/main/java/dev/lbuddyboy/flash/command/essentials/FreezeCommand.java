@@ -1,10 +1,7 @@
 package dev.lbuddyboy.flash.command.essentials;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.CommandPermission;
-import co.aikar.commands.annotation.Default;
-import co.aikar.commands.annotation.Name;
+import co.aikar.commands.annotation.*;
 import dev.lbuddyboy.flash.Flash;
 import dev.lbuddyboy.flash.user.packet.StaffMessagePacket;
 import dev.lbuddyboy.flash.util.bukkit.CC;
@@ -19,7 +16,7 @@ import org.bukkit.metadata.FixedMetadataValue;
 public class FreezeCommand extends BaseCommand {
 
     @Default
-    public static void freeze(CommandSender sender, @Name("target")Player target) {
+    public static void freeze(CommandSender sender, @Name("target") @Flags("other") Player target) {
         if (target.hasMetadata("frozen")) {
             target.removeMetadata("frozen", Flash.getInstance());
 

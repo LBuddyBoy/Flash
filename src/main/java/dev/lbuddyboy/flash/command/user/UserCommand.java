@@ -54,7 +54,7 @@ public class UserCommand extends BaseCommand {
     }
 
     @Subcommand("grantperm|addperm|addpermission")
-    @CommandCompletion("@target")
+    @CommandCompletion("@target @permissions")
     public static void permissionAdd(CommandSender sender, @Name("user") UUID uuid, @Single @Name("permission") String permission, @Single @Name("duration") String duration, @Name("reason") String reason) {
         long time = JavaUtils.parse(duration);
         if (duration.equalsIgnoreCase("perm")) time = Long.MAX_VALUE;
@@ -73,13 +73,10 @@ public class UserCommand extends BaseCommand {
 
         UserPermission userPermission = new UserPermission(permission, time, System.currentTimeMillis(), (sender instanceof Player) ? ((Player) sender).getUniqueId() : null, reason);
 
-        if (Bukkit.getPlayer(uuid) != null) {
-            user.getPermissions().add(userPermission);
-            user.save(true);
-            user.updatePerms();
-        } else {
-            new PermissionAddPacket(uuid, userPermission).send();
-        }
+        user.getPermissions().add(userPermission);
+        user.save(true);
+        user.updatePerms();
+        new PermissionAddPacket(uuid, userPermission).send();
 
         sender.sendMessage(CC.translate(FlashLanguage.GRANTED_USER_PERMISSION_SENDER.getString(),
                 "%PLAYER_DISPLAY%", user.getDisplayName(),
@@ -114,13 +111,11 @@ public class UserCommand extends BaseCommand {
 
         Grant grant = new Grant(UUID.randomUUID(), rank.getUuid(), rank.getName(), (sender instanceof Player) ? ((Player) sender).getUniqueId() : null, reason, System.currentTimeMillis(), time, scopes);
 
-        if (Bukkit.getPlayer(uuid) != null) {
-            user.getGrants().add(grant);
-            user.save(true);
-            user.updateGrants();
-        } else {
-            new GrantAddPacket(uuid, grant).send();
-        }
+        user.getGrants().add(grant);
+        user.save(true);
+        user.updateGrants();
+
+        new GrantAddPacket(uuid, grant).send();
 
         sender.sendMessage(CC.translate(FlashLanguage.GRANTED_USER_RANK_SENDER.getString(),
                 "%PLAYER_DISPLAY%", user.getDisplayName(),
@@ -132,6 +127,7 @@ public class UserCommand extends BaseCommand {
                 "%DURATION%", grant.getExpireString());
 
         new GlobalMessagePacket(uuid, message).send();
+
 
     }
 

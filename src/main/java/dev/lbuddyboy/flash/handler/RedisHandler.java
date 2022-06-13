@@ -24,7 +24,7 @@ public class RedisHandler {
 	public static void connect() {
 		JedisPool connectTo = requestJedis();
 
-		Thread subscribeThread = new Thread(() -> {
+		Thread thread = new Thread(() -> {
 			while (true) {
 				try {
 					Jedis jedis = connectTo.getResource();
@@ -51,9 +51,9 @@ public class RedisHandler {
 					e.printStackTrace();
 				}
 			}
-		}, "Flash - Packet Subscribe Thread");
-		subscribeThread.setDaemon(true);
-		subscribeThread.start();
+		}, "Redis Packet Subscriber");
+		thread.setDaemon(true);
+		thread.start();
 
 		enabled = true;
 	}

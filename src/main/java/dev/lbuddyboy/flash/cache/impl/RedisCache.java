@@ -1,10 +1,13 @@
 package dev.lbuddyboy.flash.cache.impl;
 
 import dev.lbuddyboy.flash.cache.UserCache;
+import dev.lbuddyboy.flash.cache.packet.CacheDistributePacket;
 import dev.lbuddyboy.flash.handler.RedisHandler;
 import dev.lbuddyboy.flash.util.bukkit.CC;
 import dev.lbuddyboy.flash.util.bukkit.Tasks;
 import org.bukkit.Bukkit;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,12 +57,14 @@ public class RedisCache extends UserCache {
     }
 
     @Override
-    public void update(UUID uuid, String name) {
-        Tasks.runAsync(() -> {
+    public void update(UUID uuid, String name, boolean save) {
+        if (save) {
             RedisHandler.requestJedis().getResource().hset(KEY, uuid.toString(), name);
-            uuidNameMap.put(uuid, name);
-            nameUUIDMap.put(name, uuid);
-        });
+            new CacheDistributePacket(uuid, name).send();
+        }
+        uuidNameMap.put(uuid, name);
+        nameUUIDMap.put(name, uuid);
+
     }
 
 }

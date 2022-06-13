@@ -9,7 +9,7 @@ public class CacheListener implements Listener {
 
     @EventHandler
     public void onAsyncPlayerPreLogin(AsyncPlayerPreLoginEvent event) {
-        Flash.getInstance().getCacheHandler().getUserCache().update(event.getUniqueId(), event.getName());
+        Flash.getInstance().getCacheHandler().getUserCache().update(event.getUniqueId(), event.getName(), true);
     }
 
 }

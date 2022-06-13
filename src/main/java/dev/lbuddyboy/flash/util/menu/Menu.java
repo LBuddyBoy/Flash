@@ -27,6 +27,8 @@ public abstract class Menu {
         List<Button> buttons = getButtons(player);
         int highest = 0;
         for (Button button : buttons) {
+            if (button.getSlot() <= 0) continue;
+
             if (button.getSlot() - 1 <= highest) continue;
             highest = button.getSlot() - 1;
         }
@@ -47,6 +49,8 @@ public abstract class Menu {
         }
 
         for (Button button : getButtons(player)) {
+            if (button.getSlot() <= 0) continue;
+
             inventory.setItem(button.getSlot() - 1, button.getItem());
         }
 

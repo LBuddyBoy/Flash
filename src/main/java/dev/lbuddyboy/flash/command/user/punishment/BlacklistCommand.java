@@ -68,12 +68,9 @@ public class BlacklistCommand extends BaseCommand {
 
         Punishment punishment = new Punishment(UUID.randomUUID(), PunishmentType.BLACKLIST, uuid, senderUUID, System.currentTimeMillis(), duration, reason, FlashLanguage.SERVER_NAME.getString(), !isPub);
 
-        if (Bukkit.getPlayer(uuid) != null) {
-            user.getPunishments().add(punishment);
-            user.save(true);
-        } else {
-            new PunishmentAddPacket(uuid, punishment).send();
-        }
+        user.getPunishments().add(punishment);
+        user.save(true);
+        new PunishmentAddPacket(uuid, punishment).send();
 
         new PunishmentSendPacket(punishment).send();
         if (senderUUID != null) UserUtils.addPunishment(senderUUID, punishment);

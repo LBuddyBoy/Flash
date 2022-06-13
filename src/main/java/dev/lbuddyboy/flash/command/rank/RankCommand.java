@@ -214,7 +214,7 @@ public class RankCommand extends BaseCommand {
 
     @Subcommand("addpermission|addperm")
     @CommandPermission("flash.command.rank.addpermission")
-    @CommandCompletion("@rank")
+    @CommandCompletion("@rank @permissions")
     public static void addPermission(CommandSender sender, @Name("rank") Rank rank, @Name("permission") String permission) {
 
         if (rank.getPermissions().contains(permission)) {
@@ -253,7 +253,7 @@ public class RankCommand extends BaseCommand {
     @Subcommand("addinheritance|addinherit|addparent")
     @CommandPermission("flash.command.rank.addinheritance")
     @CommandCompletion("@rank @rank")
-    public static void addInherit(CommandSender sender, @Name("rank") Rank rank, @Name("rank") String inherit) {
+    public static void addInherit(CommandSender sender, @Name("rank") Rank rank, @Name("parent") @Single String inherit) {
 
         if (rank.getInheritance().contains(inherit)) {
             sender.sendMessage(CC.translate("&cThat rank already has that inheritance."));
@@ -272,7 +272,7 @@ public class RankCommand extends BaseCommand {
     @Subcommand("removeinheritance|reminherit|reminheritance|removeinherit|delinherit|delinheritance")
     @CommandPermission("flash.command.rank.removepermission")
     @CommandCompletion("@rank @rank")
-    public static void removeInherit(CommandSender sender, @Name("rank") Rank rank, @Name("rank") String inherit) {
+    public static void removeInherit(CommandSender sender, @Name("rank") Rank rank, @Name("inherit") @Single String inherit) {
 
         if (!rank.getInheritance().contains(inherit)) {
             sender.sendMessage(CC.translate("&cThat rank doesn't have that inheritance."));

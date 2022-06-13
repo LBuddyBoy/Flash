@@ -18,6 +18,7 @@ public class GrantAddPacket implements JedisPacket {
     public void onReceive() {
         User user = Flash.getInstance().getUserHandler().tryUser(this.uuid, false);
         if (user == null) return;
+        if (user.hasGrant(grant.getUuid())) return;
 
         user.getGrants().add(grant);
         user.save(true);

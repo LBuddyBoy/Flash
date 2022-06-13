@@ -62,12 +62,8 @@ public class RedisRank extends Rank {
     }
 
     private void save(boolean async, boolean reload) {
-        if (!async) {
-            RedisHandler.requestJedis().getResource().hset("Ranks", getUuid().toString(), toJson());
-            if (reload) load();
-            return;
-        }
-        Tasks.runAsync(() -> save(false, reload));
+        RedisHandler.requestJedis().getResource().hset("Ranks", getUuid().toString(), toJson());
+        if (reload) load();
     }
 
     public String toJson() {

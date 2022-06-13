@@ -14,15 +14,16 @@ import java.util.List;
 public class StaffMessageListPacket implements JedisPacket {
 
     private List<String> messageList;
+    private Object[] objects;
 
     @Override
     public void onReceive() {
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (!player.hasPermission("flash.staff")) continue;
 
-            messageList.forEach(s -> player.sendMessage(CC.translate(s)));
+            messageList.forEach(s -> player.sendMessage(CC.translate(s, objects)));
         }
-        messageList.forEach(s -> Bukkit.getConsoleSender().sendMessage(CC.translate(s)));
+        messageList.forEach(s -> Bukkit.getConsoleSender().sendMessage(CC.translate(s, objects)));
     }
 
 }

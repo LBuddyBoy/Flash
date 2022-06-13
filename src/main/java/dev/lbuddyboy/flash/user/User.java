@@ -11,6 +11,7 @@ import org.apache.commons.lang.WordUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
@@ -32,7 +33,8 @@ public abstract class User {
     public Grant activeGrant = null;
     public Prefix activePrefix = null;
 
-    public PlayerInfo playerInfo = new PlayerInfo(true, false, null, -1, -1);
+    public PlayerInfo playerInfo = new PlayerInfo(true, false, false, null, -1, -1, new ArrayList<>());
+    public List<ServerInfo> serverInfo = new ArrayList<>();
     public StaffInfo staffInfo = new StaffInfo();
 
     public abstract void load();
@@ -162,6 +164,18 @@ public abstract class User {
         player.setPlayerListName(getColoredName());
     }
 
+    public boolean hasGrant(UUID id) {
+        return this.grants.stream().map(Grant::getUuid).collect(Collectors.toList()).contains(id);
+    }
+
+    public boolean hasPunishment(UUID id) {
+        return this.punishments.stream().map(Punishment::getId).collect(Collectors.toList()).contains(id);
+    }
+
+    public boolean hasNote(UUID id) {
+        return this.notes.stream().map(Note::getId).collect(Collectors.toList()).contains(id);
+    }
+
     public void setupPermissionsAttachment(Player player) {
         for (PermissionAttachmentInfo attachmentInfo : player.getEffectivePermissions()) {
             if (attachmentInfo.getAttachment() == null) continue;
@@ -175,6 +189,8 @@ public abstract class User {
         getActiveRank().getPermissions().forEach(permission -> attachment.setPermission(permission, true));
         getActiveRank().getInheritedPermissions().forEach(permission -> attachment.setPermission(permission, true));
         getActivePermissions().stream().map(UserPermission::getNode).forEach(permission -> attachment.setPermission(permission, true));
+
+        if (attachment.getPermissions().containsKey("*")) Flash.getInstance().getCommandHandler().getKnownPermissionsMap().keySet().forEach(permission -> attachment.setPermission(permission, true));
 
         player.recalculatePermissions();
     }
@@ -204,6 +220,26 @@ public abstract class User {
         if (hasActivePunishment(PunishmentType.BLACKLIST)) color = getActivePunishment(PunishmentType.BLACKLIST).getType().getColor();
 
         return color + name;
+    }
+
+    /*
+    Work In Progress. TODO: Actually make it work. This way I did initially is really ass and inefficient.
+     */
+    public ServerInfo getServerInfo() {
+        for (ServerInfo info : this.serverInfo) {
+            if (info.getServer().equalsIgnoreCase(FlashLanguage.SERVER_NAME.getString())) return info;
+        }
+        return new ServerInfo(FlashLanguage.SERVER_NAME.getString());
+    }
+
+    public void addServerInfo() {
+        if (!this.serverInfo.stream().map(ServerInfo::getServer).collect(Collectors.toList()).contains(FlashLanguage.SERVER_NAME.getString())) {
+            this.serverInfo.add(getServerInfo());
+        }
+    }
+
+    public List<ServerInfo> getServerInfos() {
+        return this.serverInfo;
     }
 
 }

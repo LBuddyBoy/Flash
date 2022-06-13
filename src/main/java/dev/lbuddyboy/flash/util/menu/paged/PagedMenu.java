@@ -1,5 +1,6 @@
 package dev.lbuddyboy.flash.util.menu.paged;
 
+import dev.lbuddyboy.flash.util.bukkit.CC;
 import dev.lbuddyboy.flash.util.menu.Button;
 import dev.lbuddyboy.flash.util.menu.Menu;
 import dev.lbuddyboy.flash.util.menu.button.NextPageButton;
@@ -29,33 +30,22 @@ public abstract class PagedMenu<T> extends Menu {
 
     @Override
     public String getTitle(Player player) {
-        return getPageTitle(player) + " (" + page + "/" + getMaxPages(objects) + ")";
+        return getPageTitle(player) + " (" + page + "/" + getMaxPages() + ")";
     }
 
     @Override
     public List<Button> getButtons(Player player) {
         List<Button> buttons = new ArrayList<>();
 
-        IntRange range = new IntRange(((page - 1) * getMaxPageButtons(player) + 1) + 1, page * getButtonSlots().length);
+        int index = 0;
+        for (int i = (page * getMaxPageButtons()) - getMaxPageButtons(); i < (page * getMaxPageButtons()); i++) {
+            try {
+                if (objects.size() <= i) continue;
 
-        if (page == 1) range = new IntRange(1, getButtonSlots().length);
+                buttons.add(Button.fromButton(getButtonSlots()[index++], getPageButtons(player).get(i)));
+            } catch (Exception ignored) {
 
-        int skippedSlots = 1;
-        int slotIndex = 0;
-
-        for (Button button : getPageButtons(player)) {
-            if (skippedSlots < range.getMinimumInteger()) {
-                skippedSlots++;
-                continue;
             }
-
-            buttons.add(Button.fromButton(getButtonSlots()[slotIndex], button));
-
-            if (slotIndex >= getMaxPageButtons(player) - 1) {
-                break;
-            }
-
-            slotIndex++;
         }
 
         buttons.addAll(getGlobalButtons(player));
@@ -83,16 +73,12 @@ public abstract class PagedMenu<T> extends Menu {
         return DEFAULT_ITEM_SLOTS;
     }
 
-    public int getMaxPageButtons(Player player) {
+    public int getMaxPageButtons() {
         return DEFAULT_ITEM_SLOTS.length;
     }
 
-    public int getMaxPages(List<T> objects) {
-        if (objects.size() == 0) {
-            return 1;
-        } else {
-            return (int) Math.ceil(objects.size() / (double) (getButtonSlots().length));
-        }
+    public int getMaxPages() {
+        return (objects.size() / getMaxPageButtons()) + 1;
     }
 
 }

@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @AllArgsConstructor
@@ -19,6 +20,18 @@ public enum FlashLanguage {
     CHAT_MUTED("SETTINGS.CHAT-MUTED", false),
     CHAT_SLOW("SETTINGS.CHAT-SLOW", 0),
 
+    BLOCKED_COMMANDS("BLOCKED_COMMANDS", Arrays.asList(
+            "/teammsg",
+            "/teammessage",
+            "/minecraft:teammsg",
+            "/me",
+            "/minecraft:me",
+            "/whisper",
+            "/minecraft:whisper",
+            "/w",
+            "/minecraft:w"
+            )),
+
     NAMEMC_RANK_CLAIM_COMMANDS("NAMEMC.CLAIMED_COMMANDS", Arrays.asList(
             "user addrank %TARGET% Flash perm Global Claimed NameMC",
             "bc &4&l[NAMEMC] &r%TARGET_COLORED% &fhas just liked &c&nlbuddyboy.me&f on NameMC by doing &9&n/namemc&f!"
@@ -26,17 +39,18 @@ public enum FlashLanguage {
 
     ESSENTIALS_HELPOP_COOLDOWN("ESSENTIALS.HELPOP.COOLDOWN", 60),
     ESSENTIALS_HELPOP_SENDER_MESSAGE("ESSENTIALS.HELPOP.MESSAGE.SENDER", "&aYou have requested for assistance and a staff will be with you shortly."),
-    ESSENTIALS_HELPOP_STAFF_MESSAGE("ESSENTIALS.HELPOP.COOLDOWN", Arrays.asList(
+    ESSENTIALS_HELPOP_STAFF_MESSAGE("ESSENTIALS.HELPOP.MESSAGE.STAFF", Arrays.asList(
             "&4&l[HELPOP] %PLAYER_COLORED% &fneeds &eassistance&f on &c%SERVER%&f.",
             "&7 - &cReason&7: &f%REASON%"
     )),
     ESSENTIALS_REPORT_SENDER_MESSAGE("ESSENTIALS.REPORT.MESSAGE.SENDER", "&aYou have requested for assistance and a staff will be with you shortly."),
-    ESSENTIALS_REPORT_STAFF_MESSAGE("ESSENTIALS.REPORT.COOLDOWN", Arrays.asList(
+    ESSENTIALS_REPORT_STAFF_MESSAGE("ESSENTIALS.REPORT.MESSAGE.STAFF", Arrays.asList(
             "&4&l[REPORT] %PLAYER_COLORED% &fneeds &eassistance&f on &c%SERVER%&f.",
             "&7 - &cReported&7: &f%TARGET_COLORED%",
             "&7 - &cReason&7: &f%REASON%"
     )),
     ESSENTIALS_BROADCAST_PREFIX("ESSENTIALS.BROADCAST.PREFIX", "&7[&cAlert&7] "),
+    ESSENTIALS_CUSTOM_COLORS("ESSENTIALS.CUSTOM-COLOR-CODES", Collections.singleton("&g;&x&0&9&6&2&f&b")),
 
     PUNISHMENT_WARN_COLOR("PUNISHMENTS.WARN.COLOR", "GRAY"),
     PUNISHMENT_KICK_COLOR("PUNISHMENTS.KICK.COLOR", "GREEN"),
@@ -101,6 +115,7 @@ public enum FlashLanguage {
             "&4&lRank Command Help &7(%page%/%max-pages%)",
             CC.CHAT_BAR
     )),
+    RANK_HELP_FORMAT("USER.HELP_HEADER", "&c%command% &7- &f%description%"),
 
     INVALID_USER("USER.INVALID_USER", "&cCould not find that user in our database."),
     USER_COMMAND_HELP("USER.HELP_HEADER", Arrays.asList(
@@ -108,6 +123,7 @@ public enum FlashLanguage {
             "&4&lUser Command Help &7(%page%/%max-pages%)",
             CC.CHAT_BAR
     )),
+    USER_COMMAND_HELP_FORMAT("USER.HELP_HEADER", "&c%command% &7- &f%description%"),
 
     GRANTED_USER_PERMISSION_TARGET("USER.GRANTED_PERMISSION_TARGET", "&aYou have been granted the &f%PERMISSION%&a permission. Expires in: &e%DURATION%"),
     GRANTED_USER_RANK_TARGET("USER.GRANTED_RANK_TARGET", "&aYou have been granted the &r%RANK%&a rank. Expires in: &e%DURATION%"),

@@ -31,6 +31,7 @@ public class RedisUser extends User {
             this.grants = user.getGrants();
             this.activePrefix = user.getActivePrefix();
             this.playerInfo = user.getPlayerInfo();
+            this.serverInfo = user.getServerInfos();
             this.staffInfo = user.getStaffInfo();
 
             if (this.grants.isEmpty()) {

@@ -16,7 +16,6 @@ public class FeedCommand extends BaseCommand {
     @Default
     public static void feed(CommandSender sender, @Name("target") @Default("self") Player target) {
         target.setFoodLevel(20);
-        target.setSaturation(20);
 
         sender.sendMessage(CC.translate("&aSuccessfully fed."));
     }

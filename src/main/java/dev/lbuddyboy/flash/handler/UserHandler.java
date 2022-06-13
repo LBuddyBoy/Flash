@@ -3,7 +3,6 @@ package dev.lbuddyboy.flash.handler;
 import com.mongodb.client.model.Filters;
 import dev.lbuddyboy.flash.Flash;
 import dev.lbuddyboy.flash.FlashLanguage;
-import dev.lbuddyboy.flash.thread.UserUpdateThread;
 import dev.lbuddyboy.flash.user.User;
 import dev.lbuddyboy.flash.user.impl.FlatFileUser;
 import dev.lbuddyboy.flash.user.impl.MongoUser;

@@ -82,26 +82,22 @@ public class MongoRank extends Rank {
     }
 
     private void save(boolean async, boolean reload) {
-        if (!async) {
-            Document document = new Document();
+        Document document = new Document();
 
-            document.put("uuid", this.uuid.toString());
-            document.put("name", this.name);
-            document.put("displayName", this.displayName);
-            document.put("color", this.color.name());
-            document.put("weight", this.weight);
-            document.put("prefix", this.prefix);
-            document.put("suffix", this.suffix);
-            document.put("default", this.defaultRank);
-            document.put("permissions", GSONUtils.getGSON().toJson(this.permissions, GSONUtils.STRING));
-            document.put("inheritance", GSONUtils.getGSON().toJson(this.inheritance, GSONUtils.STRING));
+        document.put("uuid", this.uuid.toString());
+        document.put("name", this.name);
+        document.put("displayName", this.displayName);
+        document.put("color", this.color.name());
+        document.put("weight", this.weight);
+        document.put("prefix", this.prefix);
+        document.put("suffix", this.suffix);
+        document.put("default", this.defaultRank);
+        document.put("permissions", GSONUtils.getGSON().toJson(this.permissions, GSONUtils.STRING));
+        document.put("inheritance", GSONUtils.getGSON().toJson(this.inheritance, GSONUtils.STRING));
 
-            Flash.getInstance().getMongoHandler().getRankCollection().replaceOne(Filters.eq("uuid", this.uuid.toString()), document, new ReplaceOptions().upsert(true));
+        Flash.getInstance().getMongoHandler().getRankCollection().replaceOne(Filters.eq("uuid", this.uuid.toString()), document, new ReplaceOptions().upsert(true));
 
-            if (reload) load();
-            return;
-        }
-        Tasks.runAsync(() -> save(false, reload));
+        if (reload) load();
     }
 
     @Override

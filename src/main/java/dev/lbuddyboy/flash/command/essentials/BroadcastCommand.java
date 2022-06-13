@@ -11,6 +11,7 @@ import org.bukkit.command.CommandSender;
 import java.util.Arrays;
 
 @CommandAlias("broadcast|bc|alert")
+@CommandPermission("flash.command.broadcast")
 public class BroadcastCommand extends BaseCommand {
 
     @Default

@@ -1,11 +1,9 @@
 package dev.lbuddyboy.flash.handler;
 
 import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.thread.BatchExecuteThread;
 import dev.lbuddyboy.flash.transfer.LuckPermsTransport;
 import dev.lbuddyboy.flash.util.Batch;
 import lombok.Getter;
-import org.bukkit.entity.Bat;
 
 import java.util.ArrayList;
 import java.util.List;

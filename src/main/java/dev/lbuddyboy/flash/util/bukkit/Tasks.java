@@ -3,6 +3,7 @@ package dev.lbuddyboy.flash.util.bukkit;
 import dev.lbuddyboy.flash.Flash;
 import dev.lbuddyboy.flash.util.Callable;
 import org.bukkit.Bukkit;
+import org.bukkit.scheduler.BukkitScheduler;
 
 public class Tasks {
 

@@ -2,6 +2,7 @@ package dev.lbuddyboy.flash.user.menu;
 
 import dev.lbuddyboy.flash.Flash;
 import dev.lbuddyboy.flash.user.User;
+import dev.lbuddyboy.flash.user.comparator.PrefixWeightComparator;
 import dev.lbuddyboy.flash.user.model.Prefix;
 import dev.lbuddyboy.flash.util.bukkit.CC;
 import dev.lbuddyboy.flash.util.bukkit.CompatibleMaterial;
@@ -17,6 +18,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class PrefixesMenu extends PagedMenu<Prefix> {
 
@@ -34,7 +36,7 @@ public class PrefixesMenu extends PagedMenu<Prefix> {
         List<Button> buttons = new ArrayList<>();
 
         int i = 0;
-        for (Prefix prefix : this.objects) {
+        for (Prefix prefix : this.objects.stream().sorted(new PrefixWeightComparator().reversed()).collect(Collectors.toList())) {
             buttons.add(new PrefixButton(i++, prefix, player));
         }
 
@@ -107,9 +109,9 @@ public class PrefixesMenu extends PagedMenu<Prefix> {
             return new ItemBuilder(Material.PAPER).setName("&6" + prefix.getId() + " &ePrefix")
                     .setLore(Arrays.asList(
                             CC.MENU_BAR,
-                            "&eExample&7: &f" + userPrefix + prefix.getDisplay() + user.getColoredName() + userSuffix,
+                            "&eExample&7: &f" + prefix.getDisplay() + userPrefix + user.getColoredName() + userSuffix,
                             " ",
-                            "&7Click to &aactivate the " + prefix.getId() + "&e Prefix&7.",
+                            "&7Click to &aactivate&7 the &6" + prefix.getId() + "&e Prefix&7.",
                             CC.MENU_BAR
                     ))
                     .create();

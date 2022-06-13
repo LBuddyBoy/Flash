@@ -16,6 +16,7 @@ import dev.lbuddyboy.flash.util.bukkit.Tasks;
 import dev.lbuddyboy.flash.util.bukkit.UserUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
@@ -32,7 +33,7 @@ public class GrantListener implements Listener {
     public static Map<String, GrantBuild> grantTargetMap = new HashMap<>();
     public static Map<String, PermissionBuild> grantPermissionTargetMap = new HashMap<>();
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onChat(AsyncPlayerChatEvent event) {
 
         if (!grantRemoveMap.containsKey(event.getPlayer().getName())) return;
@@ -57,13 +58,10 @@ public class GrantListener implements Listener {
         grant.setRemovedAt(System.currentTimeMillis());
         grant.setRemovedBy(event.getPlayer().getUniqueId());
 
-        if (Bukkit.getPlayer(uuid) == null) {
-            new GrantRemovePacket(uuid, grant).send();
-        } else {
-            user.save(true);
-            user.updateGrants();
-            user.buildPlayer();
-        }
+        new GrantRemovePacket(uuid, grant).send();
+        user.save(true);
+        user.updateGrants();
+        user.buildPlayer();
 
         event.getPlayer().sendMessage(CC.translate("&aRemoved the grant from " + user.getColoredName() +"&a."));
 
@@ -71,7 +69,7 @@ public class GrantListener implements Listener {
 
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onChatGrant(AsyncPlayerChatEvent event) {
 
         if (!grantTargetMap.containsKey(event.getPlayer().getName())) return;
@@ -109,13 +107,13 @@ public class GrantListener implements Listener {
 
             UserCommand.rankAdd(event.getPlayer(), target, grantBuild.getRank(), grantBuild.getTime(), grantBuild.getScopes(), grantBuild.getReason());
 
-            Tasks.run(() -> new GrantMenu(target).openMenu(event.getPlayer()));
+            Tasks.run(() -> new GrantsMenu(target).openMenu(event.getPlayer()));
 
             grantTargetMap.remove(event.getPlayer().getName());
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onChatGrantPermission(AsyncPlayerChatEvent event) {
 
         if (!grantPermissionTargetMap.containsKey(event.getPlayer().getName())) return;
@@ -158,7 +156,7 @@ public class GrantListener implements Listener {
 
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onChatRemovePerm(AsyncPlayerChatEvent event) {
 
         if (!grantRemovePermMap.containsKey(event.getPlayer().getName())) return;
@@ -184,12 +182,9 @@ public class GrantListener implements Listener {
         permission.setRemovedBy(event.getPlayer().getUniqueId());
         permission.setRemoved(true);
 
-        if (Bukkit.getPlayer(uuid) == null) {
-            new PermissionRemovePacket(uuid, permission).send();
-        } else {
-            user.updatePerms();
-            user.save(true);
-        }
+        new PermissionRemovePacket(uuid, permission).send();
+        user.updatePerms();
+        user.save(true);
 
         event.getPlayer().sendMessage(CC.translate("&a"));
 

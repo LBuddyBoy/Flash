@@ -10,6 +10,8 @@ import dev.lbuddyboy.flash.util.bukkit.CC;
 import dev.lbuddyboy.flash.util.bukkit.ItemBuilder;
 import dev.lbuddyboy.flash.util.bukkit.UserUtils;
 import dev.lbuddyboy.flash.util.menu.Button;
+import dev.lbuddyboy.flash.util.menu.Menu;
+import dev.lbuddyboy.flash.util.menu.button.BackButton;
 import dev.lbuddyboy.flash.util.menu.paged.PagedMenu;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,9 +31,16 @@ public class GrantsMenu extends PagedMenu<Grant> {
     public UUID uuid;
     @Setter @Getter
     public String view = "ranks";
+    public Menu previousMenu;
 
     public GrantsMenu(UUID uuid) {
         this.uuid = uuid;
+        this.objects = Flash.getInstance().getUserHandler().tryUser(uuid, true).getGrants();
+    }
+
+    public GrantsMenu(UUID uuid, Menu previousMenu) {
+        this.uuid = uuid;
+        this.previousMenu = previousMenu;
         this.objects = Flash.getInstance().getUserHandler().tryUser(uuid, true).getGrants();
     }
 
@@ -75,6 +84,7 @@ public class GrantsMenu extends PagedMenu<Grant> {
         List<Button> buttons = new ArrayList<>();
 
         buttons.add(new ToggleViewButton(this));
+        if (this.previousMenu != null) buttons.add(new BackButton(6, this.previousMenu));
 
         return buttons;
     }
@@ -86,6 +96,7 @@ public class GrantsMenu extends PagedMenu<Grant> {
 
         @Override
         public int getSlot() {
+            if (menu.previousMenu != null) return 4;
             return menu.getView().equals("permissions") ? FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_RANKS_SLOT.getInt() : FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_PERMISSIONS_SLOT.getInt();
         }
 

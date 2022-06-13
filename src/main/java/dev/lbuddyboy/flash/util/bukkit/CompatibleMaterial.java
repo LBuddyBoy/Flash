@@ -8,8 +8,8 @@ public class CompatibleMaterial {
         try {
             return Material.getMaterial(name);
         } catch (Exception ignored) {
-            if (name.equalsIgnoreCase("PLAYER_HEAD")) {
-                return Material.SKULL_ITEM;
+            if (name.equalsIgnoreCase("SKULL_ITEM")) {
+                return Material.getMaterial("PLAYER_HEAD");
             }
             if (name.equalsIgnoreCase("BARRIER")) {
                 return Material.REDSTONE_BLOCK;

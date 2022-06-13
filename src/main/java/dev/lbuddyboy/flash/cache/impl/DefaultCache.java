@@ -24,7 +24,7 @@ public class DefaultCache extends UserCache {
     }
 
     @Override
-    public void update(UUID uuid, String name) {
+    public void update(UUID uuid, String name, boolean save) {
     }
 
 }

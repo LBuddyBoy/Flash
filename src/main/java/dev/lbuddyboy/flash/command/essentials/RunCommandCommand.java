@@ -11,6 +11,7 @@ import org.bukkit.command.CommandSender;
 import java.util.Arrays;
 
 @CommandAlias("runcommand|executecommand")
+@CommandPermission("flash.command.runcommand")
 public class RunCommandCommand extends BaseCommand {
 
     @Default

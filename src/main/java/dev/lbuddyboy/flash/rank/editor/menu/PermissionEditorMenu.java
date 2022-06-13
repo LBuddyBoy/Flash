@@ -139,7 +139,7 @@ public class PermissionEditorMenu extends PagedMenu<String> {
         }
 
         @Override
-        public int getMaxPageButtons(Player player) {
+        public int getMaxPageButtons() {
             return getButtonSlots().length;
         }
 

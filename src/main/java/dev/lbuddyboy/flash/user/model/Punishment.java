@@ -46,6 +46,7 @@ public class Punishment {
         if (isPermanent()) {
             return false;
         }
+        if (isRemoved()) return false;
         return getExpiry() < System.currentTimeMillis();
     }
 

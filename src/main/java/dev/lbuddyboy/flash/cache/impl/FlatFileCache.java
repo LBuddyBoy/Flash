@@ -2,6 +2,7 @@ package dev.lbuddyboy.flash.cache.impl;
 
 import dev.lbuddyboy.flash.Flash;
 import dev.lbuddyboy.flash.cache.UserCache;
+import dev.lbuddyboy.flash.cache.packet.CacheDistributePacket;
 import dev.lbuddyboy.flash.util.bukkit.CC;
 import org.bukkit.Bukkit;
 
@@ -55,11 +56,16 @@ public class FlatFileCache extends UserCache {
     }
 
     @Override
-    public void update(UUID uuid, String name) {
+    public void update(UUID uuid, String name, boolean save) {
         // User updates will already handle this.
+
+        if (save) {
+            new CacheDistributePacket(uuid, name).send();
+        }
 
         uuidNameMap.put(uuid, name);
         nameUUIDMap.put(name, uuid);
+
     }
 
 }

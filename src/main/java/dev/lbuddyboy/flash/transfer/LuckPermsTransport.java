@@ -71,7 +71,7 @@ public class LuckPermsTransport {
 
         for (dev.lbuddyboy.flash.user.User user : Flash.getInstance().getUserHandler().getUsers().values()) {
             batch.getCallbacks().add(() -> {
-                Flash.getInstance().getCacheHandler().getUserCache().update(user.getUuid(), user.getName());
+                Flash.getInstance().getCacheHandler().getUserCache().update(user.getUuid(), user.getName(), true);
                 user.save(false);
             });
         }

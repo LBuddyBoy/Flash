@@ -40,6 +40,7 @@ public class FlatFileUser extends User {
         this.notes = GSONUtils.getGSON().fromJson(config.getString(path + "notes"), GSONUtils.NOTE);
         this.grants = GSONUtils.getGSON().fromJson(config.getString(path + "grants"), GSONUtils.GRANT);
         this.playerInfo = GSONUtils.getGSON().fromJson(config.getString(path + "playerInfo"), GSONUtils.PLAYER_INFO);
+        this.serverInfo = GSONUtils.getGSON().fromJson(config.getString(path + "serverInfo"), GSONUtils.SERVER_INFO);
         this.staffInfo = GSONUtils.getGSON().fromJson(config.getString(path + "staffInfo"), GSONUtils.STAFF_INFO);
 
         if (this.grants.isEmpty()) {
@@ -73,6 +74,7 @@ public class FlatFileUser extends User {
         config.set(path + "notes", GSONUtils.getGSON().toJson(this.notes, GSONUtils.NOTE));
         config.set(path + "grants", GSONUtils.getGSON().toJson(this.grants, GSONUtils.GRANT));
         config.set(path + "playerInfo", GSONUtils.getGSON().toJson(this.playerInfo, GSONUtils.PLAYER_INFO));
+        config.set(path + "serverInfo", GSONUtils.getGSON().toJson(this.serverInfo, GSONUtils.SERVER_INFO));
         config.set(path + "staffInfo", GSONUtils.getGSON().toJson(this.staffInfo, GSONUtils.STAFF_INFO));
 
         if (saveConfig) {

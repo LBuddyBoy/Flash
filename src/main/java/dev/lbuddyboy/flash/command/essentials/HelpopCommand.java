@@ -23,12 +23,11 @@ public class HelpopCommand extends BaseCommand {
         User user = Flash.getInstance().getUserHandler().tryUser(sender.getUniqueId(), false);
 
         if (user.getPlayerInfo().getLastRequestSent() > System.currentTimeMillis()) {
-            sender.sendMessage(CC.translate("&cYou cannot do this for another " + TimeUtils.formatLongIntoDetailedString(user.getPlayerInfo().getLastRequestSent() - System.currentTimeMillis() / 1000)));
+            sender.sendMessage(CC.translate("&cYou cannot do this for another " + TimeUtils.formatLongIntoDetailedString((user.getPlayerInfo().getLastRequestSent() - System.currentTimeMillis()) / 1000)));
             return;
         }
 
-        new StaffMessageListPacket(CC.applyPlayer(FlashLanguage.ESSENTIALS_HELPOP_STAFF_MESSAGE.getStringList(), sender.getUniqueId(),
-                "%SERVER%", FlashLanguage.SERVER_NAME.getString(), "%REASON%", reason)).send();
+        new StaffMessageListPacket(CC.applyPlayer(FlashLanguage.ESSENTIALS_HELPOP_STAFF_MESSAGE.getStringList(), sender.getUniqueId()), new Object[]{"%SERVER%", FlashLanguage.SERVER_NAME.getString(), "%REASON%", reason}).send();
 
         sender.sendMessage(CC.translate(FlashLanguage.ESSENTIALS_HELPOP_SENDER_MESSAGE.getString()));
         user.getPlayerInfo().setLastRequestSent(System.currentTimeMillis() + 60_000L);

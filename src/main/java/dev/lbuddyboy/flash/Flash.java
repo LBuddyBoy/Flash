@@ -1,10 +1,13 @@
 package dev.lbuddyboy.flash;
 
 import dev.lbuddyboy.flash.handler.*;
-import dev.lbuddyboy.flash.thread.BatchExecuteThread;
-import dev.lbuddyboy.flash.thread.TipsMessageThread;
-import dev.lbuddyboy.flash.thread.UserUpdateThread;
+import dev.lbuddyboy.flash.thread.BatchExecuteTask;
+import dev.lbuddyboy.flash.thread.TipsMessageTask;
+import dev.lbuddyboy.flash.thread.UserUpdateTask;
+import dev.lbuddyboy.flash.user.packet.StaffMessagePacket;
 import dev.lbuddyboy.flash.util.YamlDoc;
+import dev.lbuddyboy.flash.util.bukkit.CC;
+import dev.lbuddyboy.flash.util.bukkit.CustomColor;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -32,6 +35,14 @@ public class Flash extends JavaPlugin {
         this.setupConfig();
         this.loadHandlers();
         this.loadThreads();
+
+        new StaffMessagePacket("&g&l[SERVER] &h" + FlashLanguage.SERVER_NAME.getString() + " &fhas just came &aonline&f.").send();
+    }
+
+    @Override
+    public void onDisable() {
+        new StaffMessagePacket("&g&l[SERVER] &h" + FlashLanguage.SERVER_NAME.getString() + " &fhas just went &coffline&f.").send();
+        this.userHandler.getUsers().values().forEach(user -> user.save(false));
     }
 
     private void setupConfig() {
@@ -40,6 +51,7 @@ public class Flash extends JavaPlugin {
 
         for (FlashLanguage language : FlashLanguage.values()) language.loadDefault();
         for (FlashMenuLanguage language : FlashMenuLanguage.values()) language.loadDefault();
+        FlashLanguage.ESSENTIALS_CUSTOM_COLORS.getStringList().forEach(string -> CC.customColors.add(new CustomColor(string.split(";")[0], string.split(";")[1])));
     }
 
     private void loadHandlers() {
@@ -51,14 +63,13 @@ public class Flash extends JavaPlugin {
         this.rankHandler = new RankHandler();
         this.transportHandler = new TransportHandler();
         this.chatHandler = new ChatHandler();
-
         this.commandHandler = new CommandHandler();
     }
 
     private void loadThreads() {
-        new UserUpdateThread().start();
-        new TipsMessageThread().start();
-        new BatchExecuteThread().start();
+        new TipsMessageTask().runTaskTimer(this, 20 * 10, 20L * FlashLanguage.TIPS_DELAY_SECONDS.getInt());
+        new UserUpdateTask().start();
+        new BatchExecuteTask().start();
     }
 
 }

@@ -10,6 +10,7 @@ import dev.lbuddyboy.flash.util.bukkit.ColorUtil;
 import dev.lbuddyboy.flash.util.bukkit.CompatibleMaterial;
 import dev.lbuddyboy.flash.util.bukkit.ItemBuilder;
 import dev.lbuddyboy.flash.util.menu.Button;
+import dev.lbuddyboy.flash.util.menu.Menu;
 import dev.lbuddyboy.flash.util.menu.button.BackButton;
 import dev.lbuddyboy.flash.util.menu.paged.PagedMenu;
 import lombok.AllArgsConstructor;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class RankUsersMenu extends PagedMenu<UUID> {
 
@@ -29,7 +31,11 @@ public class RankUsersMenu extends PagedMenu<UUID> {
 
     public RankUsersMenu(Rank rank) {
         this.rank = rank;
-        this.objects = rank.getUsersWithRank();
+        this.objects = Flash.getInstance().getCacheHandler().getUserCache().allUUIDs().stream().filter(uuid -> {
+            User user = Flash.getInstance().getUserHandler().tryUser(uuid, true);
+
+            return user.getActiveRank().getUuid().toString().equals(this.rank.getUuid().toString());
+        }).collect(Collectors.toList());
     }
 
     @Override
@@ -44,16 +50,12 @@ public class RankUsersMenu extends PagedMenu<UUID> {
         int i = 0;
         for (UUID uuid : objects) {
             User user = Flash.getInstance().getUserHandler().tryUser(uuid, true);
+            if (!user.getActiveRank().getUuid().toString().equals(this.rank.getUuid().toString())) continue;
 
-            buttons.add(new UserButton(i++, user));
+            buttons.add(new UserButton(i++, user, this));
         }
 
         return buttons;
-    }
-
-    @Override
-    public boolean autoUpdate() {
-        return true;
     }
 
     @Override
@@ -70,6 +72,7 @@ public class RankUsersMenu extends PagedMenu<UUID> {
 
         public int slot;
         public User user;
+        public Menu menu;
 
         @Override
         public int getSlot() {
@@ -78,13 +81,14 @@ public class RankUsersMenu extends PagedMenu<UUID> {
 
         @Override
         public ItemStack getItem() {
-            return new ItemBuilder(CompatibleMaterial.getMaterial("PLAYER_HEAD"))
+            return new ItemBuilder(CompatibleMaterial.getMaterial("SKULL_ITEM"))
                     .setName(user.getColoredName())
                     .setLore(Arrays.asList(
                             CC.MENU_BAR,
                             "&fClick to view the grants of " + user.getColoredName() + "&f.",
                             CC.MENU_BAR
                     ))
+                    .setDurability(3)
                     .setOwner(user.getName())
                     .create();
         }
@@ -94,7 +98,7 @@ public class RankUsersMenu extends PagedMenu<UUID> {
             if (!(event.getWhoClicked() instanceof Player)) return;
             Player player = (Player) event.getWhoClicked();
 
-            new GrantsMenu(user.getUuid()).openMenu(player);
+            new GrantsMenu(user.getUuid(), menu).openMenu(player);
         }
     }
 

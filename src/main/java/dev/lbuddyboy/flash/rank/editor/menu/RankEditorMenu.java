@@ -8,6 +8,7 @@ import dev.lbuddyboy.flash.rank.menu.RankListMenu;
 import dev.lbuddyboy.flash.util.*;
 import dev.lbuddyboy.flash.util.bukkit.CC;
 import dev.lbuddyboy.flash.util.bukkit.ColorUtil;
+import dev.lbuddyboy.flash.util.bukkit.CompatibleMaterial;
 import dev.lbuddyboy.flash.util.bukkit.ItemBuilder;
 import dev.lbuddyboy.flash.util.menu.Button;
 import dev.lbuddyboy.flash.util.menu.Menu;
@@ -132,14 +133,14 @@ public class RankEditorMenu extends Menu {
 
         @Override
         public ItemStack getItem() {
-            return new ItemBuilder(Material.WOOL)
-                    .setName(rank.getColoredName())
-                    .setDurability(ColorUtil.COLOR_MAP.get(rank.getColor()).getWoolData())
+            return new ItemBuilder(CompatibleMaterial.getMaterial("SKULL_ITEM"))
+                    .setName("&eUsers")
                     .setLore(Arrays.asList(
                             CC.MENU_BAR,
                             "&7Click to view all users with this rank.",
                             CC.MENU_BAR
                     ))
+                    .setDurability(3)
                     .create();
         }
 

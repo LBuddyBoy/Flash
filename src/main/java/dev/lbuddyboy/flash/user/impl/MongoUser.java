@@ -36,6 +36,7 @@ public class MongoUser extends User {
             if (document.containsKey("notes")) this.notes = GSONUtils.getGSON().fromJson(document.getString("notes"), GSONUtils.NOTE);
             if (document.containsKey("grants")) this.grants = GSONUtils.getGSON().fromJson(document.getString("grants"), GSONUtils.GRANT);
             if (document.containsKey("playerInfo")) this.playerInfo = GSONUtils.getGSON().fromJson(document.getString("playerInfo"), GSONUtils.PLAYER_INFO);
+            if (document.containsKey("serverInfo")) this.serverInfo = GSONUtils.getGSON().fromJson(document.getString("serverInfo"), GSONUtils.SERVER_INFO);
             if (document.containsKey("staffInfo")) this.staffInfo = GSONUtils.getGSON().fromJson(document.getString("staffInfo"), GSONUtils.STAFF_INFO);
 
             if (getActiveGrants().isEmpty()) this.grants.add(Grant.defaultGrant());
@@ -66,6 +67,7 @@ public class MongoUser extends User {
             document.put("grants", GSONUtils.getGSON().toJson(this.grants, GSONUtils.GRANT));
             document.put("activePrefix", GSONUtils.getGSON().toJson(this.activePrefix, GSONUtils.PREFIX));
             document.put("playerInfo", GSONUtils.getGSON().toJson(this.playerInfo, GSONUtils.PLAYER_INFO));
+            document.put("serverInfo", GSONUtils.getGSON().toJson(this.serverInfo, GSONUtils.SERVER_INFO));
             document.put("staffInfo", GSONUtils.getGSON().toJson(this.staffInfo, GSONUtils.STAFF_INFO));
 
             Flash.getInstance().getMongoHandler().getUserCollection().replaceOne(Filters.eq("uuid", this.uuid.toString()), document, new ReplaceOptions().upsert(true));

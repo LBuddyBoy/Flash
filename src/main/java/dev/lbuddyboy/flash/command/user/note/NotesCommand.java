@@ -27,12 +27,9 @@ public class NotesCommand extends BaseCommand {
 
         User user = Flash.getInstance().getUserHandler().tryUser(target, true);
 
-        if (Bukkit.getPlayer(target) != null) {
-            user.getNotes().add(noteObj);
-            user.save(true);
-        } else {
-            new NoteAddPacket(target, noteObj).send();
-        }
+        user.getNotes().add(noteObj);
+        user.save(true);
+        new NoteAddPacket(target, noteObj).send();
 
         sender.sendMessage(CC.translate("&aAdded the '" + note + "' note to " + user.getColoredName() + "&a."));
     }
@@ -54,11 +51,8 @@ public class NotesCommand extends BaseCommand {
         noteObj.setRemovedFor("No reason specified");
         noteObj.setRemovedAt(System.currentTimeMillis());
 
-        if (Bukkit.getPlayer(target) != null) {
-            user.save(true);
-        } else {
-            new NoteRemovePacket(target, noteObj).send();
-        }
+        user.save(true);
+        new NoteRemovePacket(target, noteObj).send();
 
         sender.sendMessage(CC.translate("&aRemoved the " + title + " note from " + user.getColoredName() + "&a."));
     }
