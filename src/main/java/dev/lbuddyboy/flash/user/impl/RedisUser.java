@@ -29,17 +29,26 @@ public class RedisUser extends User {
             this.punishments.addAll(user.getPunishments());
             this.notes = user.getNotes();
             this.grants = user.getGrants();
+            this.promotions = user.getPromotions();
+            this.demotions = user.getDemotions();
             this.activePrefix = user.getActivePrefix();
             this.playerInfo = user.getPlayerInfo();
-            this.serverInfo = user.getServerInfos();
             this.staffInfo = user.getStaffInfo();
 
             if (this.grants.isEmpty()) {
                 this.grants.add(Grant.defaultGrant());
             }
+
+            updateGrants();
         } catch (Exception ignored) {
             save(true, true);
         }
+
+    }
+
+    @Override
+    public void loadRank() {
+        load();
     }
 
     @Override

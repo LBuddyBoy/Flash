@@ -17,7 +17,14 @@ public class GamemodeParam implements ContextResolver<GameMode, BukkitCommandExe
         String source = arg.popFirstArg();
 
         try {
-            return GameMode.valueOf(source.toUpperCase());
+
+            GameMode gameMode = GameMode.valueOf(source.toUpperCase());
+
+            if (GameMode.getByValue(gameMode.getValue()) == null) {
+                gameMode = GameMode.getByValue(Integer.parseInt(source));
+            }
+
+            return gameMode;
         } catch (Exception ignored) {
             throw new InvalidCommandArgument("No gamemode with the name " + source + " found.");
         }

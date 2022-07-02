@@ -61,6 +61,9 @@ public class MongoRank extends Rank {
         if (document.containsKey("default"))
             this.defaultRank = document.getBoolean("default");
 
+        if (document.containsKey("staff"))
+            this.staff = document.getBoolean("staff");
+
         if (document.containsKey("permissions"))
             this.permissions = GSONUtils.getGSON().fromJson(document.getString("permissions"), GSONUtils.STRING);
 
@@ -92,6 +95,7 @@ public class MongoRank extends Rank {
         document.put("prefix", this.prefix);
         document.put("suffix", this.suffix);
         document.put("default", this.defaultRank);
+        document.put("staff", this.staff);
         document.put("permissions", GSONUtils.getGSON().toJson(this.permissions, GSONUtils.STRING));
         document.put("inheritance", GSONUtils.getGSON().toJson(this.inheritance, GSONUtils.STRING));
 
@@ -100,18 +104,4 @@ public class MongoRank extends Rank {
         if (reload) load();
     }
 
-    @Override
-    public List<UUID> getUsersWithRank() {
-        List<UUID> peopleWithThisRank = new ArrayList<>();
-
-        for (UUID uuid : Flash.getInstance().getCacheHandler().getUserCache().allUUIDs()) {
-            User user = Flash.getInstance().getUserHandler().tryUser(uuid, true);
-
-            if (user == null) continue;
-
-            if (user.getActiveRank() != null && user.getActiveRank().getUuid().toString().equalsIgnoreCase(this.uuid.toString())) peopleWithThisRank.add(uuid);
-        }
-
-        return peopleWithThisRank;
-    }
 }

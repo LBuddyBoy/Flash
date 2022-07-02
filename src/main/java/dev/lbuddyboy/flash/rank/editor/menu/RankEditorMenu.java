@@ -39,7 +39,7 @@ public class RankEditorMenu extends Menu {
 
         buttons.add(new BackButton(1, new RankListMenu((p, r) -> {
             p.closeInventory();
-            new RankEditorMenu(rank).openMenu(p);
+            new RankEditorMenu(r).openMenu(p);
         })));
 
         buttons.add(new RankDisplayButton(rank));

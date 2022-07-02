@@ -15,6 +15,7 @@ import java.util.UUID;
 public class PlayerInfo {
 
     private boolean pmsOn, claimedNameMC, offlineInventoryEdited;
+    private long syncCode;
     private UUID reply;
     private long lastRequestSent, lastMessageSent;
     private List<UUID> readNotifications;

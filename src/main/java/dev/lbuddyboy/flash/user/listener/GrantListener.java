@@ -14,6 +14,7 @@ import dev.lbuddyboy.flash.user.packet.PermissionRemovePacket;
 import dev.lbuddyboy.flash.util.bukkit.CC;
 import dev.lbuddyboy.flash.util.bukkit.Tasks;
 import dev.lbuddyboy.flash.util.bukkit.UserUtils;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -57,6 +58,14 @@ public class GrantListener implements Listener {
         grant.setRemovedFor(event.getMessage());
         grant.setRemovedAt(System.currentTimeMillis());
         grant.setRemovedBy(event.getPlayer().getUniqueId());
+
+        for (Grant userGrant : user.getGrants()) {
+            if (!userGrant.getUuid().toString().equals(grant.getUuid().toString())) continue;
+
+            userGrant.setRemovedBy(grant.getRemovedBy());
+            userGrant.setRemovedFor(grant.getRemovedFor());
+            userGrant.setRemovedAt(grant.getRemovedAt());
+        }
 
         new GrantRemovePacket(uuid, grant).send();
         user.save(true);
@@ -147,7 +156,7 @@ public class GrantListener implements Listener {
         if (permissionBuild.getTime() == null) {
 
             permissionBuild.setTime(event.getMessage());
-            UserCommand.permissionAdd(event.getPlayer(), target, permissionBuild.getNode(), permissionBuild.getTime(), permissionBuild.getReason());
+            UserCommand.permissionAdd(event.getPlayer(), target, permissionBuild.getNode().split(","), permissionBuild.getTime(), permissionBuild.getReason());
 
             Tasks.run(() -> new GrantMenu(target).openMenu(event.getPlayer()));
 
@@ -181,6 +190,15 @@ public class GrantListener implements Listener {
         permission.setRemovedAt(System.currentTimeMillis());
         permission.setRemovedBy(event.getPlayer().getUniqueId());
         permission.setRemoved(true);
+
+        for (UserPermission userPermission : user.getPermissions()) {
+            if (!userPermission.getNode().equals(permission.getNode())) continue;
+
+            userPermission.setRemovedBy(permission.getRemovedBy());
+            userPermission.setRemovedFor(permission.getRemovedFor());
+            userPermission.setRemovedAt(permission.getRemovedAt());
+            userPermission.setRemoved(permission.isRemoved());
+        }
 
         new PermissionRemovePacket(uuid, permission).send();
         user.updatePerms();

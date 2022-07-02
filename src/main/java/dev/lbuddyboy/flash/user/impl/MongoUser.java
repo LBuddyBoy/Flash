@@ -35,12 +35,33 @@ public class MongoUser extends User {
             if (document.containsKey("knownIps")) this.knownIps = GSONUtils.getGSON().fromJson(document.getString("knownIps"), GSONUtils.STRING);
             if (document.containsKey("notes")) this.notes = GSONUtils.getGSON().fromJson(document.getString("notes"), GSONUtils.NOTE);
             if (document.containsKey("grants")) this.grants = GSONUtils.getGSON().fromJson(document.getString("grants"), GSONUtils.GRANT);
+            if (document.containsKey("promotions")) this.promotions = GSONUtils.getGSON().fromJson(document.getString("promotions"), GSONUtils.PROMOTIONS);
+            if (document.containsKey("demotions")) this.demotions = GSONUtils.getGSON().fromJson(document.getString("demotions"), GSONUtils.DEMOTIONS);
             if (document.containsKey("playerInfo")) this.playerInfo = GSONUtils.getGSON().fromJson(document.getString("playerInfo"), GSONUtils.PLAYER_INFO);
             if (document.containsKey("serverInfo")) this.serverInfo = GSONUtils.getGSON().fromJson(document.getString("serverInfo"), GSONUtils.SERVER_INFO);
             if (document.containsKey("staffInfo")) this.staffInfo = GSONUtils.getGSON().fromJson(document.getString("staffInfo"), GSONUtils.STAFF_INFO);
 
             if (getActiveGrants().isEmpty()) this.grants.add(Grant.defaultGrant());
 
+            updateGrants();
+        } catch (Exception ignored) {
+            save(true, true);
+        }
+    }
+
+    @Override
+    public void loadRank() {
+        try {
+            Document document = Flash.getInstance().getMongoHandler().getUserCollection().find(Filters.eq("uuid", this.uuid.toString())).first();
+
+            if (document.containsKey("name")) this.name = document.getString("name");
+            if (document.containsKey("ip")) this.ip = document.getString("ip");
+
+            if (document.containsKey("grants")) this.grants = GSONUtils.getGSON().fromJson(document.getString("grants"), GSONUtils.GRANT);
+
+            if (getActiveGrants().isEmpty()) this.grants.add(Grant.defaultGrant());
+
+            updateGrants();
         } catch (Exception ignored) {
             save(true, true);
         }
@@ -65,6 +86,8 @@ public class MongoUser extends User {
             document.put("knownIps", GSONUtils.getGSON().toJson(this.knownIps, GSONUtils.STRING));
             document.put("notes", GSONUtils.getGSON().toJson(this.notes, GSONUtils.NOTE));
             document.put("grants", GSONUtils.getGSON().toJson(this.grants, GSONUtils.GRANT));
+            document.put("promotions", GSONUtils.getGSON().toJson(this.promotions, GSONUtils.PROMOTIONS));
+            document.put("demotions", GSONUtils.getGSON().toJson(this.demotions, GSONUtils.DEMOTIONS));
             document.put("activePrefix", GSONUtils.getGSON().toJson(this.activePrefix, GSONUtils.PREFIX));
             document.put("playerInfo", GSONUtils.getGSON().toJson(this.playerInfo, GSONUtils.PLAYER_INFO));
             document.put("serverInfo", GSONUtils.getGSON().toJson(this.serverInfo, GSONUtils.SERVER_INFO));

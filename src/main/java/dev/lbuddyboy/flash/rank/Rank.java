@@ -2,6 +2,7 @@ package dev.lbuddyboy.flash.rank;
 
 import dev.lbuddyboy.flash.Flash;
 import dev.lbuddyboy.flash.rank.packet.RanksUpdatePacket;
+import dev.lbuddyboy.flash.user.User;
 import lombok.Data;
 import org.bukkit.ChatColor;
 
@@ -21,12 +22,25 @@ public abstract class Rank {
     public String suffix = "";
     public List<String> permissions = new ArrayList<>();
     public List<String> inheritance = new ArrayList<>();
-    public boolean defaultRank;
+    public boolean defaultRank, staff;
 
     public abstract void load();
     public abstract void delete();
     public abstract void save(boolean async);
-    public abstract List<UUID> getUsersWithRank();
+
+    public List<User> getUsersWithRank() {
+        List<User> peopleWithThisRank = new ArrayList<>();
+
+        for (UUID uuid : Flash.getInstance().getCacheHandler().getUserCache().allUUIDs()) {
+            User user = Flash.getInstance().getUserHandler().tryUserRank(uuid, true);
+
+            if (user == null) continue;
+
+            if (user.getActiveRank() != null && user.getActiveRank().getUuid().toString().equalsIgnoreCase(this.uuid.toString())) peopleWithThisRank.add(user);
+        }
+
+        return peopleWithThisRank;
+    }
 
     public String getColoredName() {
         return this.color + this.name;

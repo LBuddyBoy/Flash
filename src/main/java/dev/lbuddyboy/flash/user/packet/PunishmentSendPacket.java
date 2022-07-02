@@ -28,14 +28,10 @@ public class PunishmentSendPacket implements JedisPacket {
 
         if (target == null) return;
 
-        String message = CC.translate(punishment.getType().getKickMessage(),
-                "%REASON%", punishment.getSentFor(),
-                "%REASON%", punishment.getSentFor(),
-                "%TEMP-FORMAT%", FlashLanguage.PUNISHMENT_TEMPORARY_FORMAT.getString().replaceAll("%TIME%", punishment.getExpireString())
-        );
+        String message = punishment.format();
 
-        target.sendMessage(message);
         if (punishment.getType() == PunishmentType.MUTE || punishment.getType() == PunishmentType.WARN) return;
+        target.sendMessage(message);
         Tasks.run(() -> target.kickPlayer(message));
 
     }

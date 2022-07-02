@@ -39,6 +39,8 @@ public class FlatFileUser extends User {
         this.punishments = GSONUtils.getGSON().fromJson(config.getString(path + "punishments"), GSONUtils.PUNISHMENTS);
         this.notes = GSONUtils.getGSON().fromJson(config.getString(path + "notes"), GSONUtils.NOTE);
         this.grants = GSONUtils.getGSON().fromJson(config.getString(path + "grants"), GSONUtils.GRANT);
+        this.promotions = GSONUtils.getGSON().fromJson(config.getString(path + "promotions"), GSONUtils.PROMOTIONS);
+        this.demotions = GSONUtils.getGSON().fromJson(config.getString(path + "demotions"), GSONUtils.DEMOTIONS);
         this.playerInfo = GSONUtils.getGSON().fromJson(config.getString(path + "playerInfo"), GSONUtils.PLAYER_INFO);
         this.serverInfo = GSONUtils.getGSON().fromJson(config.getString(path + "serverInfo"), GSONUtils.SERVER_INFO);
         this.staffInfo = GSONUtils.getGSON().fromJson(config.getString(path + "staffInfo"), GSONUtils.STAFF_INFO);
@@ -46,6 +48,29 @@ public class FlatFileUser extends User {
         if (this.grants.isEmpty()) {
             this.grants.add(Grant.defaultGrant());
         }
+
+        updateGrants();
+    }
+
+    @Override
+    public void loadRank() {
+        FileConfiguration config = Flash.getInstance().getUserHandler().getUsersYML().gc();
+
+        if (!config.contains("profiles." + getUuid().toString())) {
+            save(true, true);
+            return;
+        }
+
+        String path = "profiles." + getUuid().toString() + ".";
+
+        this.name = config.getString(path + "name");
+        this.grants = GSONUtils.getGSON().fromJson(config.getString(path + "grants"), GSONUtils.GRANT);
+
+        if (this.grants.isEmpty()) {
+            this.grants.add(Grant.defaultGrant());
+        }
+
+        updateGrants();
     }
 
     @Override
@@ -73,6 +98,8 @@ public class FlatFileUser extends User {
         config.set(path + "permissions", GSONUtils.getGSON().toJson(this.permissions, GSONUtils.USER_PERMISSION));
         config.set(path + "notes", GSONUtils.getGSON().toJson(this.notes, GSONUtils.NOTE));
         config.set(path + "grants", GSONUtils.getGSON().toJson(this.grants, GSONUtils.GRANT));
+        config.set(path + "promotions", GSONUtils.getGSON().toJson(this.promotions, GSONUtils.PROMOTIONS));
+        config.set(path + "demotions", GSONUtils.getGSON().toJson(this.demotions, GSONUtils.DEMOTIONS));
         config.set(path + "playerInfo", GSONUtils.getGSON().toJson(this.playerInfo, GSONUtils.PLAYER_INFO));
         config.set(path + "serverInfo", GSONUtils.getGSON().toJson(this.serverInfo, GSONUtils.SERVER_INFO));
         config.set(path + "staffInfo", GSONUtils.getGSON().toJson(this.staffInfo, GSONUtils.STAFF_INFO));

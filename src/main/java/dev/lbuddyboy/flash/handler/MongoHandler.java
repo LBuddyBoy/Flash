@@ -20,7 +20,7 @@ public class MongoHandler {
 	MongoClient mongoClient;
 	MongoClientURI mongoClientURI;
 
-	private MongoCollection<Document> userCollection, rankCollection, cacheCollection, prefixCollection, notificationCollection;
+	private MongoCollection<Document> userCollection, rankCollection, cacheCollection, prefixCollection, notificationCollection, syncCollection, syncCodesCollection;
 	private MongoDatabase mongoDatabase;
 
 	public MongoHandler() {
@@ -53,6 +53,9 @@ public class MongoHandler {
 		this.rankCollection = getMongoDatabase().getCollection("Ranks");
 		this.cacheCollection = getMongoDatabase().getCollection("Cache");
 		this.prefixCollection = getMongoDatabase().getCollection("Prefixes");
+		this.syncCollection = mongoDatabase.getCollection("Syncs");
+		this.syncCodesCollection = mongoDatabase.getCollection("SyncCodes");
+
 		this.notificationCollection = getMongoDatabase().getCollection("Notifications");
 	}
 

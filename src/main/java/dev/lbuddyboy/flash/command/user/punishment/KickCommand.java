@@ -49,8 +49,12 @@ public class KickCommand extends BaseCommand {
         user.save(true);
         new PunishmentAddPacket(uuid, punishment).send();
 
-        new PunishmentSendPacket(punishment).send();
+        Player target = Bukkit.getPlayer(uuid);
+        if (target != null) Bukkit.getScheduler().runTask(Flash.getInstance(), () -> target.kickPlayer(punishment.format()));
+
+        Bukkit.getScheduler().runTask(Flash.getInstance(), () -> new PunishmentSendPacket(punishment).send());
         if (senderUUID != null) UserUtils.addPunishment(senderUUID, punishment);
+
 
     }
 

@@ -7,6 +7,7 @@ import dev.lbuddyboy.flash.FlashLanguage;
 import dev.lbuddyboy.flash.user.User;
 import dev.lbuddyboy.flash.user.model.Punishment;
 import dev.lbuddyboy.flash.user.model.PunishmentType;
+import dev.lbuddyboy.flash.user.packet.GlobalMessagePacket;
 import dev.lbuddyboy.flash.user.packet.PunishmentAddPacket;
 import dev.lbuddyboy.flash.user.packet.PunishmentSendPacket;
 import dev.lbuddyboy.flash.util.bukkit.CC;
@@ -25,7 +26,7 @@ public class MuteCommand extends BaseCommand {
 
     @Default
     @CommandCompletion("@target")
-    public static void mute(CommandSender sender, @Name("target") UUID uuid, @Name("duration") String time, @Name("reason {-p}") String reason) {
+    public static void mute(CommandSender sender, @Name("target") UUID uuid, @Name("duration") @Default("perm") String time, @Name("reason {-p}") String reason) {
         boolean isPub = reason.contains("-p");
         UUID senderUUID = sender instanceof Player ? ((Player) sender).getUniqueId() : null;
         long duration = JavaUtils.parse(time);
@@ -72,7 +73,9 @@ public class MuteCommand extends BaseCommand {
         user.save(true);
         new PunishmentAddPacket(uuid, punishment).send();
 
-        new PunishmentSendPacket(punishment).send();
+        Bukkit.getScheduler().runTask(Flash.getInstance(), () -> new PunishmentSendPacket(punishment).send());
+        new GlobalMessagePacket(uuid, "&c&lYou have just been muted. &e&lReason: " + punishment.getSentFor() + " &a&lTime: " + punishment.getExpireString()).send();
+
         if (senderUUID != null) UserUtils.addPunishment(senderUUID, punishment);
 
     }

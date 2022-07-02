@@ -43,6 +43,7 @@ public class FlatFileRank extends Rank {
         this.color = ChatColor.valueOf(config.getString(path + "color"));
         this.weight = config.getInt(path + "weight");
         this.defaultRank = config.getBoolean(path + "default");
+        this.staff = config.getBoolean(path + "staff");
         this.prefix = config.getString(path + "prefix");
         this.suffix = config.getString(path + "suffix");
         this.permissions = config.getStringList(path + "permissions");
@@ -70,6 +71,7 @@ public class FlatFileRank extends Rank {
         config.set(path + "color", this.color.name());
         config.set(path + "weight", this.weight);
         config.set(path + "default", this.defaultRank);
+        config.set(path + "staff", this.staff);
         config.set(path + "prefix", this.prefix);
         config.set(path + "suffix", this.suffix);
         config.set(path + "permissions", this.permissions);
@@ -83,18 +85,4 @@ public class FlatFileRank extends Rank {
         if (reload) load();
     }
 
-    @Override
-    public List<UUID> getUsersWithRank() {
-        List<UUID> peopleWithThisRank = new ArrayList<>();
-
-        for (UUID uuid : Flash.getInstance().getCacheHandler().getUserCache().allUUIDs()) {
-            User user = Flash.getInstance().getUserHandler().tryUser(uuid, true);
-
-            if (user == null) continue;
-
-            if (user.getActiveRank() != null && user.getActiveRank().getUuid().toString().equalsIgnoreCase(this.uuid.toString())) peopleWithThisRank.add(uuid);
-        }
-
-        return peopleWithThisRank;
-    }
 }

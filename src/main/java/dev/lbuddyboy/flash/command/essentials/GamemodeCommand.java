@@ -12,7 +12,7 @@ public class GamemodeCommand extends BaseCommand {
 
     @Default
     @CommandCompletion("@target @gamemodes")
-    public static void rename(Player sender, @Name("target") @Default("defaultSelf") Player target, @Name("name") GameMode gameMode) {
+    public static void rename(Player sender, @Name("target") @Default("other") Player target, @Name("name") GameMode gameMode) {
         target.setGameMode(gameMode);
         if (sender == target) {
             sender.sendMessage(CC.translate("&cGameMode&7: &f" + gameMode.name()));

@@ -25,7 +25,7 @@ public class BlacklistCommand extends BaseCommand {
 
     @Default
     @CommandCompletion("@target")
-    public static void blacklist(CommandSender sender, @Name("target") UUID uuid, @Name("duration") String time, @Name("reason {-p}") String reason) {
+    public static void blacklist(CommandSender sender, @Name("target") UUID uuid, @Name("duration") @Default("perm") String time, @Name("reason {-p}") String reason) {
         boolean isPub = reason.contains("-p");
         UUID senderUUID = sender instanceof Player ? ((Player) sender).getUniqueId() : null;
         long duration = JavaUtils.parse(time);
@@ -72,7 +72,7 @@ public class BlacklistCommand extends BaseCommand {
         user.save(true);
         new PunishmentAddPacket(uuid, punishment).send();
 
-        new PunishmentSendPacket(punishment).send();
+        Bukkit.getScheduler().runTask(Flash.getInstance(), () -> new PunishmentSendPacket(punishment).send());
         if (senderUUID != null) UserUtils.addPunishment(senderUUID, punishment);
 
     }

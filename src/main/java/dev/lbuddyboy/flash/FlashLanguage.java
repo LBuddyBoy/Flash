@@ -20,6 +20,20 @@ public enum FlashLanguage {
     CHAT_MUTED("SETTINGS.CHAT-MUTED", false),
     CHAT_SLOW("SETTINGS.CHAT-SLOW", 0),
 
+    SYNC_CONVERSION("DISCORD_SYNC.RANK-CONVERSIONS", Arrays.asList(
+            "852729246547837028:Owner",
+            "852916027465138206:Developer",
+            "920365944658866176:Manager",
+            "948615802708435014:Platformadmin",
+            "949357258997911562:Senioradmin",
+            "852916027465138206:Developer",
+            "872252487770443826:Admin",
+            "938264807822479360:Seniormod",
+            "948615668226490439:Mod+",
+            "852909211272609792:Mod",
+            "944437332772261908:Trialmod"
+    )),
+
     BLOCKED_COMMANDS("BLOCKED_COMMANDS", Arrays.asList(
             "/teammsg",
             "/teammessage",
@@ -30,7 +44,7 @@ public enum FlashLanguage {
             "/minecraft:whisper",
             "/w",
             "/minecraft:w"
-            )),
+    )),
 
     NAMEMC_RANK_CLAIM_COMMANDS("NAMEMC.CLAIMED_COMMANDS", Arrays.asList(
             "user addrank %TARGET% Flash perm Global Claimed NameMC",
@@ -84,7 +98,7 @@ public enum FlashLanguage {
     PUNISHMENT_UNPUNISH_SILENT_BROADCAST_FORMAT("PUNISHMENTS.UNPUNISH.SILENT-BROADCAST-FORMAT", "&r%TARGET_COLORED%&a has just been &esilently&a %FORMAT% by &r%SENDER_DISPLAY%&a."),
 
     SERVER_CHANGE_JOIN("GLOBAL.SERVER_CHANGE_JOIN", "&4&l[Staff] &c%PLAYER% &fhas just &ajoined&f &9%SERVER%&f."),
-//    SERVER_CHANGE_JOIN_NETWORK("GLOBAL.SERVER_CHANGE_JOIN_NETWORK", "&4&l[Staff] &c%PLAYER% &fhas just &ajoined&f the network."),
+    //    SERVER_CHANGE_JOIN_NETWORK("GLOBAL.SERVER_CHANGE_JOIN_NETWORK", "&4&l[Staff] &c%PLAYER% &fhas just &ajoined&f the network."),
     SERVER_CHANGE_LEAVE("GLOBAL.SERVER_CHANGE_LEAVE", "&4&l[Staff] &c%PLAYER% &fhas just &cleft&f &9%SERVER%&f."),
 //    SERVER_CHANGE_LEAVE_NETWORK("GLOBAL.SERVER_CHANGE_LEAVE_NETWORK", "&4&l[Staff] &c%PLAYER% &fhas just &cleft&f the network from &9%FROM-SERVER%&f."),
 
@@ -103,6 +117,7 @@ public enum FlashLanguage {
     RANK_CREATE("RANK.CREATE", "&aCreated the &r%rank%&f."),
     RANK_DELETE("RANK.DELETE", "&aDeleted the &r%rank%&f."),
     RANK_SET_DEFAULT("RANK.SET_DEFAULT", "&aToggled the default status of &r%rank%&f from %old-status% to %new-status%."),
+    RANK_SET_STAFF("RANK.SET_STAFF", "&aToggled the staff status of &r%rank%&f from %old-status% to %new-status%."),
 
     RANK_LIST_HEADER("RANK.LIST_HEADER", Arrays.asList(
             CC.CHAT_BAR,
@@ -131,6 +146,15 @@ public enum FlashLanguage {
     GRANTED_USER_PERMISSION_SENDER("USER.GRANTED_PERMISSION_SENDER", "&aGranted &r%PLAYER_DISPLAY% &athe &r%PERMISSION%&a permission. Expires in: &e%DURATION%"),
     GRANTED_USER_RANK_SENDER("USER.GRANTED_RANK_SENDER", "&aGranted &r%PLAYER_DISPLAY% &athe &r%RANK%&a rank. Expires in: &e%DURATION%"),
 
+    USER_BLACKLIST("USER_BLACKLIST", Arrays.asList(
+            "heresaGift",
+            "zaqhy",
+            "Serversided",
+            "ToadLw",
+            "wisi",
+            "darnell42"
+    )),
+
     TIPS_LIST("TIPS.TIPS", Arrays.asList(
             "&6&l[TIP-1] &fPut something here",
             "&6&l[TIP-2] &fPut something else here"
@@ -140,7 +164,7 @@ public enum FlashLanguage {
 
     private final String path;
     private final Object value;
-    
+
     public String getString() {
         if (Flash.getInstance().getConfig().contains(this.path))
             return Flash.getInstance().getConfig().getString(this.path);
@@ -160,7 +184,8 @@ public enum FlashLanguage {
     }
 
     public int getInt() {
-        if (Flash.getInstance().getConfig().contains(this.path)) return Flash.getInstance().getConfig().getInt(this.path);
+        if (Flash.getInstance().getConfig().contains(this.path))
+            return Flash.getInstance().getConfig().getInt(this.path);
 
         loadDefault();
 
@@ -168,7 +193,8 @@ public enum FlashLanguage {
     }
 
     public List<String> getStringList() {
-        if (Flash.getInstance().getConfig().contains(this.path)) return Flash.getInstance().getConfig().getStringList(this.path);
+        if (Flash.getInstance().getConfig().contains(this.path))
+            return Flash.getInstance().getConfig().getStringList(this.path);
 
         loadDefault();
 

@@ -25,7 +25,7 @@ public class BanCommand extends BaseCommand {
 
     @Default
     @CommandCompletion("@target")
-    public static void ban(CommandSender sender, @Name("target") UUID uuid, @Name("duration") String time, @Name("reason {-p}") String reason) {
+    public static void ban(CommandSender sender, @Name("target") UUID uuid, @Name("duration") @Default("perm") String time, @Name("reason {-p}") String reason) {
         boolean isPub = reason.contains("-p");
         UUID senderUUID = sender instanceof Player ? ((Player) sender).getUniqueId() : null;
         long duration = JavaUtils.parse(time);
@@ -73,7 +73,10 @@ public class BanCommand extends BaseCommand {
         user.save(true);
         new PunishmentAddPacket(uuid, punishment).send();
 
-        new PunishmentSendPacket(punishment).send();
+        Player target = Bukkit.getPlayer(uuid);
+        if (target != null) Bukkit.getScheduler().runTask(Flash.getInstance(), () -> target.kickPlayer(punishment.format()));
+
+        Bukkit.getScheduler().runTask(Flash.getInstance(), () -> new PunishmentSendPacket(punishment).send());
         if (senderUUID != null) UserUtils.addPunishment(senderUUID, punishment);
 
     }

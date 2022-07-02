@@ -6,7 +6,9 @@ import dev.lbuddyboy.flash.Flash;
 import dev.lbuddyboy.flash.FlashLanguage;
 import dev.lbuddyboy.flash.rank.Rank;
 import dev.lbuddyboy.flash.user.User;
+import dev.lbuddyboy.flash.user.model.Demotion;
 import dev.lbuddyboy.flash.user.model.Grant;
+import dev.lbuddyboy.flash.user.model.Promotion;
 import dev.lbuddyboy.flash.user.model.UserPermission;
 import dev.lbuddyboy.flash.user.packet.GlobalMessagePacket;
 import dev.lbuddyboy.flash.user.packet.GrantAddPacket;
@@ -14,6 +16,7 @@ import dev.lbuddyboy.flash.user.packet.PermissionAddPacket;
 import dev.lbuddyboy.flash.util.bukkit.CC;
 import dev.lbuddyboy.flash.util.JavaUtils;
 import dev.lbuddyboy.flash.util.PagedItem;
+import dev.lbuddyboy.flash.util.gson.GSONUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -50,12 +53,13 @@ public class UserCommand extends BaseCommand {
             return;
         }
 
+        sender.sendMessage(GSONUtils.getGSON().toJson(user, GSONUtils.USER));
 
     }
 
     @Subcommand("grantperm|addperm|addpermission")
     @CommandCompletion("@target @permissions")
-    public static void permissionAdd(CommandSender sender, @Name("user") UUID uuid, @Single @Name("permission") String permission, @Single @Name("duration") String duration, @Name("reason") String reason) {
+    public static void permissionAdd(CommandSender sender, @Name("user") UUID uuid, @Split @Name("permissions") String[] permissions, @Single @Name("duration") String duration, @Name("reason") String reason) {
         long time = JavaUtils.parse(duration);
         if (duration.equalsIgnoreCase("perm")) time = Long.MAX_VALUE;
 
@@ -71,23 +75,78 @@ public class UserCommand extends BaseCommand {
             return;
         }
 
-        UserPermission userPermission = new UserPermission(permission, time, System.currentTimeMillis(), (sender instanceof Player) ? ((Player) sender).getUniqueId() : null, reason);
+        if (Arrays.asList(permissions).contains("*") && !(sender instanceof Player)) {
+            sender.sendMessage(CC.translate("&cOnly console can grant * permissions."));
+            return;
+        }
 
-        user.getPermissions().add(userPermission);
-        user.save(true);
+        for (String permission : permissions) {
+            UserPermission userPermission = new UserPermission(permission, time, System.currentTimeMillis(), (sender instanceof Player) ? ((Player) sender).getUniqueId() : null, reason);
+
+            user.getPermissions().add(userPermission);
+
+            sender.sendMessage(CC.translate(FlashLanguage.GRANTED_USER_PERMISSION_SENDER.getString(),
+                    "%PLAYER_DISPLAY%", user.getDisplayName(),
+                    "%PERMISSION%", userPermission.getNode(),
+                    "%DURATION%", userPermission.getExpireString()));
+
+            String message = CC.translate(FlashLanguage.GRANTED_USER_PERMISSION_TARGET.getString(),
+                    "%PERMISSION%", userPermission.getNode(),
+                    "%DURATION%", userPermission.getExpireString());
+
+            new GlobalMessagePacket(uuid, message).send();
+
+        }
+
+        if (Bukkit.getPlayer(uuid) == null) {
+            user.save(true);
+        }
         user.updatePerms();
-        new PermissionAddPacket(uuid, userPermission).send();
+        new PermissionAddPacket(uuid, user.getPermissions()).send();
 
-        sender.sendMessage(CC.translate(FlashLanguage.GRANTED_USER_PERMISSION_SENDER.getString(),
-                "%PLAYER_DISPLAY%", user.getDisplayName(),
-                "%PERMISSION%", userPermission.getNode(),
-                "%DURATION%", userPermission.getExpireString()));
+    }
 
-        String message = CC.translate(FlashLanguage.GRANTED_USER_PERMISSION_TARGET.getString(),
-                "%PERMISSION%", userPermission.getNode(),
-                "%DURATION%", userPermission.getExpireString());
+    @Subcommand("addpromotion")
+    @CommandCompletion("@target")
+    public static void promotionAdd(CommandSender sender, @Name("user") UUID uuid, @Name("time-long") long time, @Single @Name("fromRank") String fromRank, @Single @Name("toRank") String toRank) {
 
-        new GlobalMessagePacket(uuid, message).send();
+        if (time <= 0) {
+            sender.sendMessage(CC.translate("&cInvalid duration."));
+            return;
+        }
+
+        User user = Flash.getInstance().getUserHandler().tryUser(uuid, true);
+
+        if (user == null) {
+            sender.sendMessage(CC.translate(FlashLanguage.INVALID_USER.getString()));
+            return;
+        }
+
+        Promotion promotion = new Promotion(fromRank, toRank, time);
+
+        user.getPromotions().add(promotion);
+        user.save(true);
+
+    }
+
+    @Subcommand("setjoinedstaffteam")
+    @CommandCompletion("@target")
+    public static void setjoinedstaffteam(CommandSender sender, @Name("user") UUID uuid, @Name("time-long") long time) {
+
+        if (time <= 0) {
+            sender.sendMessage(CC.translate("&cInvalid duration."));
+            return;
+        }
+
+        User user = Flash.getInstance().getUserHandler().tryUser(uuid, true);
+
+        if (user == null) {
+            sender.sendMessage(CC.translate(FlashLanguage.INVALID_USER.getString()));
+            return;
+        }
+
+        user.getStaffInfo().setJoinedStaffTeam(time);
+        user.save(true);
 
     }
 
@@ -109,10 +168,35 @@ public class UserCommand extends BaseCommand {
             return;
         }
 
+        if (sender instanceof Player) {
+            User senderUser = Flash.getInstance().getUserHandler().tryUser(((Player) sender).getUniqueId(), true);
+
+            if (senderUser.getActiveRank().getWeight() < rank.getWeight()) {
+                sender.sendMessage(CC.translate("&cThat rank is too high for you to grant..."));
+                return;
+            }
+
+            if (!sender.hasPermission("grant.staff") && rank.isStaff()) {
+                sender.sendMessage(CC.translate("&cYou do not have clearance to grant staff ranks..."));
+                return;
+            }
+        }
+
         Grant grant = new Grant(UUID.randomUUID(), rank.getUuid(), rank.getName(), (sender instanceof Player) ? ((Player) sender).getUniqueId() : null, reason, System.currentTimeMillis(), time, scopes);
 
+        if (user.getActiveRank().isStaff() && user.getActiveRank().getWeight() < grant.getRank().getWeight()) {
+            Promotion promotion = new Promotion(user.getActiveRank().getColoredName(), grant.getRank().getColoredName(), System.currentTimeMillis());
+            user.getPromotions().add(promotion);
+        }
+
+        if (grant.getRank().isStaff() && !user.getActiveRank().isStaff()) {
+            user.getStaffInfo().setJoinedStaffTeam(System.currentTimeMillis());
+        }
+
         user.getGrants().add(grant);
-        user.save(true);
+        if (Bukkit.getPlayer(uuid) == null) {
+            user.save(true);
+        }
         user.updateGrants();
 
         new GrantAddPacket(uuid, grant).send();

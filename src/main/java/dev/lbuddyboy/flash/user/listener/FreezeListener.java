@@ -44,6 +44,7 @@ public class FreezeListener implements Listener {
 					&& !event.getMessage().startsWith("/r") && !event.getMessage().startsWith("/reply")
 					&& !event.getMessage().startsWith("/ss") && !event.getMessage().startsWith("/freeze")
 					&& !event.getMessage().startsWith("/panic") && !event.getMessage().startsWith("/tpm")
+					&& !event.getMessage().startsWith("/sync")
 					&& !event.getMessage().startsWith("/message") && !event.getMessage().startsWith("/reply")) {
 				event.setCancelled(true);
 				player.sendMessage(CC.translate("&cYou can not use commands while you are frozen."));

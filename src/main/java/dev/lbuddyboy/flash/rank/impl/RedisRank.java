@@ -43,6 +43,7 @@ public class RedisRank extends Rank {
             this.suffix = rank.getSuffix();
             this.permissions = rank.getPermissions();
             this.inheritance = rank.getInheritance();
+            this.staff = rank.isStaff();
 
         } catch (Exception ignored) {
             save(true, true);
@@ -70,18 +71,4 @@ public class RedisRank extends Rank {
         return GSONUtils.getGSON().toJson(this, GSONUtils.REDIS_RANK);
     }
 
-    @Override
-    public List<UUID> getUsersWithRank() {
-        List<UUID> peopleWithThisRank = new ArrayList<>();
-
-        for (UUID uuid : Flash.getInstance().getCacheHandler().getUserCache().allUUIDs()) {
-            User user = Flash.getInstance().getUserHandler().tryUser(uuid, true);
-
-            if (user == null) continue;
-
-            if (user.getActiveRank() != null && user.getActiveRank().getUuid().toString().equalsIgnoreCase(this.uuid.toString())) peopleWithThisRank.add(uuid);
-        }
-
-        return peopleWithThisRank;
-    }
 }

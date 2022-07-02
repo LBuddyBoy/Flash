@@ -3,11 +3,10 @@ package dev.lbuddyboy.flash.command.user;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.Default;
-import co.aikar.commands.annotation.Name;
 import dev.lbuddyboy.flash.Flash;
 import dev.lbuddyboy.flash.FlashLanguage;
 import dev.lbuddyboy.flash.user.User;
-import dev.lbuddyboy.flash.util.NameMCVerification;
+import dev.lbuddyboy.flash.util.NameMCUtils;
 import dev.lbuddyboy.flash.util.bukkit.CC;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -25,7 +24,7 @@ public class NameMCCommand extends BaseCommand {
             return;
         }
 
-        if (!NameMCVerification.hasLiked(sender)) {
+        if (!NameMCUtils.hasLiked(sender)) {
             sender.sendMessage(CC.translate("&cYou need to like " + FlashLanguage.SERVER_IP.getString() + " on NameMC"));
             sender.sendMessage(CC.translate("&c - https://namemc.com/server/" + FlashLanguage.SERVER_IP.getString() + "/"));
             return;

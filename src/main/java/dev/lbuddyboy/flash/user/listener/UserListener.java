@@ -2,6 +2,7 @@ package dev.lbuddyboy.flash.user.listener;
 
 import dev.lbuddyboy.flash.Flash;
 import dev.lbuddyboy.flash.FlashLanguage;
+import dev.lbuddyboy.flash.command.essentials.FreezeCommand;
 import dev.lbuddyboy.flash.command.essentials.InvseeCommand;
 import dev.lbuddyboy.flash.rank.Rank;
 import dev.lbuddyboy.flash.server.model.Notification;
@@ -32,6 +33,13 @@ public class UserListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onAsyncPlayerPreLogin(AsyncPlayerPreLoginEvent event) {
+
+        if (FlashLanguage.USER_BLACKLIST.getStringList().contains(event.getName())) {
+            event.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_BANNED);
+            String message = CC.translate("&cYou're banned stop trying.");
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, message);
+            return;
+        }
 
         User user = Flash.getInstance().getUserHandler().createUser(event.getUniqueId(), event.getName());
 
@@ -76,12 +84,18 @@ public class UserListener implements Listener {
             return;
         }
 
-        List<UUID> alts = new ArrayList<>();
-        Flash.getInstance().getUserHandler().relativeAlts(user.getIp(), alts);
+        List<UUID> alts = Flash.getInstance().getUserHandler().relativeAlts(user.getIp());
 
-        if (alts.contains(event.getUniqueId())) {
-            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, CC.translate(FlashLanguage.PUNISHMENT_BANNED_IP_RELATIVE.getString(), "%OWNER%", UserUtils.formattedName(alts.get(0))));
-            return;
+        for (UUID alt : alts) {
+            User altUser = Flash.getInstance().getUserHandler().tryUser(alt, true);
+            if (altUser.hasActivePunishment(PunishmentType.BLACKLIST)) {
+                event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, CC.translate(FlashLanguage.PUNISHMENT_BANNED_IP_RELATIVE.getString(), "%OWNER%", UserUtils.formattedName(alts.get(0))));
+                return;
+            }
+            if (altUser.hasActivePunishment(PunishmentType.BAN)) {
+                new StaffMessagePacket(user.getColoredName() + " &fmight be ban evading... &7(" + altUser.getColoredName() + ")").send();
+                break;
+            }
         }
 
         Flash.getInstance().getUserHandler().getUsers().put(event.getUniqueId(), user);
@@ -106,6 +120,8 @@ public class UserListener implements Listener {
                 user.getPlayerInfo().setOfflineInventoryEdited(false);
             }*/
 
+        user.setName(Flash.getInstance().getCacheHandler().getUserCache().getName(user.getUuid()));
+
         user.updatePerms();
         user.updateGrants();
         user.buildPlayer();
@@ -118,12 +134,23 @@ public class UserListener implements Listener {
         if (notifications.size() > 0) {
             player.sendMessage(CC.translate("&aYou currently have " + notifications.size() + " unread notifications. &7(( /notifications for more info ))"));
         }
+//
+//        if (user.getActiveRank().isStaff() || player.isOp() || player.hasPermission("*") || player.hasPermission("flash.staff")) {
+//            if (user.isDiscordSynced()) return;
+//            if (user.getDiscordRank() != null) return;
+//
+//            FreezeCommand.freeze(Bukkit.getConsoleSender(), player);
+//            player.sendMessage(CC.translate("&eSync your discord by doing /sync to verify your staff identity."));
+//        }
 
     }
 
     @EventHandler
     public void onCommand(PlayerCommandPreprocessEvent event) {
-        if (FlashLanguage.BLOCKED_COMMANDS.getStringList().contains(event.getMessage().toLowerCase())) event.setCancelled(true);
+        String[] args = event.getMessage().toLowerCase().split(" ");
+        for (String s : FlashLanguage.BLOCKED_COMMANDS.getStringList()) {
+            if (args[0].equalsIgnoreCase(s)) event.setCancelled(true);
+        }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -131,6 +158,7 @@ public class UserListener implements Listener {
         Player player = event.getPlayer();
 
         User user = Flash.getInstance().getUserHandler().getUsers().remove(player.getUniqueId());
+        if (user == null) return;
 
 //        user.addServerInfo();
 //        user.getServerInfo().setArmor(player.getInventory().getArmorContents());
@@ -166,33 +194,6 @@ public class UserListener implements Listener {
 
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onClose(InventoryCloseEvent event) {
-        if (!(event.getPlayer() instanceof Player)) return;
 
-        Player player = (Player) event.getPlayer();
-        if (!InvseeCommand.offlineEditMap.containsKey(player)) return;
-
-        UUID target = InvseeCommand.offlineEditMap.remove(player);
-        User user = Flash.getInstance().getUserHandler().tryUser(target, true);
-        Inventory inventory = event.getInventory();
-        ItemStack[] armor = new ItemStack[4];
-        ItemStack[] contents = new ItemStack[36];
-
-        for (int i = 0; i < 36; i++) {
-            contents[i] = inventory.getItem(i);
-        }
-
-        armor[0] = inventory.getItem(44);
-        armor[1] = inventory.getItem(43);
-        armor[2] = inventory.getItem(42);
-        armor[3] = inventory.getItem(41);
-
-        user.getServerInfo().setContents(contents);
-        user.getServerInfo().setArmor(armor);
-        user.getPlayerInfo().setOfflineInventoryEdited(true);
-
-        user.save(true);
-    }
 
 }

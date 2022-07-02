@@ -3,6 +3,7 @@ package dev.lbuddyboy.flash.handler;
 import com.mongodb.client.model.Filters;
 import dev.lbuddyboy.flash.Flash;
 import dev.lbuddyboy.flash.FlashLanguage;
+import dev.lbuddyboy.flash.rank.Rank;
 import dev.lbuddyboy.flash.user.User;
 import dev.lbuddyboy.flash.user.impl.FlatFileUser;
 import dev.lbuddyboy.flash.user.impl.MongoUser;
@@ -68,9 +69,45 @@ public class UserHandler {
         return users.get(uuid);
     }
 
+    public User getUserRank(UUID uuid, boolean searchDb) {
+        if (searchDb) {
+            if (users.containsKey(uuid))
+                return getUser(uuid, false);
+            switch (FlashLanguage.CACHE_TYPE.getString().toUpperCase()) {
+                case "REDIS": {
+                    RedisUser user = new RedisUser(uuid, Flash.getInstance().getCacheHandler().getUserCache().getName(uuid), false);
+                    user.loadRank();
+                    return user;
+                }
+                case "MONGO": {
+                    MongoUser user = new MongoUser(uuid, Flash.getInstance().getCacheHandler().getUserCache().getName(uuid), false);
+                    user.loadRank();
+                    return user;
+                }
+                case "FLATFILE":
+                case "YAML": {
+                    FlatFileUser user = new FlatFileUser(uuid, Flash.getInstance().getCacheHandler().getUserCache().getName(uuid), false);
+                    user.loadRank();
+                    return user;
+                }
+                default:
+                    return null;
+            }
+        }
+        return users.get(uuid);
+    }
+
     public User tryUser(UUID uuid, boolean searchDb) {
         try {
             return getUser(uuid, searchDb);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    public User tryUserRank(UUID uuid, boolean searchDb) {
+        try {
+            return getUserRank(uuid, searchDb);
         } catch (Exception ignored) {
             return null;
         }
@@ -108,39 +145,45 @@ public class UserHandler {
         }
     }
 
-    public void relativeAlts(String ip, List<UUID> alts) {
-        CompletableFuture.supplyAsync(() -> {
-            switch (FlashLanguage.CACHE_TYPE.getString().toUpperCase()) {
-                case "REDIS":
-                    JedisPool pool = RedisHandler.requestJedis();
-                    for (Map.Entry<String, String> entry : pool.getResource().hgetAll("Users").entrySet()) {
-                        RedisUser user = new RedisUser(UUID.fromString(entry.getKey()), null, true);
-                        if (!user.getIp().equals(ip)) continue;
+    public List<UUID> relativeAlts(String ip) {
+        List<UUID> uuids = new ArrayList<>();
 
-                        alts.add(user.getUuid());
-                    }
+        switch (FlashLanguage.CACHE_TYPE.getString().toUpperCase()) {
+            case "REDIS":
+                JedisPool pool = RedisHandler.requestJedis();
+                for (Map.Entry<String, String> entry : pool.getResource().hgetAll("Users").entrySet()) {
+                    RedisUser user = new RedisUser(UUID.fromString(entry.getKey()), null, true);
+                    if (!user.getIp().equals(ip)) continue;
 
-                    break;
-                case "MONGO":
-                    for (Document document : Flash.getInstance().getMongoHandler().getUserCollection().find()) {
+                    uuids.add(user.getUuid());
+                }
+
+                break;
+            case "MONGO":
+                for (Document document : Flash.getInstance().getMongoHandler().getUserCollection().find()) {
+                    try {
+                        if (!document.containsKey("ip")) continue;
                         String altIP = document.getString("ip");
+                        if (altIP == null) continue;
                         if (!altIP.equals(ip)) continue;
 
-                        alts.add(UUID.fromString(document.getString("uuid")));
-                    }
-                    break;
-                case "FLATFILE":
-                case "YAML":
-                    for (String key : this.usersYML.gc().getConfigurationSection("users").getKeys(false)) {
-                        String altIP = this.usersYML.gc().getString("users." + key + ".ip");
-                        if (!ip.equals(altIP)) continue;
+                        uuids.add(UUID.fromString(document.getString("uuid")));
+                    } catch (Exception ignored) {
 
-                        alts.add(UUID.fromString(key));
                     }
-                    break;
-            }
-            return true;
-        });
+                }
+                break;
+            case "FLATFILE":
+            case "YAML":
+                for (String key : this.usersYML.gc().getConfigurationSection("users").getKeys(false)) {
+                    String altIP = this.usersYML.gc().getString("users." + key + ".ip");
+                    if (!ip.equals(altIP)) continue;
+
+                    uuids.add(UUID.fromString(key));
+                }
+                break;
+        }
+        return uuids;
     }
 
     public Prefix getPrefix(String lookUp) {
@@ -148,6 +191,15 @@ public class UserHandler {
             if (prefix.getId().equals(lookUp)) return prefix;
         }
         return null;
+    }
+
+    public Map<Long, Rank> getRankConversion() {
+        Map<Long, Rank> conversion = new HashMap<>();
+        for (String key : FlashLanguage.SYNC_CONVERSION.getStringList()) {
+            String[] args = key.split(":");
+            conversion.put(Long.valueOf(args[0]), Flash.getInstance().getRankHandler().getRank(args[1]));
+        }
+        return conversion;
     }
 
 }

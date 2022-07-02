@@ -1,0 +1,16 @@
+reminder:
+  times:
+    - "30m"
+    - "15m"
+    - "5m"
+    - "1m"
+    - "5s"
+  message:
+    - ' '
+    - ' %TASK% will commence in &c%TIME%'
+    - ' '
+schedule: # https://www.epochconverter.com Convert here and put the Epoch Timestamp
+#  example:
+#    executed: false
+#    date: 1655675923 # Epoch Timestamp
+#    command: "broadcast Global example from schedule" # Command that occurs once this time is acquired.

@@ -9,6 +9,7 @@ import dev.lbuddyboy.flash.user.model.PunishmentType;
 import dev.lbuddyboy.flash.util.bukkit.CC;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,9 +31,16 @@ public class AltsCommand extends BaseCommand {
             return;
         }
 
-        List<UUID> alts = new ArrayList<>();
-        // This might lag, but I still need to do some stress tests with it.
-        Flash.getInstance().getUserHandler().relativeAlts(user.getIp(), alts);
+        if (sender instanceof Player) {
+            User senderUser = Flash.getInstance().getUserHandler().tryUser(((Player) sender).getUniqueId(), true);
+
+            if (senderUser.getActiveRank().getWeight() < user.getActiveRank().getWeight()) {
+                sender.sendMessage(CC.translate(FlashLanguage.PUNISHMENTS_HIGHER_PRIORITY.getString()));
+                return;
+            }
+        }
+
+        List<UUID> alts = Flash.getInstance().getUserHandler().relativeAlts(user.getIp());
 
         List<String> coloredAlts = alts.stream().map(alt -> Flash.getInstance().getUserHandler().tryUser(alt, true)).map(User::colorAlt).collect(Collectors.toList());
         String translate = StringUtils.join(Arrays.stream(PunishmentType.values()).map(type -> type.getColor() + type.getPlural()).collect(Collectors.toList()), "&7 - ");

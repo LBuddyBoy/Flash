@@ -1,4 +1,4 @@
-redis:
+redis: # Please note you still need redis if you want network syncing
   use: false
   host: "localhost"
   port: 6379

@@ -3,6 +3,7 @@ package dev.lbuddyboy.flash.user.packet;
 import dev.lbuddyboy.flash.Flash;
 import dev.lbuddyboy.flash.redis.JedisPacket;
 import dev.lbuddyboy.flash.user.User;
+import dev.lbuddyboy.flash.user.model.Demotion;
 import dev.lbuddyboy.flash.user.model.Grant;
 import lombok.AllArgsConstructor;
 
@@ -19,6 +20,11 @@ public class GrantRemovePacket implements JedisPacket {
         User user = Flash.getInstance().getUserHandler().tryUser(this.uuid, false);
         if (user == null) return;
 
+        if (grant.getRank().isStaff()) {
+            Demotion demotion = new Demotion(user.getActiveRank().getColoredName(), System.currentTimeMillis());
+            user.getDemotions().add(demotion);
+        }
+
         for (Grant userGrant : user.getGrants()) {
             if (!userGrant.getUuid().toString().equals(grant.getUuid().toString())) continue;
 
@@ -27,6 +33,8 @@ public class GrantRemovePacket implements JedisPacket {
             userGrant.setRemovedAt(grant.getRemovedAt());
         }
 
+        user.getGrants().removeIf(g -> g.getUuid().toString().equals(grant.getUuid().toString()));
+        user.getGrants().add(grant);
         user.save(true);
         user.updateGrants();
 

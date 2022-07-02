@@ -17,9 +17,7 @@ import dev.lbuddyboy.flash.command.rank.RankCommand;
 import dev.lbuddyboy.flash.command.server.NotificationsCommand;
 import dev.lbuddyboy.flash.command.server.ServersCommand;
 import dev.lbuddyboy.flash.command.transport.TransportDataCommand;
-import dev.lbuddyboy.flash.command.user.NameMCCommand;
-import dev.lbuddyboy.flash.command.user.StaffChatCommand;
-import dev.lbuddyboy.flash.command.user.UserCommand;
+import dev.lbuddyboy.flash.command.user.*;
 import dev.lbuddyboy.flash.command.user.grant.GrantCommand;
 import dev.lbuddyboy.flash.command.user.grant.GrantsCommand;
 import dev.lbuddyboy.flash.command.user.note.NotesCommand;
@@ -100,12 +98,12 @@ public class CommandHandler {
         registerCommand(new RawBroadcastCommand(), "rawbroadcast");
         registerCommand(new RenameCommand(), "rename");
         registerCommand(new ReportCommand(), "report");
-        registerCommand(new RunCommandCommand(), "runcommand");
         registerCommand(new SudoCommand(), "sudo");
         registerCommand(new TeleportCommand(), "teleport");
         registerCommand(new TeleportHereCommand(), "teleporthere");
         registerCommand(new TeleportPosCommand(), "teleportpos");
         registerCommand(new WorldCommand(), "world");
+        registerCommand(new LookUpCommand(), "lookup");
 
         registerCommand(new RankCommand(), "rank");
 
@@ -137,6 +135,7 @@ public class CommandHandler {
         registerCommand(new StaffChatCommand(), "staffchat");
         registerCommand(new NotesCommand(), "notes");
         registerCommand(new NameMCCommand(), "namemc");
+        registerCommand(new SyncCommand(), "sync");
         registerCommand(new UserCommand(), "user");
 
         Bukkit.getScheduler().runTaskLater(Flash.getInstance(), () -> {
@@ -155,7 +154,7 @@ public class CommandHandler {
                 for (Map.Entry<String, Command> entry : knownCommands.entrySet()) {
                     try {
                         if (entry.getValue() == null) continue;
-                        if (entry.getValue().getPermission().equals("bukkit.command.paper;bukkit.command.paper.version;bukkit.command.paper.dumpitem;bukkit.command.paper.heap;bukkit.command.paper.chunkinfo;bukkit.command.paper.syncloadinfo;bukkit.command.paper.fixlight;bukkit.command.paper.dumpwait"))
+                        if (entry.getValue().getPermission().equals("bukkit.command.paper;bukkit.command.paper.version;bukkit.command.paper.dumpitem;bukkit.command.paper.heap;bukkit.command.paper.chunkinfo;bukkit.command.paper.syncloadinfo;bukkit.command.paper.fixlight;bukkit.command.paper.dumpwait")) continue;
                         knownPermissionsMap.put(entry.getValue().getPermission(), entry.getValue());
                     } catch (Exception ignored) {
                     }

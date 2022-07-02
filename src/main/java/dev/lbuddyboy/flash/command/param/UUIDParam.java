@@ -19,10 +19,9 @@ public class UUIDParam implements ContextResolver<UUID, BukkitCommandExecutionCo
             return sender.getUniqueId();
         }
 
-        try {
-            return Flash.getInstance().getCacheHandler().getUserCache().getUUID(source);
-        } catch (Exception ignored) {
-            throw new InvalidCommandArgument("No person with the name " + source + " found.");
-        }
+        UUID uuid = Flash.getInstance().getCacheHandler().getUserCache().getUUID(source);
+        if (uuid != null) return uuid;
+
+        throw new InvalidCommandArgument("No player with the name " + source + " could be found.");
     }
 }

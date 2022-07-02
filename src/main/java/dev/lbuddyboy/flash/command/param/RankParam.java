@@ -8,16 +8,18 @@ import dev.lbuddyboy.flash.FlashLanguage;
 import dev.lbuddyboy.flash.rank.Rank;
 import dev.lbuddyboy.flash.util.bukkit.CC;
 
+import java.util.UUID;
+
 public class RankParam implements ContextResolver<Rank, BukkitCommandExecutionContext> {
 
     @Override
     public Rank getContext(BukkitCommandExecutionContext arg) throws InvalidCommandArgument {
         String source = arg.popFirstArg();
 
-        try {
-            return Flash.getInstance().getRankHandler().getRank(source);
-        } catch (Exception ignored) {
-            throw new InvalidCommandArgument(CC.translate(FlashLanguage.RANK_EXISTS.getString()));
-        }
+        Rank rank = Flash.getInstance().getRankHandler().getRank(source);
+
+        if (rank != null) return rank;
+
+        throw new InvalidCommandArgument(CC.translate(FlashLanguage.RANK_EXISTS.getString()));
     }
 }

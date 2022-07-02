@@ -3,6 +3,7 @@ package dev.lbuddyboy.flash.user.menu;
 import dev.lbuddyboy.flash.Flash;
 import dev.lbuddyboy.flash.FlashMenuLanguage;
 import dev.lbuddyboy.flash.rank.Rank;
+import dev.lbuddyboy.flash.user.User;
 import dev.lbuddyboy.flash.user.listener.GrantListener;
 import dev.lbuddyboy.flash.user.model.GrantBuild;
 import dev.lbuddyboy.flash.user.model.PermissionBuild;
@@ -130,8 +131,11 @@ public class GrantMenu extends Menu {
         public List<Button> getPageButtons(Player player) {
             List<Button> buttons = new ArrayList<>();
 
+            User user = Flash.getInstance().getUserHandler().getUser(player.getUniqueId(), false);
+
             int i = 1;
             for (Rank rank : this.objects) {
+                if (user.getActiveRank().getWeight() < rank.getWeight() && !player.isOp()) continue;
                 buttons.add(new RankButton(rank, i++, uuid));
             }
 

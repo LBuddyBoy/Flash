@@ -27,6 +27,7 @@ public class Flash extends JavaPlugin {
     private TransportHandler transportHandler;
     private ServerHandler serverHandler;
     private ChatHandler chatHandler;
+    private ScheduleHandler scheduleHandler;
 
     @Override
     public void onEnable() {
@@ -64,6 +65,7 @@ public class Flash extends JavaPlugin {
         this.transportHandler = new TransportHandler();
         this.chatHandler = new ChatHandler();
         this.commandHandler = new CommandHandler();
+//        this.scheduleHandler = new ScheduleHandler();
     }
 
     private void loadThreads() {

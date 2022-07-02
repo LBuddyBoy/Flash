@@ -36,8 +36,9 @@ public class PunishmentListener implements Listener {
 
             User user = Flash.getInstance().getUserHandler().tryUser(punishment.getTarget(), true);
 
-            user.save(true);
             new PunishmentRemovePacket(punishment.getTarget(), punishment).send();
+            user.save(true);
+
             new PunishmentSendPacket(punishment).send();
 
             Tasks.run(() -> new PunishmentHistoryMenu(punishment.getTarget(), punishment.getType()).openMenu(event.getPlayer()));

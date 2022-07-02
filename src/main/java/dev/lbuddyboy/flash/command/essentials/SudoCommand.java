@@ -14,7 +14,7 @@ import org.bukkit.entity.Player;
 public class SudoCommand extends BaseCommand {
 
     @Default
-    public static void sudo(CommandSender sender, @Name("player") Player target, @Name("command|message") String command) {
+    public static void sudo(CommandSender sender, @Name("player") @Default("other") Player target, @Name("command|message") String command) {
         target.chat(command);
         sender.sendMessage(CC.translate("&aSuccessfully made " + target.getName() + " do " + command + "."));
     }

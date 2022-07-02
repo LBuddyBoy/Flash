@@ -15,10 +15,10 @@ public class PrefixParam implements ContextResolver<Prefix, BukkitCommandExecuti
     public Prefix getContext(BukkitCommandExecutionContext arg) throws InvalidCommandArgument {
         String source = arg.popFirstArg();
 
-        try {
-            return Flash.getInstance().getUserHandler().getPrefix(source);
-        } catch (Exception ignored) {
-            throw new InvalidCommandArgument(CC.translate("&cNo prefix with that name exists."));
-        }
+        Prefix prefix = Flash.getInstance().getUserHandler().getPrefix(source);
+
+        if (prefix != null) return prefix;
+
+        throw new InvalidCommandArgument(CC.translate("&cNo prefix with that name exists."));
     }
 }

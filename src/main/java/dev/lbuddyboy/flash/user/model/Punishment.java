@@ -90,8 +90,7 @@ public class Punishment {
             String finalFormat = format;
 
             Bukkit.getOnlinePlayers().forEach(player -> {
-                if (player.hasPermission("flash.staff") && this.isSentSilent()) {
-                    player.sendMessage(CC.translate(finalFormat));
+                if (!player.hasPermission("flash.staff") && this.isSentSilent()) {
                     return;
                 }
                 player.sendMessage(CC.translate(finalFormat));
@@ -115,13 +114,19 @@ public class Punishment {
         String finalFormat = format;
 
         Bukkit.getOnlinePlayers().forEach(player -> {
-            if (player.hasPermission("flash.staff") && this.isSentSilent()) {
-                player.sendMessage(CC.translate(finalFormat));
+            if (!player.hasPermission("flash.staff") && this.isSentSilent()) {
                 return;
             }
             player.sendMessage(CC.translate(finalFormat));
         });
 
+    }
+
+    public String format() {
+        return CC.translate(this.type.getKickMessage(),
+                "%REASON%", this.sentFor,
+                "%TEMP-FORMAT%", FlashLanguage.PUNISHMENT_TEMPORARY_FORMAT.getString().replaceAll("%TIME%", getExpireString())
+        );
     }
 
 }

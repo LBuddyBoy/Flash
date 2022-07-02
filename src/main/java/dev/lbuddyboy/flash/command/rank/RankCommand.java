@@ -8,6 +8,7 @@ import dev.lbuddyboy.flash.rank.Rank;
 import dev.lbuddyboy.flash.rank.editor.menu.RankEditorMenu;
 import dev.lbuddyboy.flash.rank.menu.RankListMenu;
 import dev.lbuddyboy.flash.rank.packet.RanksUpdatePacket;
+import dev.lbuddyboy.flash.user.User;
 import dev.lbuddyboy.flash.util.bukkit.CC;
 import dev.lbuddyboy.flash.util.PagedItem;
 import org.apache.commons.lang.StringUtils;
@@ -57,8 +58,10 @@ public class RankCommand extends BaseCommand {
     @CommandPermission("flash.command.rank.info")
     @CommandCompletion("@rank")
     public static void info(CommandSender sender, @Name("rank") Rank rank) {
-        sender.sendMessage(CC.translate("&cPermissions: " + StringUtils.join(rank.getPermissions(), ", ")));
-        sender.sendMessage(CC.translate("&cInherited Permissions: " + StringUtils.join(rank.getInheritedPermissions(), ", ")));
+        sender.sendMessage(CC.translate("&cDefault: ") + (rank.isDefaultRank() ? "&aYes" : "&cNo"));
+        sender.sendMessage(CC.translate("&cStaff: ") + (rank.isStaff() ? "&aYes" : "&cNo"));
+        sender.sendMessage(CC.translate("&cPermissions: ") + StringUtils.join(rank.getPermissions(), ", "));
+        sender.sendMessage(CC.translate("&cInherited Permissions: ") + StringUtils.join(rank.getInheritedPermissions(), ", "));
         sender.sendMessage(CC.translate("&cInherited Ranks: " + StringUtils.join(rank.getInheritance(), ", ")));
     }
 
@@ -114,6 +117,21 @@ public class RankCommand extends BaseCommand {
 
     }
 
+    @Subcommand("togglestaff")
+    @CommandPermission("flash.command.rank.togglestaff")
+    @CommandCompletion("@rank")
+    public static void toggleStaff(CommandSender sender, @Name("rank") Rank rank) {
+        String previous = rank.isStaff() ? "True" : "False";
+
+        rank.setStaff(!rank.isStaff());
+        rank.save(true);
+
+        sender.sendMessage(CC.translate(FlashLanguage.RANK_SET_STAFF.getString(), "%rank%", rank.getColoredName(), "%old-status%", previous, "%new-status%", rank.isStaff() ? "&aTrue" : "&cFalse"));
+
+        new RanksUpdatePacket(Flash.getInstance().getRankHandler().getRanks()).send();
+
+    }
+
     @Subcommand("setname|name|rename")
     @CommandPermission("flash.command.rank.setname")
     @CommandCompletion("@rank")
@@ -147,9 +165,7 @@ public class RankCommand extends BaseCommand {
     @Subcommand("editor")
     @CommandPermission("flash.command.rank.editor")
     public static void editor(Player sender) {
-        new RankListMenu(((player, rank) -> {
-            new RankEditorMenu(rank).openMenu(player);
-        })).openMenu(sender);
+        new RankListMenu(((player, rank) -> new RankEditorMenu(rank).openMenu(player))).openMenu(sender);
     }
 
     @Subcommand("setcolor|color|setdisplaycolor")
@@ -229,6 +245,9 @@ public class RankCommand extends BaseCommand {
 
         new RanksUpdatePacket(Flash.getInstance().getRankHandler().getRanks()).send();
 
+        for (User user : rank.getUsersWithRank()) {
+            user.setupPermissionsAttachment();
+        }
     }
 
     @Subcommand("removepermission|removeperm|delperm|delpermission")
@@ -247,7 +266,7 @@ public class RankCommand extends BaseCommand {
         sender.sendMessage(CC.translate(FlashLanguage.RANK_REMOVE_PERM.getString(), "%rank%", rank.getColoredName(), "%permission%", permission));
 
         new RanksUpdatePacket(Flash.getInstance().getRankHandler().getRanks()).send();
-
+        
     }
 
     @Subcommand("addinheritance|addinherit|addparent")
@@ -303,6 +322,8 @@ public class RankCommand extends BaseCommand {
             "&c/rank delinheritance <rank> <rank> &7- &fdeletes an inheritance from a rank",
             "&c/rank setweight <rank> <weight> &7- &fsets the ranks weight attribute",
             "&c/rank setdisplayname <rank> <name> &7- &fsets the ranks display name attribute",
+            "&c/rank togglestaff <rank> &7- &ftoggles the staff status attribute",
+            "&c/rank toggledefault <rank> &7- &ftoggles the default rank status attribute",
             "&c/rank setcolor <rank> <color> &7- &fsets the ranks color attribute"
     );
 

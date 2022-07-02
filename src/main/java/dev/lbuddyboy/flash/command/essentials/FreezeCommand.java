@@ -17,6 +17,9 @@ public class FreezeCommand extends BaseCommand {
 
     @Default
     public static void freeze(CommandSender sender, @Name("target") @Flags("other") Player target) {
+        if (sender instanceof Player) {
+            if (((Player) sender).hasMetadata("frozen")) return;
+        }
         if (target.hasMetadata("frozen")) {
             target.removeMetadata("frozen", Flash.getInstance());
 
@@ -30,6 +33,7 @@ public class FreezeCommand extends BaseCommand {
             target.sendMessage(CC.translate("&7"));
             target.sendMessage(CC.translate("&b&lFREEZE!"));
             target.sendMessage(CC.translate("&cYou have just been frozen. Watch out for a staff message and follow their orders, or you'll be punished."));
+            target.sendMessage(CC.translate("&4&lDO NOT LOG OUT. DO NOT LOG OUT. DO NOT LOG OUT."));
             target.sendMessage(CC.translate("&7"));
         }
 

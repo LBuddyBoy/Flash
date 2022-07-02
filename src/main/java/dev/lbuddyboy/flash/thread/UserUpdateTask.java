@@ -16,6 +16,7 @@ public class UserUpdateTask extends Thread {
         for (User user : Flash.getInstance().getUserHandler().getUsers().values()) {
             user.updatePerms();
             user.updateGrants();
+            if (user.getActiveRank().isStaff()) user.getStaffInfo().setPlayTime(user.getStaffInfo().getPlayTime() + 10_000);
         }
 
         try {

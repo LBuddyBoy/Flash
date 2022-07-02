@@ -1,12 +1,8 @@
-package dev.lbuddyboy.flash.rank.editor.menu;
+package dev.lbuddyboy.flash.user.menu;
 
-import dev.lbuddyboy.flash.Flash;
 import dev.lbuddyboy.flash.rank.Rank;
-import dev.lbuddyboy.flash.rank.editor.listener.RankEditorListener;
 import dev.lbuddyboy.flash.user.User;
-import dev.lbuddyboy.flash.user.menu.GrantsMenu;
 import dev.lbuddyboy.flash.util.bukkit.CC;
-import dev.lbuddyboy.flash.util.bukkit.ColorUtil;
 import dev.lbuddyboy.flash.util.bukkit.CompatibleMaterial;
 import dev.lbuddyboy.flash.util.bukkit.ItemBuilder;
 import dev.lbuddyboy.flash.util.menu.Button;
@@ -14,7 +10,6 @@ import dev.lbuddyboy.flash.util.menu.Menu;
 import dev.lbuddyboy.flash.util.menu.button.BackButton;
 import dev.lbuddyboy.flash.util.menu.paged.PagedMenu;
 import lombok.AllArgsConstructor;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
@@ -22,16 +17,14 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
-public class RankUsersMenu extends PagedMenu<User> {
+public class SearchUsersMenu extends PagedMenu<User> {
 
-    public Rank rank;
+    public List<User> users;
 
-    public RankUsersMenu(Rank rank) {
-        this.rank = rank;
-        this.objects = rank.getUsersWithRank();
+    public SearchUsersMenu(List<User> users) {
+        this.users = users;
+        this.objects = this.users;
     }
 
     @Override
@@ -45,19 +38,8 @@ public class RankUsersMenu extends PagedMenu<User> {
 
         int i = 0;
         for (User user : objects) {
-            if (!user.getActiveRank().getUuid().toString().equals(this.rank.getUuid().toString())) continue;
-
             buttons.add(new UserButton(i++, user, this));
         }
-
-        return buttons;
-    }
-
-    @Override
-    public List<Button> getGlobalButtons(Player player) {
-        List<Button> buttons = new ArrayList<>();
-
-        buttons.add(new BackButton(5, new RankEditorMenu(rank)));
 
         return buttons;
     }

@@ -19,6 +19,7 @@ public class NoteAddPacket implements JedisPacket {
     public void onReceive() {
         User user = Flash.getInstance().getUserHandler().tryUser(this.uuid, false);
         if (user == null) return;
+        if (user.hasNote(note.getId())) return;
 
         user.getNotes().add(note);
         user.save(true);

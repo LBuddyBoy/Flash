@@ -6,6 +6,7 @@ import com.google.gson.reflect.TypeToken;
 import dev.lbuddyboy.flash.rank.impl.RedisRank;
 import dev.lbuddyboy.flash.server.Server;
 import dev.lbuddyboy.flash.server.model.Notification;
+import dev.lbuddyboy.flash.user.User;
 import dev.lbuddyboy.flash.user.impl.RedisUser;
 import dev.lbuddyboy.flash.user.model.*;
 import lombok.Getter;
@@ -24,6 +25,7 @@ public class GSONUtils {
     public static final Type USER_PERMISSION = new TypeToken<List<UserPermission>>() {}.getType();
     public static final Type PUNISHMENTS = new TypeToken<List<Punishment>>() {}.getType();
     public static final Type REDIS_USER = new TypeToken<RedisUser>() {}.getType();
+    public static final Type USER = new TypeToken<User>() {}.getType();
     public static final Type REDIS_RANK = new TypeToken<RedisRank>() {}.getType();
     public static final Type NOTIFICATION = new TypeToken<Notification>() {}.getType();
     public static final Type SERVER = new TypeToken<Server>() {}.getType();
@@ -34,6 +36,8 @@ public class GSONUtils {
     public static final Type STAFF_INFO = new TypeToken<StaffInfo>() {}.getType();
     public static final Type STRING = new TypeToken<List<String>>() {}.getType();
     public static final Type GRANT = new TypeToken<List<Grant>>() {}.getType();
+    public static final Type PROMOTIONS = new TypeToken<List<Promotion>>() {}.getType();
+    public static final Type DEMOTIONS = new TypeToken<List<Demotion>>() {}.getType();
     public static final Type UUID = new TypeToken<List<UUID>>() {}.getType();
 
 }

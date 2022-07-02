@@ -32,6 +32,8 @@ public enum PunishmentType {
             return FlashLanguage.PUNISHMENT_IP_BAN_KICK_FORMAT.getString();
         } else if (this == BLACKLIST) {
             return FlashLanguage.PUNISHMENT_BLACKLIST_KICK_FORMAT.getString();
+        } else if (this == KICK) {
+            return FlashLanguage.PUNISHMENT_KICK_FORMAT.getString();
         }
         return null;
     }

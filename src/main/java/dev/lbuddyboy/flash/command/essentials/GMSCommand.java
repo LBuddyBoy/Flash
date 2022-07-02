@@ -12,7 +12,7 @@ public class GMSCommand extends BaseCommand {
 
     @Default
     @CommandCompletion("@target")
-    public static void gms(Player sender, @Name("target") @Default("defaultSelf") Player target) {
+    public static void gms(Player sender, @Name("target") @Default("self") Player target) {
         target.setGameMode(GameMode.SURVIVAL);
         if (sender == target) {
             sender.sendMessage(CC.translate("&cGameMode&7: &fSURVIVAL"));
