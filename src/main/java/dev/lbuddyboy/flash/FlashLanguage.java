@@ -151,6 +151,8 @@ public enum FlashLanguage {
             "zaqhy",
             "Serversided",
             "ToadL",
+            "SimplyTrash",
+            "98Ping",
             "wisi",
             "darnell42"
     )),
