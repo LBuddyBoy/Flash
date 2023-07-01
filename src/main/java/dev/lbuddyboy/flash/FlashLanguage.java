@@ -150,7 +150,7 @@ public enum FlashLanguage {
             "heresaGift",
             "zaqhy",
             "Serversided",
-            "ToadLw",
+            "ToadL",
             "wisi",
             "darnell42"
     )),
