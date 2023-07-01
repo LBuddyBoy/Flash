@@ -1,4 +1,3 @@
-package dev.lbuddyboy.flash.implementation;
+package dev.lbuddyboy.flash.implementation
 
-public class VaultChatHook {
-}
+class VaultChatHook 

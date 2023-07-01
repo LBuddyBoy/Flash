@@ -1,38 +1,21 @@
-package dev.lbuddyboy.flash.command.essentials;
+package dev.lbuddyboy.flash.command.essentials
 
-import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.CommandPermission;
-import co.aikar.commands.annotation.Default;
-import co.aikar.commands.annotation.Name;
-import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.FlashLanguage;
-import dev.lbuddyboy.flash.user.User;
-import dev.lbuddyboy.flash.util.bukkit.CC;
-import dev.lbuddyboy.flash.util.bukkit.ItemBuilder;
-import dev.lbuddyboy.flash.util.menu.Button;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import co.aikar.commands.BaseCommand
+import co.aikar.commands.annotation.*
+import org.bukkit.Bukkit
+import org.bukkit.entity.Player
+import java.util.*
 
 @CommandAlias("invsee|showinv|showinventory")
 @CommandPermission("flash.command.invsee")
-public class InvseeCommand extends BaseCommand {
-
-    public static Map<Player, UUID> offlineEditMap = new HashMap<>();
-
+object InvseeCommand : BaseCommand() {
+    var offlineEditMap: Map<Player, UUID> = HashMap()
     @Default
-    public static void invsee(Player sender, @Name("player") UUID targetUUID) {
-        Player target = Bukkit.getPlayer(targetUUID);
+    fun invsee(sender: Player, @Name("player") targetUUID: UUID?) {
+        val target = Bukkit.getPlayer(targetUUID)
 
-/*        if (target == null) {
-            User user = Flash.getInstance().getUserHandler().tryUser(targetUUID, true);
+        /*        if (target == null) {
+            User user = Flash.instance.getUserHandler().tryUser(targetUUID, true);
 
             if (user == null) {
                 sender.sendMessage(CC.translate(FlashLanguage.INVALID_USER.getString()));
@@ -58,11 +41,7 @@ public class InvseeCommand extends BaseCommand {
 
             sender.openInventory(inventory);
             return;
-        }*/
-
-        if (sender == target) return;
-
-        sender.openInventory(target.getInventory());
+        }*/if (sender === target) return
+        sender.openInventory(target.inventory)
     }
-
 }

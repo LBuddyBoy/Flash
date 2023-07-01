@@ -1,13 +1,9 @@
-package dev.lbuddyboy.flash.user.comparator;
+package dev.lbuddyboy.flash.user.comparator
 
-import dev.lbuddyboy.flash.user.model.Grant;
+import dev.lbuddyboy.flash.user.model.Grant
 
-import java.util.Comparator;
-
-public class GrantDateComparator implements Comparator<Grant> {
-
-    @Override
-    public int compare(Grant grant, Grant otherGrant) {
-        return Long.compare(grant.getAddedAt(), otherGrant.getAddedAt());
+class GrantDateComparator : Comparator<Grant> {
+    override fun compare(grant: Grant, otherGrant: Grant): Int {
+        return java.lang.Long.compare(grant.addedAt, otherGrant.addedAt)
     }
 }

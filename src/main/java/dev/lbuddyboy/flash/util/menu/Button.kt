@@ -1,76 +1,64 @@
-package dev.lbuddyboy.flash.util.menu;
+package dev.lbuddyboy.flash.util.menu
 
-import dev.lbuddyboy.flash.util.Callable;
-import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.ItemStack;
+import dev.lbuddyboy.flash.util.Callable
+import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.inventory.ItemStack
 
-public abstract class Button {
-
-    public abstract int getSlot();
-    public abstract ItemStack getItem();
-    public void action(InventoryClickEvent event) {
-
-    }
-    public boolean clickUpdate() {
-        return false;
+abstract class Button {
+    abstract val slot: Int
+    abstract val item: ItemStack?
+    open fun action(event: InventoryClickEvent) {}
+    open fun clickUpdate(): Boolean {
+        return false
     }
 
-    public boolean cancels() {
-        return true;
+    fun cancels(): Boolean {
+        return true
     }
 
-    public static Button fromButton(int slot, Button old) {
-        return new Button() {
-            @Override
-            public int getSlot() {
-                return slot;
-            }
+    companion object {
+        fun fromButton(slot: Int, old: Button): Button {
+            return object : Button() {
+                override fun getSlot(): Int {
+                    return slot
+                }
 
-            @Override
-            public ItemStack getItem() {
-                return old.getItem();
-            }
+                override fun getItem(): ItemStack? {
+                    return old.item
+                }
 
-            @Override
-            public void action(InventoryClickEvent event) {
-                old.action(event);
+                override fun action(event: InventoryClickEvent) {
+                    old.action(event)
+                }
             }
-        };
+        }
+
+        fun fromItem(stack: ItemStack?, slot: Int): Button {
+            return object : Button() {
+                override fun getSlot(): Int {
+                    return slot
+                }
+
+                override fun getItem(): ItemStack? {
+                    return stack
+                }
+            }
+        }
+
+        fun fromItem(stack: ItemStack?, slot: Int, callable: Callable): Button {
+            return object : Button() {
+                override fun getSlot(): Int {
+                    return slot
+                }
+
+                override fun getItem(): ItemStack? {
+                    return stack
+                }
+
+                override fun action(event: InventoryClickEvent) {
+                    callable.call()
+                }
+            }
+        }
     }
-
-    public static Button fromItem(ItemStack stack, int slot) {
-        return new Button() {
-            @Override
-            public int getSlot() {
-                return slot;
-            }
-
-            @Override
-            public ItemStack getItem() {
-                return stack;
-            }
-
-        };
-    }
-
-    public static Button fromItem(ItemStack stack, int slot, Callable callable) {
-        return new Button() {
-            @Override
-            public int getSlot() {
-                return slot;
-            }
-
-            @Override
-            public ItemStack getItem() {
-                return stack;
-            }
-
-            @Override
-            public void action(InventoryClickEvent event) {
-                callable.call();
-            }
-        };
-    }
-
 }

@@ -1,23 +1,18 @@
-package dev.lbuddyboy.flash.user.model;
+package dev.lbuddyboy.flash.user.model
 
-import dev.lbuddyboy.flash.FlashLanguage;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import org.bukkit.inventory.ItemStack;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import lombok.AllArgsConstructor
+import lombok.Data
+import java.util.*
 
 @AllArgsConstructor
 @Data
-public class PlayerInfo {
-
-    private boolean pmsOn, claimedNameMC, offlineInventoryEdited;
-    private long syncCode;
-    private UUID reply;
-    private long lastRequestSent, lastMessageSent;
-    private List<UUID> readNotifications;
-
+class PlayerInfo {
+    private val pmsOn = false
+    private val claimedNameMC = false
+    private val offlineInventoryEdited = false
+    private val syncCode: Long = 0
+    private val reply: UUID? = null
+    private val lastRequestSent: Long = 0
+    private val lastMessageSent: Long = 0
+    private val readNotifications: List<UUID>? = null
 }

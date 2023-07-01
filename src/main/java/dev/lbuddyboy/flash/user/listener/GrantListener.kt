@@ -1,217 +1,194 @@
-package dev.lbuddyboy.flash.user.listener;
+package dev.lbuddyboy.flash.user.listener
 
-import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.user.User;
-import dev.lbuddyboy.flash.command.user.UserCommand;
-import dev.lbuddyboy.flash.user.menu.GrantMenu;
-import dev.lbuddyboy.flash.user.menu.GrantsMenu;
-import dev.lbuddyboy.flash.user.model.Grant;
-import dev.lbuddyboy.flash.user.model.GrantBuild;
-import dev.lbuddyboy.flash.user.model.PermissionBuild;
-import dev.lbuddyboy.flash.user.model.UserPermission;
-import dev.lbuddyboy.flash.user.packet.GrantRemovePacket;
-import dev.lbuddyboy.flash.user.packet.PermissionRemovePacket;
-import dev.lbuddyboy.flash.util.bukkit.CC;
-import dev.lbuddyboy.flash.util.bukkit.Tasks;
-import dev.lbuddyboy.flash.util.bukkit.UserUtils;
-import org.apache.commons.lang.StringUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
+import dev.lbuddyboy.flash.Flash
+import dev.lbuddyboy.flash.command.user.UserCommand
+import dev.lbuddyboy.flash.user.User
+import dev.lbuddyboy.flash.user.menu.GrantMenu
+import dev.lbuddyboy.flash.user.menu.GrantsMenu
+import dev.lbuddyboy.flash.user.model.Grant
+import dev.lbuddyboy.flash.user.model.GrantBuild
+import dev.lbuddyboy.flash.user.model.PermissionBuild
+import dev.lbuddyboy.flash.user.model.UserPermission
+import dev.lbuddyboy.flash.user.packet.GrantRemovePacket
+import dev.lbuddyboy.flash.user.packet.PermissionRemovePacket
+import dev.lbuddyboy.flash.util.bukkit.CC
+import dev.lbuddyboy.flash.util.bukkit.Tasks
+import dev.lbuddyboy.flash.util.bukkit.UserUtils
+import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
+import org.bukkit.event.Listener
+import org.bukkit.event.player.AsyncPlayerChatEvent
+import java.util.*
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-public class GrantListener implements Listener {
-
-    public static Map<String, Grant> grantRemoveMap = new HashMap<>();
-    public static Map<String, UserPermission> grantRemovePermMap = new HashMap<>();
-    public static Map<String, UUID> grantTargetRemoveMap = new HashMap<>();
-
-    public static Map<String, GrantBuild> grantTargetMap = new HashMap<>();
-    public static Map<String, PermissionBuild> grantPermissionTargetMap = new HashMap<>();
-
+class GrantListener : Listener {
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onChat(AsyncPlayerChatEvent event) {
-
-        if (!grantRemoveMap.containsKey(event.getPlayer().getName())) return;
-
-        event.setCancelled(true);
-
-        Grant grant = grantRemoveMap.remove(event.getPlayer().getName());
-        UUID uuid = grantTargetRemoveMap.remove(event.getPlayer().getName());
-
-        if (event.getMessage().equalsIgnoreCase("cancel")) {
-            Tasks.run(() -> {
-                GrantsMenu grantsMenu = new GrantsMenu(uuid);
-                grantsMenu.setView("ranks");
-                grantsMenu.openMenu(event.getPlayer());
-            });
-            return;
+    fun onChat(event: AsyncPlayerChatEvent) {
+        if (!grantRemoveMap.containsKey(event.player.name)) return
+        event.isCancelled = true
+        val grant = grantRemoveMap.remove(event.player.name)
+        val uuid = grantTargetRemoveMap.remove(event.player.name)
+        if (event.message.equals("cancel", ignoreCase = true)) {
+            Tasks.run {
+                val grantsMenu = GrantsMenu(uuid)
+                grantsMenu.setView("ranks")
+                grantsMenu.openMenu(event.player)
+            }
+            return
         }
-
-        User user = Flash.getInstance().getUserHandler().tryUser(uuid, true);
-
-        grant.setRemovedFor(event.getMessage());
-        grant.setRemovedAt(System.currentTimeMillis());
-        grant.setRemovedBy(event.getPlayer().getUniqueId());
-
-        for (Grant userGrant : user.getGrants()) {
-            if (!userGrant.getUuid().toString().equals(grant.getUuid().toString())) continue;
-
-            userGrant.setRemovedBy(grant.getRemovedBy());
-            userGrant.setRemovedFor(grant.getRemovedFor());
-            userGrant.setRemovedAt(grant.getRemovedAt());
+        val user: User = Flash.instance.userHandler.tryUser(uuid, true)
+        grant.setRemovedFor(event.message)
+        grant.setRemovedAt(System.currentTimeMillis())
+        grant.setRemovedBy(event.player.uniqueId)
+        for (userGrant in user.getGrants()) {
+            if (userGrant.uuid.toString() != grant.getUuid().toString()) continue
+            userGrant.removedBy = grant.getRemovedBy()
+            userGrant.removedFor = grant.getRemovedFor()
+            userGrant.removedAt = grant.getRemovedAt()
         }
-
-        new GrantRemovePacket(uuid, grant).send();
-        user.save(true);
-        user.updateGrants();
-        user.buildPlayer();
-
-        event.getPlayer().sendMessage(CC.translate("&aRemoved the grant from " + user.getColoredName() +"&a."));
-
-        Tasks.run(() -> new GrantsMenu(uuid).openMenu(event.getPlayer()));
-
+        GrantRemovePacket(uuid, grant).send()
+        user.save(true)
+        user.updateGrants()
+        user.buildPlayer()
+        event.player.sendMessage(CC.translate("&aRemoved the grant from " + user.coloredName + "&a."))
+        Tasks.run { GrantsMenu(uuid).openMenu(event.player) }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onChatGrant(AsyncPlayerChatEvent event) {
-
-        if (!grantTargetMap.containsKey(event.getPlayer().getName())) return;
-
-        event.setCancelled(true);
-
-        GrantBuild grantBuild = grantTargetMap.get(event.getPlayer().getName());
-        UUID target = grantBuild.getTarget();
-
-        if (event.getMessage().equalsIgnoreCase("cancel")) {
-            Tasks.run(() -> new GrantMenu(target).openMenu(event.getPlayer()));
-            return;
+    fun onChatGrant(event: AsyncPlayerChatEvent) {
+        if (!grantTargetMap.containsKey(event.player.name)) return
+        event.isCancelled = true
+        val grantBuild = grantTargetMap[event.player.name]
+        val target = grantBuild.getTarget()
+        if (event.message.equals("cancel", ignoreCase = true)) {
+            Tasks.run { GrantMenu(target).openMenu(event.player) }
+            return
         }
-
         if (grantBuild.getReason() == null) {
-
-            grantBuild.setReason(event.getMessage());
-            event.getPlayer().sendMessage(CC.translate("&aNow, type the duration for granting the " + grantBuild.getRank().getColoredName() + " &arank to " + UserUtils.formattedName(target) + "&a."));
-
-            return;
+            grantBuild.setReason(event.message)
+            event.player.sendMessage(
+                CC.translate(
+                    "&aNow, type the duration for granting the " + grantBuild!!.rank.coloredName + " &arank to " + UserUtils.formattedName(
+                        target
+                    ) + "&a."
+                )
+            )
+            return
         }
-
         if (grantBuild.getTime() == null) {
-
-            grantBuild.setTime(event.getMessage());
-            event.getPlayer().sendMessage(CC.translate("&aNow, type the scopes for granting the " + grantBuild.getRank().getColoredName() + " &arank to " + UserUtils.formattedName(target) + "&a."));
-            event.getPlayer().sendMessage(CC.translate("&aSeparate the servers with a command. (Ex: Global,Hub)"));
-
-            return;
+            grantBuild.setTime(event.message)
+            event.player.sendMessage(
+                CC.translate(
+                    "&aNow, type the scopes for granting the " + grantBuild!!.rank.coloredName + " &arank to " + UserUtils.formattedName(
+                        target
+                    ) + "&a."
+                )
+            )
+            event.player.sendMessage(CC.translate("&aSeparate the servers with a command. (Ex: Global,Hub)"))
+            return
         }
-
         if (grantBuild.getScopes() == null) {
-
-            grantBuild.setScopes(event.getMessage().split(","));
-
-            UserCommand.rankAdd(event.getPlayer(), target, grantBuild.getRank(), grantBuild.getTime(), grantBuild.getScopes(), grantBuild.getReason());
-
-            Tasks.run(() -> new GrantsMenu(target).openMenu(event.getPlayer()));
-
-            grantTargetMap.remove(event.getPlayer().getName());
+            grantBuild.setScopes(event.message.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray())
+            UserCommand.rankAdd(
+                event.player,
+                target,
+                grantBuild!!.rank,
+                grantBuild.time,
+                grantBuild.scopes,
+                grantBuild.reason
+            )
+            Tasks.run { GrantsMenu(target).openMenu(event.player) }
+            grantTargetMap.remove(event.player.name)
         }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onChatGrantPermission(AsyncPlayerChatEvent event) {
-
-        if (!grantPermissionTargetMap.containsKey(event.getPlayer().getName())) return;
-
-        event.setCancelled(true);
-
-        PermissionBuild permissionBuild = grantPermissionTargetMap.get(event.getPlayer().getName());
-        UUID target = permissionBuild.getTarget();
-
-        if (event.getMessage().equalsIgnoreCase("cancel")) {
-            Tasks.run(() -> new GrantMenu(target).openMenu(event.getPlayer()));
-            return;
+    fun onChatGrantPermission(event: AsyncPlayerChatEvent) {
+        if (!grantPermissionTargetMap.containsKey(event.player.name)) return
+        event.isCancelled = true
+        val permissionBuild = grantPermissionTargetMap[event.player.name]
+        val target = permissionBuild.getTarget()
+        if (event.message.equals("cancel", ignoreCase = true)) {
+            Tasks.run { GrantMenu(target).openMenu(event.player) }
+            return
         }
-
         if (permissionBuild.getNode() == null) {
-
-            permissionBuild.setNode(event.getMessage());
-            event.getPlayer().sendMessage(CC.translate("&aNow, type the reason for granting the " + permissionBuild.getNode() + " &apermission to " + UserUtils.formattedName(target) + "&a."));
-
-            return;
+            permissionBuild.setNode(event.message)
+            event.player.sendMessage(
+                CC.translate(
+                    "&aNow, type the reason for granting the " + permissionBuild.getNode() + " &apermission to " + UserUtils.formattedName(
+                        target
+                    ) + "&a."
+                )
+            )
+            return
         }
-
         if (permissionBuild.getReason() == null) {
-
-            permissionBuild.setReason(event.getMessage());
-            event.getPlayer().sendMessage(CC.translate("&aNow, type the duration for granting the " + permissionBuild.getNode() + " &apermission to " + UserUtils.formattedName(target) + "&a."));
-
-            return;
+            permissionBuild.setReason(event.message)
+            event.player.sendMessage(
+                CC.translate(
+                    "&aNow, type the duration for granting the " + permissionBuild.getNode() + " &apermission to " + UserUtils.formattedName(
+                        target
+                    ) + "&a."
+                )
+            )
+            return
         }
-
         if (permissionBuild.getTime() == null) {
-
-            permissionBuild.setTime(event.getMessage());
-            UserCommand.permissionAdd(event.getPlayer(), target, permissionBuild.getNode().split(","), permissionBuild.getTime(), permissionBuild.getReason());
-
-            Tasks.run(() -> new GrantMenu(target).openMenu(event.getPlayer()));
-
-            grantPermissionTargetMap.remove(event.getPlayer().getName());
+            permissionBuild.setTime(event.message)
+            UserCommand.permissionAdd(
+                event.player,
+                target,
+                permissionBuild.getNode().split(",".toRegex()).dropLastWhile { it.isEmpty() }
+                    .toTypedArray(),
+                permissionBuild.getTime(),
+                permissionBuild.getReason())
+            Tasks.run { GrantMenu(target).openMenu(event.player) }
+            grantPermissionTargetMap.remove(event.player.name)
         }
-
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onChatRemovePerm(AsyncPlayerChatEvent event) {
-
-        if (!grantRemovePermMap.containsKey(event.getPlayer().getName())) return;
-
-        event.setCancelled(true);
-
-        UserPermission permission = grantRemovePermMap.remove(event.getPlayer().getName());
-        UUID uuid = grantTargetRemoveMap.remove(event.getPlayer().getName());
-
-        if (event.getMessage().equalsIgnoreCase("cancel")) {
-            Tasks.run(() -> {
-                GrantsMenu grantsMenu = new GrantsMenu(uuid);
-                grantsMenu.setView("permissions");
-                grantsMenu.openMenu(event.getPlayer());
-            });
-            return;
+    fun onChatRemovePerm(event: AsyncPlayerChatEvent) {
+        if (!grantRemovePermMap.containsKey(event.player.name)) return
+        event.isCancelled = true
+        val permission = grantRemovePermMap.remove(event.player.name)
+        val uuid = grantTargetRemoveMap.remove(event.player.name)
+        if (event.message.equals("cancel", ignoreCase = true)) {
+            Tasks.run {
+                val grantsMenu = GrantsMenu(uuid)
+                grantsMenu.setView("permissions")
+                grantsMenu.openMenu(event.player)
+            }
+            return
         }
-
-        User user = Flash.getInstance().getUserHandler().tryUser(uuid, true);
-
-        permission.setRemovedFor(event.getMessage());
-        permission.setRemovedAt(System.currentTimeMillis());
-        permission.setRemovedBy(event.getPlayer().getUniqueId());
-        permission.setRemoved(true);
-
-        for (UserPermission userPermission : user.getPermissions()) {
-            if (!userPermission.getNode().equals(permission.getNode())) continue;
-
-            userPermission.setRemovedBy(permission.getRemovedBy());
-            userPermission.setRemovedFor(permission.getRemovedFor());
-            userPermission.setRemovedAt(permission.getRemovedAt());
-            userPermission.setRemoved(permission.isRemoved());
+        val user: User = Flash.instance.userHandler.tryUser(uuid, true)
+        permission.setRemovedFor(event.message)
+        permission.setRemovedAt(System.currentTimeMillis())
+        permission.setRemovedBy(event.player.uniqueId)
+        permission.setRemoved(true)
+        for (userPermission in user.getPermissions()) {
+            if (userPermission.node != permission.getNode()) continue
+            userPermission.removedBy = permission.getRemovedBy()
+            userPermission.removedFor = permission.getRemovedFor()
+            userPermission.removedAt = permission.getRemovedAt()
+            userPermission.isRemoved = permission.isRemoved()
         }
-
-        new PermissionRemovePacket(uuid, permission).send();
-        user.updatePerms();
-        user.save(true);
-
-        event.getPlayer().sendMessage(CC.translate("&a"));
-
-        Tasks.run(() -> {
-            GrantsMenu grantsMenu = new GrantsMenu(uuid);
-            grantsMenu.setView("permissions");
-            grantsMenu.openMenu(event.getPlayer());
-        });
-
+        PermissionRemovePacket(uuid, permission).send()
+        user.updatePerms()
+        user.save(true)
+        event.player.sendMessage(CC.translate("&a"))
+        Tasks.run {
+            val grantsMenu = GrantsMenu(uuid)
+            grantsMenu.setView("permissions")
+            grantsMenu.openMenu(event.player)
+        }
     }
 
+    companion object {
+        var grantRemoveMap: MutableMap<String, Grant?> = HashMap()
+        var grantRemovePermMap: MutableMap<String, UserPermission?> = HashMap()
+        var grantTargetRemoveMap: MutableMap<String, UUID?> = HashMap()
+        var grantTargetMap: MutableMap<String, GrantBuild> = HashMap()
+        var grantPermissionTargetMap: MutableMap<String, PermissionBuild> = HashMap()
+    }
 }

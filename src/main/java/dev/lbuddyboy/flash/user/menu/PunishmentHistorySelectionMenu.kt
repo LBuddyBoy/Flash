@@ -1,78 +1,69 @@
-package dev.lbuddyboy.flash.user.menu;
+package dev.lbuddyboy.flash.user.menu
 
-import dev.lbuddyboy.flash.FlashMenuLanguage;
-import dev.lbuddyboy.flash.user.model.PunishmentType;
-import dev.lbuddyboy.flash.util.bukkit.CC;
-import dev.lbuddyboy.flash.util.bukkit.ColorUtil;
-import dev.lbuddyboy.flash.util.bukkit.ItemBuilder;
-import dev.lbuddyboy.flash.util.menu.Button;
-import dev.lbuddyboy.flash.util.menu.Menu;
-import lombok.AllArgsConstructor;
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.ItemStack;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import dev.lbuddyboy.flash.FlashMenuLanguage
+import dev.lbuddyboy.flash.user.model.PunishmentType
+import dev.lbuddyboy.flash.util.bukkit.CC
+import dev.lbuddyboy.flash.util.bukkit.ColorUtil
+import dev.lbuddyboy.flash.util.bukkit.ItemBuilder
+import dev.lbuddyboy.flash.util.menu.Button
+import dev.lbuddyboy.flash.util.menu.Menu
+import lombok.AllArgsConstructor
+import org.bukkit.Material
+import org.bukkit.entity.Player
+import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.inventory.ItemStack
+import java.util.*
 
 @AllArgsConstructor
-public class PunishmentHistorySelectionMenu extends Menu {
-
-    public UUID target;
-
-    @Override
-    public String getTitle(Player player) {
-        return CC.translate(FlashMenuLanguage.PUNISHMENT_SELECTION_MENU_TITLE.getString());
+class PunishmentHistorySelectionMenu : Menu() {
+    var target: UUID? = null
+    override fun getTitle(player: Player?): String? {
+        return CC.translate(FlashMenuLanguage.PUNISHMENT_SELECTION_MENU_TITLE.string)
     }
 
-    @Override
-    public List<Button> getButtons(Player player) {
-        List<Button> buttons = new ArrayList<>();
-
-        buttons.add(new PunishmentSelectButton(1, PunishmentType.KICK, target));
-        buttons.add(new PunishmentSelectButton(4, PunishmentType.MUTE, target));
-        buttons.add(new PunishmentSelectButton(5, PunishmentType.BAN, target));
-        buttons.add(new PunishmentSelectButton(6, PunishmentType.IP_BAN, target));
-        buttons.add(new PunishmentSelectButton(9, PunishmentType.BLACKLIST, target));
-
-        return buttons;
+    override fun getButtons(player: Player): List<Button> {
+        val buttons: MutableList<Button> = ArrayList()
+        buttons.add(PunishmentSelectButton(1, PunishmentType.KICK, target))
+        buttons.add(PunishmentSelectButton(4, PunishmentType.MUTE, target))
+        buttons.add(PunishmentSelectButton(5, PunishmentType.BAN, target))
+        buttons.add(PunishmentSelectButton(6, PunishmentType.IP_BAN, target))
+        buttons.add(PunishmentSelectButton(9, PunishmentType.BLACKLIST, target))
+        return buttons
     }
 
-    @Override
-    public boolean autoFill() {
-        return true;
+    override fun autoFill(): Boolean {
+        return true
     }
 
     @AllArgsConstructor
-    private static class PunishmentSelectButton extends Button {
-
-        public int slot;
-        public PunishmentType type;
-        public UUID target;
-
-        @Override
-        public int getSlot() {
-            return slot;
+    private class PunishmentSelectButton : Button() {
+        override var slot = 0
+        var type: PunishmentType? = null
+        var target: UUID? = null
+        override fun getSlot(): Int {
+            return slot
         }
 
-        @Override
-        public ItemStack getItem() {
-            return new ItemBuilder(Material.WOOL)
-                    .setName(CC.applyTarget(FlashMenuLanguage.PUNISHMENTS_SELECTION_SELECT_BUTTON_NAME.getString(), target), "%PUNISHMENT_TYPE%", type.getDisplay())
-                    .setLore(CC.applyTarget(FlashMenuLanguage.PUNISHMENTS_SELECTION_SELECT_BUTTON_LORE.getStringList(), target), "%PUNISHMENT_PLURAL%", type.getPlural())
-                    .setDurability(ColorUtil.COLOR_MAP.get(type.getColor()).getWoolData())
-                    .create();
+        override fun getItem(): ItemStack? {
+            return ItemBuilder(Material.WOOL)
+                .setName(
+                    CC.applyTarget(FlashMenuLanguage.PUNISHMENTS_SELECTION_SELECT_BUTTON_NAME.string, target),
+                    "%PUNISHMENT_TYPE%",
+                    type.getDisplay()
+                )
+                .setLore(
+                    CC.applyTarget(FlashMenuLanguage.PUNISHMENTS_SELECTION_SELECT_BUTTON_LORE.stringList, target),
+                    "%PUNISHMENT_PLURAL%",
+                    type!!.plural
+                )
+                .setDurability(ColorUtil.COLOR_MAP!![type.getColor()]!!.woolData.toShort())
+                .create()
         }
 
-        @Override
-        public void action(InventoryClickEvent event) {
-            if (!(event.getWhoClicked() instanceof Player)) return;
-            Player player = (Player) event.getWhoClicked();
-
-            new PunishmentHistoryMenu(target, type).openMenu(player);
+        override fun action(event: InventoryClickEvent) {
+            if (event.whoClicked !is Player) return
+            val player = event.whoClicked as Player
+            PunishmentHistoryMenu(target, type).openMenu(player)
         }
     }
-
 }

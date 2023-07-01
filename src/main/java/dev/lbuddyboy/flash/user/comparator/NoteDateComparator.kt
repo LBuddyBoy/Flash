@@ -1,14 +1,9 @@
-package dev.lbuddyboy.flash.user.comparator;
+package dev.lbuddyboy.flash.user.comparator
 
-import dev.lbuddyboy.flash.user.model.Grant;
-import dev.lbuddyboy.flash.user.model.Note;
+import dev.lbuddyboy.flash.user.model.Note
 
-import java.util.Comparator;
-
-public class NoteDateComparator implements Comparator<Note> {
-
-    @Override
-    public int compare(Note note, Note otherNote) {
-        return Long.compare(note.getSentAt(), otherNote.getSentAt());
+class NoteDateComparator : Comparator<Note> {
+    override fun compare(note: Note, otherNote: Note): Int {
+        return java.lang.Long.compare(note.sentAt, otherNote.sentAt)
     }
 }

@@ -1,14 +1,12 @@
-package dev.lbuddyboy.flash.user.comparator;
+package dev.lbuddyboy.flash.user.comparator
 
-import dev.lbuddyboy.flash.user.model.Punishment;
-import dev.lbuddyboy.flash.user.model.UserPermission;
+import dev.lbuddyboy.flash.user.model.Punishment
+import java.lang.Boolean
+import kotlin.Comparator
+import kotlin.Int
 
-import java.util.Comparator;
-
-public class PunishmentRemovedComparator implements Comparator<Punishment> {
-
-    @Override
-    public int compare(Punishment punishment, Punishment otherPunishment) {
-        return Boolean.compare(punishment.isRemoved(), otherPunishment.isRemoved());
+class PunishmentRemovedComparator : Comparator<Punishment> {
+    override fun compare(punishment: Punishment, otherPunishment: Punishment): Int {
+        return Boolean.compare(punishment.isRemoved, otherPunishment.isRemoved)
     }
 }

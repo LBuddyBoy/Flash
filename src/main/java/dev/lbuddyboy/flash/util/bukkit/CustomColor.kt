@@ -1,12 +1,11 @@
-package dev.lbuddyboy.flash.util.bukkit;
+package dev.lbuddyboy.flash.util.bukkit
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.AllArgsConstructor
+import lombok.Getter
 
 @AllArgsConstructor
 @Getter
-public class CustomColor {
-
-    private String code, color;
-
+class CustomColor {
+    private val code: String? = null
+    private val color: String? = null
 }

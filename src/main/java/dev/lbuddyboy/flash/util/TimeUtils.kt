@@ -1,111 +1,102 @@
-package dev.lbuddyboy.flash.util;
+package dev.lbuddyboy.flash.util
 
-import java.text.SimpleDateFormat;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.text.SimpleDateFormat
+import java.util.regex.Pattern
 
-public final class TimeUtils {
-        private static final ThreadLocal<StringBuilder> mmssBuilder = ThreadLocal.withInitial(StringBuilder::new);
-        private static final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm");
+object TimeUtils {
+    private val mmssBuilder = ThreadLocal.withInitial { StringBuilder() }
+    private val dateFormat = SimpleDateFormat("MM/dd/yyyy HH:mm")
+    fun formatIntoHHMMSS(secs: Int): String {
+        return formatIntoMMSS(secs)
+    }
 
-        private TimeUtils() {
-        }
+    fun formatLongIntoHHMMSS(secs: Long): String {
+        val unconvertedSeconds = secs.toInt()
+        return formatIntoMMSS(unconvertedSeconds)
+    }
 
-        public static String formatIntoHHMMSS(int secs) {
-            return formatIntoMMSS(secs);
-        }
-
-        public static String formatLongIntoHHMMSS(long secs) {
-            int unconvertedSeconds = (int)secs;
-            return formatIntoMMSS(unconvertedSeconds);
-        }
-
-        public static String formatIntoMMSS(int secs) {
-            int seconds = secs % 60;
-            secs -= seconds;
-            long minutesCount = (long)(secs / 60);
-            long minutes = minutesCount % 60L;
-            minutesCount -= minutes;
-            long hours = minutesCount / 60L;
-            StringBuilder result = (StringBuilder)mmssBuilder.get();
-            result.setLength(0);
-            if (hours > 0L) {
-                if (hours < 10L) {
-                    result.append("0");
-                }
-
-                result.append(hours);
-                result.append(":");
+    fun formatIntoMMSS(secs: Int): String {
+        var secs = secs
+        val seconds = secs % 60
+        secs -= seconds
+        var minutesCount = (secs / 60).toLong()
+        val minutes = minutesCount % 60L
+        minutesCount -= minutes
+        val hours = minutesCount / 60L
+        val result = mmssBuilder.get() as StringBuilder
+        result.setLength(0)
+        if (hours > 0L) {
+            if (hours < 10L) {
+                result.append("0")
             }
-
-            if (minutes < 10L) {
-                result.append("0");
-            }
-
-            result.append(minutes);
-            result.append(":");
-            if (seconds < 10) {
-                result.append("0");
-            }
-
-            result.append(seconds);
-            return result.toString();
+            result.append(hours)
+            result.append(":")
         }
-
-        public static String formatLongIntoMMSS(long secs) {
-            int unconvertedSeconds = (int)secs;
-            return formatIntoMMSS(unconvertedSeconds);
+        if (minutes < 10L) {
+            result.append("0")
         }
-
-        public static String formatIntoDetailedString(int secs) {
-            if (secs == 0) {
-                return "0 seconds";
-            } else {
-                int remainder = secs % 86400;
-                int days = secs / 86400;
-                int hours = remainder / 3600;
-                int minutes = remainder / 60 - hours * 60;
-                int seconds = remainder % 3600 - minutes * 60;
-                String fDays = days > 0 ? " " + days + " day" + (days > 1 ? "s" : "") : "";
-                String fHours = hours > 0 ? " " + hours + " hour" + (hours > 1 ? "s" : "") : "";
-                String fMinutes = minutes > 0 ? " " + minutes + " minute" + (minutes > 1 ? "s" : "") : "";
-                String fSeconds = seconds > 0 ? " " + seconds + " second" + (seconds > 1 ? "s" : "") : "";
-                return (fDays + fHours + fMinutes + fSeconds).trim();
-            }
+        result.append(minutes)
+        result.append(":")
+        if (seconds < 10) {
+            result.append("0")
         }
+        result.append(seconds)
+        return result.toString()
+    }
 
-        public static String formatLongIntoDetailedString(long secs) {
-            int unconvertedSeconds = (int)secs;
-            return formatIntoDetailedString(unconvertedSeconds);
-        }
+    fun formatLongIntoMMSS(secs: Long): String {
+        val unconvertedSeconds = secs.toInt()
+        return formatIntoMMSS(unconvertedSeconds)
+    }
 
-        public static int parseTime(String time) {
-            if (!time.equals("0") && !time.equals("")) {
-                String[] lifeMatch = new String[]{"w", "d", "h", "m", "s"};
-                int[] lifeInterval = new int[]{604800, 86400, 3600, 60, 1};
-                int seconds = -1;
-
-                for(int i = 0; i < lifeMatch.length; ++i) {
-                    for(Matcher matcher = Pattern.compile("([0-9]+)" + lifeMatch[i]).matcher(time); matcher.find(); seconds += Integer.parseInt(matcher.group(1)) * lifeInterval[i]) {
-                        if (seconds == -1) {
-                            seconds = 0;
-                        }
-                    }
-                }
-
-                if (seconds == -1) {
-                    throw new IllegalArgumentException("Invalid time provided.");
-                } else {
-                    return seconds;
-                }
-            } else {
-                return 0;
-            }
-        }
-
-        public static long parseTimeToLong(String time) {
-            int unconvertedSeconds = parseTime(time);
-            long seconds = (long)unconvertedSeconds;
-            return seconds;
+    fun formatIntoDetailedString(secs: Int): String {
+        return if (secs == 0) {
+            "0 seconds"
+        } else {
+            val remainder = secs % 86400
+            val days = secs / 86400
+            val hours = remainder / 3600
+            val minutes = remainder / 60 - hours * 60
+            val seconds = remainder % 3600 - minutes * 60
+            val fDays = if (days > 0) " " + days + " day" + (if (days > 1) "s" else "") else ""
+            val fHours = if (hours > 0) " " + hours + " hour" + (if (hours > 1) "s" else "") else ""
+            val fMinutes = if (minutes > 0) " " + minutes + " minute" + (if (minutes > 1) "s" else "") else ""
+            val fSeconds = if (seconds > 0) " " + seconds + " second" + (if (seconds > 1) "s" else "") else ""
+            (fDays + fHours + fMinutes + fSeconds).trim { it <= ' ' }
         }
     }
+
+    fun formatLongIntoDetailedString(secs: Long): String {
+        val unconvertedSeconds = secs.toInt()
+        return formatIntoDetailedString(unconvertedSeconds)
+    }
+
+    fun parseTime(time: String): Int {
+        return if (time != "0" && time != "") {
+            val lifeMatch = arrayOf("w", "d", "h", "m", "s")
+            val lifeInterval = intArrayOf(604800, 86400, 3600, 60, 1)
+            var seconds = -1
+            for (i in lifeMatch.indices) {
+                val matcher = Pattern.compile("([0-9]+)" + lifeMatch[i]).matcher(time)
+                while (matcher.find()) {
+                    if (seconds == -1) {
+                        seconds = 0
+                    }
+                    seconds += matcher.group(1).toInt() * lifeInterval[i]
+                }
+            }
+            if (seconds == -1) {
+                throw IllegalArgumentException("Invalid time provided.")
+            } else {
+                seconds
+            }
+        } else {
+            0
+        }
+    }
+
+    fun parseTimeToLong(time: String): Long {
+        val unconvertedSeconds = parseTime(time)
+        return unconvertedSeconds.toLong()
+    }
+}

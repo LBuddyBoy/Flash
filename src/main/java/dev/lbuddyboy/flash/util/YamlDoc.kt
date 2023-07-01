@@ -1,74 +1,71 @@
-package dev.lbuddyboy.flash.util;
+package dev.lbuddyboy.flash.util
 
-import dev.lbuddyboy.flash.util.bukkit.CC;
-import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.YamlConfiguration;
+import dev.lbuddyboy.flash.util.bukkit.CC
+import org.bukkit.Bukkit
+import org.bukkit.configuration.file.YamlConfiguration
+import java.io.*
 
-import java.io.*;
+class YamlDoc(folder: File?, private val configName: String) {
+    protected var file: File
+    protected var config: YamlConfiguration? = null
 
-public class YamlDoc {
-
-    public static boolean done = false;
-    protected File file;
-    protected YamlConfiguration config;
-    private String configName;
-
-    public YamlDoc(File folder, String configName) {
-        this.configName = configName;
-        file = new File(folder, configName);
-        init();
-        Bukkit.getConsoleSender().sendMessage(CC.translate("&fSuccessfully created the &6" + configName + " &ffile."));
+    init {
+        file = File(folder, configName)
+        init()
+        Bukkit.getConsoleSender().sendMessage(CC.translate("&fSuccessfully created the &6$configName &ffile."))
     }
 
-    public void init() {
+    fun init() {
         if (!file.exists()) {
             try {
-                file.createNewFile();
-                loadDefaults();
-            } catch (IOException e) {
-                e.printStackTrace();
+                file.createNewFile()
+                loadDefaults()
+            } catch (e: IOException) {
+                e.printStackTrace()
             }
         }
-
-        config = YamlConfiguration.loadConfiguration(file);
+        config = YamlConfiguration.loadConfiguration(file)
     }
 
-    public void loadDefaults() throws IOException {
-        InputStream is = getClass().getResourceAsStream("/" + configName);
-        BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-        writer.write(readFile(is));
-        writer.close();
+    @Throws(IOException::class)
+    fun loadDefaults() {
+        val `is` = javaClass.getResourceAsStream("/$configName")
+        val writer = BufferedWriter(FileWriter(file))
+        writer.write(readFile(`is`))
+        writer.close()
     }
 
-
-    public String readFile(InputStream inputStream) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-        String content = "";
-        String line;
-
-        while ((line = reader.readLine()) != null) {
-            content += line + "\n";
+    @Throws(IOException::class)
+    fun readFile(inputStream: InputStream?): String {
+        val reader = BufferedReader(InputStreamReader(inputStream))
+        var content = ""
+        var line: String
+        while (reader.readLine().also { line = it } != null) {
+            content += """
+                $line
+                
+                """.trimIndent()
         }
-
-        reader.close();
-        return content.trim();
+        reader.close()
+        return content.trim { it <= ' ' }
     }
 
-
-    public void save() throws IOException {
-        if (!file.exists())
-            file.createNewFile();
-
-        config.save(file);
+    @Throws(IOException::class)
+    fun save() {
+        if (!file.exists()) file.createNewFile()
+        config!!.save(file)
     }
 
-
-    public YamlConfiguration gc() {
-        return config;
+    fun gc(): YamlConfiguration? {
+        return config
     }
 
-    public void reloadConfig() throws IOException {
-        init();
+    @Throws(IOException::class)
+    fun reloadConfig() {
+        init()
     }
 
+    companion object {
+        var done = false
+    }
 }

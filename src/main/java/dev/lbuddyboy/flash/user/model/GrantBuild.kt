@@ -1,24 +1,19 @@
-package dev.lbuddyboy.flash.user.model;
+package dev.lbuddyboy.flash.user.model
 
-import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.rank.Rank;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
-import java.util.UUID;
+import dev.lbuddyboy.flash.Flash
+import dev.lbuddyboy.flash.rank.Rank
+import lombok.*
+import java.util.*
 
 @AllArgsConstructor
 @Data
-public class GrantBuild {
-
-    private UUID target;
-    private UUID rank;
-    private String time;
-    private String[] scopes;
-    private String reason;
-
-    public Rank getRank() {
-        return Flash.getInstance().getRankHandler().getRanks().get(rank);
+class GrantBuild {
+    private val target: UUID? = null
+    private val rank: UUID? = null
+    private val time: String? = null
+    private val scopes: Array<String>
+    private val reason: String? = null
+    fun getRank(): Rank {
+        return Flash.instance.rankHandler.getRanks().get(rank)
     }
-
 }

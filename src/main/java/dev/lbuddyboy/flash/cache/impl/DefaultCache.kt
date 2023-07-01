@@ -1,30 +1,22 @@
-package dev.lbuddyboy.flash.cache.impl;
+package dev.lbuddyboy.flash.cache.impl
 
-import dev.lbuddyboy.flash.cache.UserCache;
-import dev.lbuddyboy.flash.util.bukkit.CC;
-import org.bukkit.Bukkit;
+import dev.lbuddyboy.flash.cache.UserCache
+import dev.lbuddyboy.flash.util.bukkit.CC
+import org.bukkit.Bukkit
+import java.util.*
 
-import java.util.UUID;
-
-public class DefaultCache extends UserCache {
-
-    @Override
-    public void load() {
-        Bukkit.getConsoleSender().sendMessage(CC.translate("&fInitiated the &aDefault Cache&f."));
+class DefaultCache : UserCache() {
+    override fun load() {
+        Bukkit.getConsoleSender().sendMessage(CC.translate("&fInitiated the &aDefault Cache&f."))
     }
 
-    @Override
-    public String getName(UUID uuid) {
-        return Bukkit.getOfflinePlayer(uuid).getName();
+    override fun getName(uuid: UUID?): String? {
+        return Bukkit.getOfflinePlayer(uuid).name
     }
 
-    @Override
-    public UUID getUUID(String name) {
-        return Bukkit.getOfflinePlayer(name).getUniqueId();
+    override fun getUUID(name: String?): UUID? {
+        return Bukkit.getOfflinePlayer(name).uniqueId
     }
 
-    @Override
-    public void update(UUID uuid, String name, boolean save) {
-    }
-
+    override fun update(uuid: UUID, name: String?, save: Boolean) {}
 }

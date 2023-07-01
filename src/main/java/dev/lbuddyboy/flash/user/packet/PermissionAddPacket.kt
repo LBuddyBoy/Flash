@@ -1,30 +1,19 @@
-package dev.lbuddyboy.flash.user.packet;
+package dev.lbuddyboy.flash.user.packet
 
-import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.redis.JedisPacket;
-import dev.lbuddyboy.flash.user.User;
-import dev.lbuddyboy.flash.user.model.Grant;
-import dev.lbuddyboy.flash.user.model.UserPermission;
-import lombok.AllArgsConstructor;
-
-import java.util.List;
-import java.util.UUID;
+import dev.lbuddyboy.flash.Flash
+import dev.lbuddyboy.flash.redis.JedisPacket
+import dev.lbuddyboy.flash.user.model.UserPermission
+import lombok.AllArgsConstructor
+import java.util.*
 
 @AllArgsConstructor
-public class PermissionAddPacket implements JedisPacket {
-
-    private UUID uuid;
-    private List<UserPermission> permission;
-
-    @Override
-    public void onReceive() {
-        User user = Flash.getInstance().getUserHandler().tryUser(this.uuid, false);
-        if (user == null) return;
-
-        user.setPermissions(permission);
-        user.save(true);
-        user.updatePerms();
-
+class PermissionAddPacket : JedisPacket {
+    private val uuid: UUID? = null
+    private val permission: List<UserPermission>? = null
+    override fun onReceive() {
+        val user = Flash.instance.userHandler.tryUser(uuid, false) ?: return
+        user.setPermissions(permission)
+        user.save(true)
+        user.updatePerms()
     }
-
 }

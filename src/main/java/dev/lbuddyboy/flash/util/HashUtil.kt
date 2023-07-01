@@ -1,101 +1,93 @@
-package dev.lbuddyboy.flash.util;
+package dev.lbuddyboy.flash.util
 
-import org.bson.internal.Base64;
+import org.bson.internal.Base64
+import java.nio.charset.StandardCharsets
+import javax.crypto.Cipher
+import javax.crypto.SecretKey
+import javax.crypto.spec.SecretKeySpec
 
-import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
+class HashUtil(key: SecretKey?) {
+    private val ecipher: Cipher
+    private val dcipher: Cipher
 
-public class HashUtil {
-
-    private final Cipher ecipher;
-    private final Cipher dcipher;
-    private static final String key = "bcD@g@s3%92B&#Zq";
-
-    public HashUtil(SecretKey key) throws Exception {
-        ecipher = Cipher.getInstance("AES");
-        dcipher = Cipher.getInstance("AES");
-        ecipher.init(Cipher.ENCRYPT_MODE, key);
-        dcipher.init(Cipher.DECRYPT_MODE, key);
+    init {
+        ecipher = Cipher.getInstance("AES")
+        dcipher = Cipher.getInstance("AES")
+        ecipher.init(Cipher.ENCRYPT_MODE, key)
+        dcipher.init(Cipher.DECRYPT_MODE, key)
     }
 
-
-    public String encrypt(String str) throws Exception {
-        byte[] utf8 = str.getBytes(StandardCharsets.UTF_8);
-        byte[] enc = ecipher.doFinal(utf8);
-
-        return Base64.encode(enc);
+    @Throws(Exception::class)
+    fun encrypt(str: String): String {
+        val utf8 = str.toByteArray(StandardCharsets.UTF_8)
+        val enc = ecipher.doFinal(utf8)
+        return Base64.encode(enc)
     }
 
-    public String decrypt(String str) throws Exception {
-        byte[] dec = Base64.decode(str);
-        byte[] utf8 = dcipher.doFinal(dec);
-
-        return new String(utf8, StandardCharsets.UTF_8);
+    @Throws(Exception::class)
+    fun decrypt(str: String?): String {
+        val dec = Base64.decode(str)
+        val utf8 = dcipher.doFinal(dec)
+        return kotlin.String(utf8, StandardCharsets.UTF_8)
     }
 
-    public static String encryptUsingKey(String str) {
-        SecretKey secretKey = new SecretKeySpec(key.getBytes(), "AES");
-        HashUtil encrypter;
-
-        try {
-            encrypter = new HashUtil(secretKey);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-        String encrypted;
-        try {
-            encrypted = encrypter.encrypt(str);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-
-        return encrypted;
-    }
-
-    public static String decryptUsingKey(String str) {
-        SecretKey secretKey = new SecretKeySpec(key.getBytes(), "AES");
-        HashUtil encrypter;
-        try {
-            encrypter = new HashUtil(secretKey);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+    companion object {
+        private const val key = "bcD@g@s3%92B&#Zq"
+        fun encryptUsingKey(str: String): String? {
+            val secretKey: SecretKey = SecretKeySpec(key.toByteArray(), "AES")
+            val encrypter: HashUtil
+            encrypter = try {
+                HashUtil(secretKey)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                return null
+            }
+            val encrypted: String
+            encrypted = try {
+                encrypter.encrypt(str)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                return null
+            }
+            return encrypted
         }
 
-        try {
-            return encrypter.decrypt(str);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        fun decryptUsingKey(str: String?): String? {
+            val secretKey: SecretKey = SecretKeySpec(key.toByteArray(), "AES")
+            val encrypter: HashUtil
+            encrypter = try {
+                HashUtil(secretKey)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                return null
+            }
+            return try {
+                encrypter.decrypt(str)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        } // Hash and Salt - Use this!
+        //    public static byte[] getSalt() {
+        //        return key.getBytes();
+        //    }
+        //
+        //    public static byte[] getSaltedHash512(String input, byte[] salt) {
+        //        try {
+        //            MessageDigest messageDigest = MessageDigest.getInstance("SHA-512");
+        //            messageDigest.update(salt);
+        //            byte[] byteData = messageDigest.digest(input.getBytes());
+        //            messageDigest.reset();
+        //
+        //            return byteData;
+        //        }catch (Exception e) {
+        //            e.printStackTrace();
+        //            return null;
+        //        }
+        //    }
+        //
+        //    public static byte[] getSaltedHash(String input) {
+        //        return getSaltedHash512(input, getSalt());
+        //    }
     }
-
-    // Hash and Salt - Use this!
-
-//    public static byte[] getSalt() {
-//        return key.getBytes();
-//    }
-//
-//    public static byte[] getSaltedHash512(String input, byte[] salt) {
-//        try {
-//            MessageDigest messageDigest = MessageDigest.getInstance("SHA-512");
-//            messageDigest.update(salt);
-//            byte[] byteData = messageDigest.digest(input.getBytes());
-//            messageDigest.reset();
-//
-//            return byteData;
-//        }catch (Exception e) {
-//            e.printStackTrace();
-//            return null;
-//        }
-//    }
-//
-//    public static byte[] getSaltedHash(String input) {
-//        return getSaltedHash512(input, getSalt());
-//    }
-
 }

@@ -1,70 +1,53 @@
-package dev.lbuddyboy.flash.cache.impl;
+package dev.lbuddyboy.flash.cache.impl
 
-import dev.lbuddyboy.flash.cache.UserCache;
-import dev.lbuddyboy.flash.cache.packet.CacheDistributePacket;
-import dev.lbuddyboy.flash.handler.RedisHandler;
-import dev.lbuddyboy.flash.util.bukkit.CC;
-import dev.lbuddyboy.flash.util.bukkit.Tasks;
-import org.bukkit.Bukkit;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
+import dev.lbuddyboy.flash.cache.UserCache
+import dev.lbuddyboy.flash.cache.packet.CacheDistributePacket
+import dev.lbuddyboy.flash.handler.RedisHandler.Companion.requestJedis
+import dev.lbuddyboy.flash.util.bukkit.CC
+import org.bukkit.Bukkit
+import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-
-public class RedisCache extends UserCache {
-
-    private static final String KEY = "CACHE";
-
-    private static final Map<UUID, String> uuidNameMap = new ConcurrentHashMap<>();
-    private static final Map<String, UUID> nameUUIDMap = new ConcurrentHashMap<>();
-
-    @Override
-    public String getName(UUID uuid) {
-        return uuidNameMap.get(uuid);
+class RedisCache : UserCache() {
+    override fun getName(uuid: UUID?): String? {
+        return uuidNameMap[uuid]
     }
 
-    @Override
-    public UUID getUUID(String name) {
-        return nameUUIDMap.get(name);
+    override fun getUUID(name: String?): UUID? {
+        return nameUUIDMap[name]
     }
 
-    @Override
-    public void load() {
-        Map<String, String> cache = RedisHandler.requestJedis().getResource().hgetAll(KEY);
-        int i = 0;
-        for (Map.Entry<String, String> cacheEntry : cache.entrySet()) {
-            UUID uuid = UUID.fromString(cacheEntry.getKey());
-            String name = cacheEntry.getValue();
-
-            uuidNameMap.put(uuid, name);
-            nameUUIDMap.put(name, uuid);
-            i++;
+    override fun load() {
+        val cache = requestJedis().resource.hgetAll(KEY)
+        var i = 0
+        for ((key, name) in cache) {
+            val uuid = UUID.fromString(key)
+            uuidNameMap[uuid] = name
+            nameUUIDMap[name] = uuid
+            i++
         }
-
-        Bukkit.getConsoleSender().sendMessage(CC.translate("&fInitiated the &bRedis Cache&f."));
+        Bukkit.getConsoleSender().sendMessage(CC.translate("&fInitiated the &bRedis Cache&f."))
         if (i > 0) {
-            Bukkit.getConsoleSender().sendMessage(CC.translate("&fCached &b" + i + "&f names & uuids."));
+            Bukkit.getConsoleSender().sendMessage(CC.translate("&fCached &b$i&f names & uuids."))
         }
     }
 
-    @Override
-    public List<UUID> allUUIDs() {
-        return new ArrayList<>(nameUUIDMap.values());
+    override fun allUUIDs(): List<UUID> {
+        return ArrayList(nameUUIDMap.values)
     }
 
-    @Override
-    public void update(UUID uuid, String name, boolean save) {
+    override fun update(uuid: UUID, name: String?, save: Boolean) {
         if (save) {
-            RedisHandler.requestJedis().getResource().hset(KEY, uuid.toString(), name);
-            new CacheDistributePacket(uuid, name).send();
+            requestJedis().resource.hset(KEY, uuid.toString(), name)
+            CacheDistributePacket(uuid, name).send()
         }
-        uuidNameMap.put(uuid, name);
-        nameUUIDMap.put(name, uuid);
-
+        uuidNameMap[uuid] = name
+        nameUUIDMap[name] = uuid
     }
 
+    companion object {
+        private const val KEY = "CACHE"
+        private val uuidNameMap: MutableMap<UUID?, String?> = ConcurrentHashMap()
+        private val nameUUIDMap: MutableMap<String?, UUID> = ConcurrentHashMap()
+    }
 }

@@ -1,37 +1,31 @@
-package dev.lbuddyboy.flash.util.menu;
+package dev.lbuddyboy.flash.util.menu
 
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.entity.Player
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
+import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.event.inventory.InventoryCloseEvent
 
-public class ButtonListener implements Listener {
-
+class ButtonListener : Listener {
     @EventHandler
-    public void onClick(InventoryClickEvent event) {
-        if (!(event.getWhoClicked() instanceof Player)) return;
-        Player player = (Player) event.getWhoClicked();
-
-        if (!Menu.openedMenus.containsKey(player.getName())) return;
-
-        Menu menu = Menu.openedMenus.get(player.getName());
-
-        for (Button button : menu.getButtons(player)) {
-            if (button.getSlot() - 1 == event.getSlot()) {
-                button.action(event);
-                event.setCancelled(button.cancels());
-
-                if (button.clickUpdate()) menu.update(player);
+    fun onClick(event: InventoryClickEvent) {
+        if (event.whoClicked !is Player) return
+        val player = event.whoClicked as Player
+        if (!Menu.Companion.openedMenus.containsKey(player.name)) return
+        val menu: Menu = Menu.Companion.openedMenus.get(player.name)!!
+        for (button in menu.getButtons(player)) {
+            if (button.slot - 1 == event.slot) {
+                button!!.action(event)
+                event.isCancelled = button.cancels()
+                if (button.clickUpdate()) menu.update(player)
             } else {
-                event.setCancelled(true);
+                event.isCancelled = true
             }
         }
     }
 
     @EventHandler
-    public void onInventoryClose(InventoryCloseEvent event) {
-        Menu.openedMenus.remove(event.getPlayer().getName());
+    fun onInventoryClose(event: InventoryCloseEvent) {
+        Menu.Companion.openedMenus.remove(event.player.name)
     }
-
 }

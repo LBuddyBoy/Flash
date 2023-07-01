@@ -1,20 +1,13 @@
-package dev.lbuddyboy.flash.user.model;
+package dev.lbuddyboy.flash.user.model
 
-import dev.lbuddyboy.flash.FlashLanguage;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
-import org.bukkit.inventory.ItemStack;
-
-import java.util.Map;
-import java.util.UUID;
+import lombok.Data
+import lombok.RequiredArgsConstructor
+import org.bukkit.inventory.ItemStack
 
 @RequiredArgsConstructor
 @Data
-public class ServerInfo {
-
-    private final String server;
-    private ItemStack[] contents = new ItemStack[36];
-    private ItemStack[] armor = new ItemStack[4];
-
+class ServerInfo {
+    private val server: String? = null
+    private val contents = arrayOfNulls<ItemStack>(36)
+    private val armor = arrayOfNulls<ItemStack>(4)
 }

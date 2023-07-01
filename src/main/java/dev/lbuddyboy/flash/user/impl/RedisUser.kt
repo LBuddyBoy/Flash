@@ -1,72 +1,62 @@
-package dev.lbuddyboy.flash.user.impl;
+package dev.lbuddyboy.flash.user.impl
 
-import dev.lbuddyboy.flash.handler.RedisHandler;
-import dev.lbuddyboy.flash.user.User;
-import dev.lbuddyboy.flash.user.model.Grant;
-import dev.lbuddyboy.flash.util.bukkit.Tasks;
-import dev.lbuddyboy.flash.util.gson.GSONUtils;
+import dev.lbuddyboy.flash.handler.RedisHandler.Companion.requestJedis
+import dev.lbuddyboy.flash.user.User
+import dev.lbuddyboy.flash.user.model.Grant
+import dev.lbuddyboy.flash.util.bukkit.*
+import dev.lbuddyboy.flash.util.gson.GSONUtils
+import java.util.*
 
-import java.util.UUID;
-
-public class RedisUser extends User {
-
-    public RedisUser(UUID uuid, String name, boolean load) {
-        this.uuid = uuid;
-        this.name = name;
-
-        if (load) load();
+class RedisUser(uuid: UUID?, name: String?, load: Boolean) : User() {
+    init {
+        this.uuid = uuid
+        this.name = name
+        if (load) load()
     }
 
-    @Override
-    public void load() {
+    override fun load() {
         try {
-            RedisUser user = GSONUtils.getGSON().fromJson(RedisHandler.requestJedis().getResource().hget("Users", getUuid().toString()), GSONUtils.REDIS_USER);
-
-            this.name = user.getName();
-            this.ip = user.getIp();
-            this.permissions = user.getPermissions();
-            this.knownIps = user.getKnownIps();
-            this.punishments.addAll(user.getPunishments());
-            this.notes = user.getNotes();
-            this.grants = user.getGrants();
-            this.promotions = user.getPromotions();
-            this.demotions = user.getDemotions();
-            this.activePrefix = user.getActivePrefix();
-            this.playerInfo = user.getPlayerInfo();
-            this.staffInfo = user.getStaffInfo();
-
-            if (this.grants.isEmpty()) {
-                this.grants.add(Grant.defaultGrant());
+            val user = GSONUtils.getGSON()
+                .fromJson<RedisUser>(requestJedis().resource.hget("Users", getUuid().toString()), GSONUtils.REDIS_USER)
+            name = user.getName()
+            ip = user.getIp()
+            permissions = user.getPermissions()
+            knownIps = user.getKnownIps()
+            punishments.addAll(user.getPunishments())
+            notes = user.getNotes()
+            grants = user.getGrants()
+            promotions = user.getPromotions()
+            demotions = user.getDemotions()
+            activePrefix = user.getActivePrefix()
+            playerInfo = user.getPlayerInfo()
+            staffInfo = user.getStaffInfo()
+            if (grants.isEmpty()) {
+                grants.add(Grant.Companion.defaultGrant())
             }
-
-            updateGrants();
-        } catch (Exception ignored) {
-            save(true, true);
+            updateGrants()
+        } catch (ignored: Exception) {
+            save(true, true)
         }
-
     }
 
-    @Override
-    public void loadRank() {
-        load();
+    override fun loadRank() {
+        load()
     }
 
-    @Override
-    public void save(boolean async) {
-        save(async, false);
+    override fun save(async: Boolean) {
+        save(async, false)
     }
 
-    private void save(boolean async, boolean reload) {
+    private fun save(async: Boolean, reload: Boolean) {
         if (!async) {
-            RedisHandler.requestJedis().getResource().hset("Users", getUuid().toString(), toJson());
-            if (reload) load();
-            return;
+            requestJedis().resource.hset("Users", getUuid().toString(), toJson())
+            if (reload) load()
+            return
         }
-        Tasks.runAsync(() -> save(false, reload));
+        Tasks.runAsync { save(false, reload) }
     }
 
-    public String toJson() {
-        return GSONUtils.getGSON().toJson(this, GSONUtils.REDIS_USER);
+    fun toJson(): String {
+        return GSONUtils.getGSON().toJson(this, GSONUtils.REDIS_USER)
     }
-
 }

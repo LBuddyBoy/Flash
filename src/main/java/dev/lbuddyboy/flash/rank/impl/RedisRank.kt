@@ -1,74 +1,57 @@
-package dev.lbuddyboy.flash.rank.impl;
+package dev.lbuddyboy.flash.rank.impl
 
-import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.handler.RedisHandler;
-import dev.lbuddyboy.flash.rank.Rank;
-import dev.lbuddyboy.flash.rank.packet.RanksUpdatePacket;
-import dev.lbuddyboy.flash.user.User;
-import dev.lbuddyboy.flash.util.bukkit.Tasks;
-import dev.lbuddyboy.flash.util.gson.GSONUtils;
+import dev.lbuddyboy.flash.Flashimport
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
-public class RedisRank extends Rank {
-
-    public RedisRank(String name) {
-        this.uuid = UUID.randomUUID();
-        this.name = name;
-
-        load();
+dev.lbuddyboy.flash.handler.RedisHandler.Companion.requestJedisimport dev.lbuddyboy.flash.rank.Rankimport dev.lbuddyboy.flash.rank.packet.RanksUpdatePacketimport dev.lbuddyboy.flash.util.gson.GSONUtilsimport java.util.*
+class RedisRank : Rank {
+    constructor(name: String?) {
+        uuid = UUID.randomUUID()
+        this.name = name
+        load()
     }
 
-    public RedisRank(UUID uuid, String name) {
-        this.uuid = uuid;
-        this.name = name;
-
-        load();
+    constructor(uuid: UUID?, name: String?) {
+        this.uuid = uuid
+        this.name = name
+        load()
     }
 
-    @Override
-    public void load() {
+    override fun load() {
         try {
-            RedisRank rank = GSONUtils.getGSON().fromJson(RedisHandler.requestJedis().getResource().hget("Ranks", getUuid().toString()), GSONUtils.REDIS_RANK);
-
-            this.name = rank.getName();
-            this.uuid = rank.getUuid();
-            this.displayName = rank.getDisplayName();
-            this.color = rank.getColor();
-            this.weight = rank.getWeight();
-            this.prefix = rank.getPrefix();
-            this.defaultRank = rank.isDefaultRank();
-            this.suffix = rank.getSuffix();
-            this.permissions = rank.getPermissions();
-            this.inheritance = rank.getInheritance();
-            this.staff = rank.isStaff();
-
-        } catch (Exception ignored) {
-            save(true, true);
+            val rank = GSONUtils.getGSON()
+                .fromJson<RedisRank>(requestJedis().resource.hget("Ranks", getUuid().toString()), GSONUtils.REDIS_RANK)
+            name = rank.getName()
+            uuid = rank.getUuid()
+            displayName = rank.getDisplayName()
+            color = rank.getColor()
+            weight = rank.getWeight()
+            prefix = rank.getPrefix()
+            defaultRank = rank.isDefaultRank
+            suffix = rank.getSuffix()
+            permissions = rank.getPermissions()
+            inheritance = rank.getInheritance()
+            staff = rank.isStaff
+        } catch (ignored: Exception) {
+            save(true, true)
         }
     }
 
-    @Override
-    public void delete() {
-        Flash.getInstance().getRankHandler().getRanks().remove(this.uuid);
-        RedisHandler.requestJedis().getResource().hdel("Ranks", getUuid().toString());
-        new RanksUpdatePacket(Flash.getInstance().getRankHandler().getRanks()).send();
+    override fun delete() {
+        Flash.instance.rankHandler.getRanks().remove(uuid)
+        requestJedis().resource.hdel("Ranks", getUuid().toString())
+        RanksUpdatePacket(Flash.instance.rankHandler.getRanks()).send()
     }
 
-    @Override
-    public void save(boolean async) {
-        save(async, false);
+    override fun save(async: Boolean) {
+        save(async, false)
     }
 
-    private void save(boolean async, boolean reload) {
-        RedisHandler.requestJedis().getResource().hset("Ranks", getUuid().toString(), toJson());
-        if (reload) load();
+    private fun save(async: Boolean, reload: Boolean) {
+        requestJedis().resource.hset("Ranks", getUuid().toString(), toJson())
+        if (reload) load()
     }
 
-    public String toJson() {
-        return GSONUtils.getGSON().toJson(this, GSONUtils.REDIS_RANK);
+    fun toJson(): String {
+        return GSONUtils.getGSON().toJson(this, GSONUtils.REDIS_RANK)
     }
-
 }

@@ -1,265 +1,247 @@
-package dev.lbuddyboy.flash.user.menu;
+package dev.lbuddyboy.flash.user.menu
 
-import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.FlashMenuLanguage;
-import dev.lbuddyboy.flash.user.User;
-import dev.lbuddyboy.flash.user.listener.GrantListener;
-import dev.lbuddyboy.flash.user.model.Grant;
-import dev.lbuddyboy.flash.user.model.UserPermission;
-import dev.lbuddyboy.flash.util.bukkit.CC;
-import dev.lbuddyboy.flash.util.bukkit.ItemBuilder;
-import dev.lbuddyboy.flash.util.bukkit.UserUtils;
-import dev.lbuddyboy.flash.util.menu.Button;
-import dev.lbuddyboy.flash.util.menu.Menu;
-import dev.lbuddyboy.flash.util.menu.button.BackButton;
-import dev.lbuddyboy.flash.util.menu.paged.PagedMenu;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.ItemStack;
+import dev.lbuddyboy.flash.Flash
+import dev.lbuddyboy.flash.FlashMenuLanguage
+import dev.lbuddyboy.flash.user.User
+import dev.lbuddyboy.flash.user.listener.GrantListener
+import dev.lbuddyboy.flash.user.model.Grant
+import dev.lbuddyboy.flash.user.model.UserPermission
+import dev.lbuddyboy.flash.util.bukkit.CC
+import dev.lbuddyboy.flash.util.bukkit.ItemBuilder
+import dev.lbuddyboy.flash.util.bukkit.UserUtils
+import dev.lbuddyboy.flash.util.menu.Button
+import dev.lbuddyboy.flash.util.menu.Menu
+import dev.lbuddyboy.flash.util.menu.button.BackButton
+import dev.lbuddyboy.flash.util.menu.paged.PagedMenu
+import lombok.*
+import org.apache.commons.lang.StringUtils
+import org.bukkit.entity.Player
+import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.inventory.ItemStack
+import java.util.*
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+class GrantsMenu : PagedMenu<Grant?> {
+    var uuid: UUID
 
-public class GrantsMenu extends PagedMenu<Grant> {
+    @Setter
+    @Getter
+    var view = "ranks"
+    var previousMenu: Menu? = null
 
-    public UUID uuid;
-    @Setter @Getter
-    public String view = "ranks";
-    public Menu previousMenu;
-
-    public GrantsMenu(UUID uuid) {
-        this.uuid = uuid;
-        this.objects = Flash.getInstance().getUserHandler().tryUser(uuid, true).getGrants();
+    constructor(uuid: UUID) {
+        this.uuid = uuid
+        objects = Flash.instance.userHandler.tryUser(uuid, true).getGrants()
     }
 
-    public GrantsMenu(UUID uuid, Menu previousMenu) {
-        this.uuid = uuid;
-        this.previousMenu = previousMenu;
-        this.objects = Flash.getInstance().getUserHandler().tryUser(uuid, true).getGrants();
+    constructor(uuid: UUID, previousMenu: Menu?) {
+        this.uuid = uuid
+        this.previousMenu = previousMenu
+        objects = Flash.instance.userHandler.tryUser(uuid, true).getGrants()
     }
 
-    @Override
-    public String getPageTitle(Player player) {
-        return CC.translate(FlashMenuLanguage.GRANTS_MENU_TITLE.getString(),
-                "%PLAYER%", Flash.getInstance().getCacheHandler().getUserCache().getName(uuid));
+    override fun getPageTitle(player: Player?): String? {
+        return translate(
+            FlashMenuLanguage.GRANTS_MENU_TITLE.string,
+            "%PLAYER%", Flash.instance.cacheHandler.getUserCache().getName(uuid)
+        )
     }
 
-    @Override
-    public List<Button> getPageButtons(Player player) {
-        List<Button> buttons = new ArrayList<>();
-
-        int i = 1;
-        User user = Flash.getInstance().getUserHandler().tryUser(uuid, true);
-        if (view.equals("permissions")) {
-            for (UserPermission permission : user.getSortedPermissions()) {
-                buttons.add(new PermissionButton(uuid, permission, i++));
+    override fun getPageButtons(player: Player): List<Button> {
+        val buttons: MutableList<Button> = ArrayList()
+        var i = 1
+        val user: User = Flash.instance.userHandler.tryUser(uuid, true)
+        if (view == "permissions") {
+            for (permission in user.sortedPermissions) {
+                buttons.add(PermissionButton(uuid, permission, i++))
             }
         } else {
-            for (Grant grant : user.getSortedGrants()) {
-                buttons.add(new GrantButton(uuid, grant, i++));
+            for (grant in user.sortedGrants) {
+                buttons.add(GrantButton(uuid, grant, i++))
             }
         }
-
-        return buttons;
+        return buttons
     }
 
-    @Override
-    public boolean autoUpdate() {
-        return true;
+    override fun autoUpdate(): Boolean {
+        return true
     }
 
-    @Override
-    public boolean autoFill() {
-        return true;
+    override fun autoFill(): Boolean {
+        return true
     }
 
-    @Override
-    public List<Button> getGlobalButtons(Player player) {
-        List<Button> buttons = new ArrayList<>();
-
-        buttons.add(new ToggleViewButton(this));
-        if (this.previousMenu != null) buttons.add(new BackButton(6, this.previousMenu));
-
-        return buttons;
+    override fun getGlobalButtons(player: Player?): List<Button> {
+        val buttons: MutableList<Button> = ArrayList()
+        buttons.add(ToggleViewButton(this))
+        if (previousMenu != null) buttons.add(BackButton(6, previousMenu))
+        return buttons
     }
 
     @AllArgsConstructor
-    private static class ToggleViewButton extends Button {
-
-        public GrantsMenu menu;
-
-        @Override
-        public int getSlot() {
-            if (menu.previousMenu != null) return 4;
-            return menu.getView().equals("permissions") ? FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_RANKS_SLOT.getInt() : FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_PERMISSIONS_SLOT.getInt();
+    private class ToggleViewButton : Button() {
+        var menu: GrantsMenu? = null
+        override fun getSlot(): Int {
+            if (menu!!.previousMenu != null) return 4
+            return if (menu.getView() == "permissions") FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_RANKS_SLOT.int else FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_PERMISSIONS_SLOT.int
         }
 
-        @Override
-        public ItemStack getItem() {
-            String name = menu.getView().equals("permissions") ? FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_RANKS_NAME.getString() : FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_PERMISSIONS_NAME.getString();
-            List<String> lore = menu.getView().equals("permissions") ? FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_RANKS_LORE.getStringList() : FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_PERMISSIONS_LORE.getStringList();
-            Material material = menu.getView().equals("permissions") ? FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_RANKS_MATERIAL.getMaterial() : FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_PERMISSIONS_MATERIAL.getMaterial();
-            int data = menu.getView().equals("permissions") ? FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_RANKS_DATA.getInt() : FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_PERMISSIONS_DATA.getInt();
-
-            return new ItemBuilder(material).setName(name).setLore(lore).setDurability(data).create();
+        override fun getItem(): ItemStack? {
+            val name =
+                if (menu.getView() == "permissions") FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_RANKS_NAME.string else FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_PERMISSIONS_NAME.string
+            val lore =
+                if (menu.getView() == "permissions") FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_RANKS_LORE.stringList else FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_PERMISSIONS_LORE.stringList
+            val material =
+                if (menu.getView() == "permissions") FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_RANKS_MATERIAL.material else FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_PERMISSIONS_MATERIAL.material
+            val data =
+                if (menu.getView() == "permissions") FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_RANKS_DATA.int else FlashMenuLanguage.GRANTS_MENU_SWITCH_BUTTON_PERMISSIONS_DATA.int
+            return ItemBuilder(material).setName(name).setLore(lore).setDurability(data).create()
         }
 
-        @Override
-        public void action(InventoryClickEvent event) {
-            menu.setView(menu.getView().equals("permissions") ? "ranks" : "permissions");
-            menu.update((Player) event.getWhoClicked());
+        override fun action(event: InventoryClickEvent) {
+            menu.setView(if (menu.getView() == "permissions") "ranks" else "permissions")
+            menu!!.update((event.whoClicked as Player))
         }
     }
 
     @AllArgsConstructor
-    private static class GrantButton extends Button {
-
-        public UUID target;
-        public Grant grant;
-        private int slot;
-
-        @Override
-        public int getSlot() {
-            return slot;
+    private class GrantButton : Button() {
+        var target: UUID? = null
+        var grant: Grant? = null
+        private override val slot = 0
+        override fun getSlot(): Int {
+            return slot
         }
 
-        @Override
-        public ItemStack getItem() {
-            if (grant.isRemoved()) {
-                return new ItemBuilder(FlashMenuLanguage.GRANTS_MENU_REMOVED_GRANT_BUTTON_MATERIAL.getMaterial())
-                        .setDurability(FlashMenuLanguage.GRANTS_MENU_REMOVED_GRANT_BUTTON_DATA.getInt())
-                        .setName(FlashMenuLanguage.GRANTS_MENU_REMOVED_GRANT_BUTTON_NAME.getString(),
-                                "%ADDEDAT%", grant.getAddedAtDate(),
-                                "%ADDEDBY%", UserUtils.formattedName(grant.getAddedBy()),
-                                "%ADDEDFOR%", grant.getAddedReason(),
-                                "%TIMELEFT%", grant.getExpireString(),
-                                "%SCOPES%", StringUtils.join(grant.getScopes(), ", "),
-                                "%REMOVEDAT%", grant.getRemovedAtDate(),
-                                "%REMOVEDBY%", UserUtils.formattedName(grant.getRemovedBy()),
-                                "%REMOVEDFOR%", grant.getRemovedFor(),
-                                "%RANK%", grant.getRank().getDisplayName())
-                        .setLore(FlashMenuLanguage.GRANTS_MENU_REMOVED_GRANT_BUTTON_LORE.getStringList(),
-                                "%ADDEDAT%", grant.getAddedAtDate(),
-                                "%ADDEDBY%", UserUtils.formattedName(grant.getAddedBy()),
-                                "%ADDEDFOR%", grant.getAddedReason(),
-                                "%SCOPES%", StringUtils.join(grant.getScopes(), ", "),
-                                "%TIMELEFT%", grant.getExpireString(),
-                                "%REMOVEDAT%", grant.getRemovedAtDate(),
-                                "%REMOVEDBY%", UserUtils.formattedName(grant.getRemovedBy()),
-                                "%REMOVEDFOR%", grant.getRemovedFor(),
-                                "%RANK%", grant.getRank().getDisplayName())
-                        .create();
-            }
-            return new ItemBuilder(FlashMenuLanguage.GRANTS_MENU_DEFAULT_GRANT_BUTTON_MATERIAL.getMaterial())
-                    .setDurability(FlashMenuLanguage.GRANTS_MENU_DEFAULT_GRANT_BUTTON_DATA.getInt())
-                    .setName(FlashMenuLanguage.GRANTS_MENU_DEFAULT_GRANT_BUTTON_NAME.getString(),
-                            "%ADDEDAT%", grant.getAddedAtDate(),
-                            "%ADDEDBY%", UserUtils.formattedName(grant.getAddedBy()),
-                            "%ADDEDFOR%", grant.getAddedReason(),
-                            "%TIMELEFT%", grant.getExpireString(),
-                            "%SCOPES%", StringUtils.join(grant.getScopes(), ", "),
-                            "%RANK%", grant.getRank().getDisplayName())
-                    .setLore(FlashMenuLanguage.GRANTS_MENU_DEFAULT_GRANT_BUTTON_LORE.getStringList(),
-                            "%ADDEDAT%", grant.getAddedAtDate(),
-                            "%ADDEDBY%", UserUtils.formattedName(grant.getAddedBy()),
-                            "%ADDEDFOR%", grant.getAddedReason(),
-                            "%SCOPES%", StringUtils.join(grant.getScopes(), ", "),
-                            "%TIMELEFT%", grant.getExpireString(),
-                            "%RANK%", grant.getRank().getDisplayName()
+        override fun getItem(): ItemStack? {
+            return if (grant!!.isRemoved) {
+                ItemBuilder(FlashMenuLanguage.GRANTS_MENU_REMOVED_GRANT_BUTTON_MATERIAL.material)
+                    .setDurability(FlashMenuLanguage.GRANTS_MENU_REMOVED_GRANT_BUTTON_DATA.int)
+                    .setName(
+                        FlashMenuLanguage.GRANTS_MENU_REMOVED_GRANT_BUTTON_NAME.string,
+                        "%ADDEDAT%", grant!!.addedAtDate,
+                        "%ADDEDBY%", UserUtils.formattedName(grant.getAddedBy()),
+                        "%ADDEDFOR%", grant.getAddedReason(),
+                        "%TIMELEFT%", grant!!.expireString,
+                        "%SCOPES%", StringUtils.join(grant.getScopes(), ", "),
+                        "%REMOVEDAT%", grant!!.removedAtDate,
+                        "%REMOVEDBY%", UserUtils.formattedName(grant.getRemovedBy()),
+                        "%REMOVEDFOR%", grant.getRemovedFor(),
+                        "%RANK%", grant!!.rank!!.getDisplayName()
                     )
-                    .create();
+                    .setLore(
+                        FlashMenuLanguage.GRANTS_MENU_REMOVED_GRANT_BUTTON_LORE.stringList,
+                        "%ADDEDAT%", grant!!.addedAtDate,
+                        "%ADDEDBY%", UserUtils.formattedName(grant.getAddedBy()),
+                        "%ADDEDFOR%", grant.getAddedReason(),
+                        "%SCOPES%", StringUtils.join(grant.getScopes(), ", "),
+                        "%TIMELEFT%", grant!!.expireString,
+                        "%REMOVEDAT%", grant!!.removedAtDate,
+                        "%REMOVEDBY%", UserUtils.formattedName(grant.getRemovedBy()),
+                        "%REMOVEDFOR%", grant.getRemovedFor(),
+                        "%RANK%", grant!!.rank!!.getDisplayName()
+                    )
+                    .create()
+            } else ItemBuilder(FlashMenuLanguage.GRANTS_MENU_DEFAULT_GRANT_BUTTON_MATERIAL.material)
+                .setDurability(FlashMenuLanguage.GRANTS_MENU_DEFAULT_GRANT_BUTTON_DATA.int)
+                .setName(
+                    FlashMenuLanguage.GRANTS_MENU_DEFAULT_GRANT_BUTTON_NAME.string,
+                    "%ADDEDAT%", grant!!.addedAtDate,
+                    "%ADDEDBY%", UserUtils.formattedName(grant.getAddedBy()),
+                    "%ADDEDFOR%", grant.getAddedReason(),
+                    "%TIMELEFT%", grant!!.expireString,
+                    "%SCOPES%", StringUtils.join(grant.getScopes(), ", "),
+                    "%RANK%", grant!!.rank!!.getDisplayName()
+                )
+                .setLore(
+                    FlashMenuLanguage.GRANTS_MENU_DEFAULT_GRANT_BUTTON_LORE.stringList,
+                    "%ADDEDAT%", grant!!.addedAtDate,
+                    "%ADDEDBY%", UserUtils.formattedName(grant.getAddedBy()),
+                    "%ADDEDFOR%", grant.getAddedReason(),
+                    "%SCOPES%", StringUtils.join(grant.getScopes(), ", "),
+                    "%TIMELEFT%", grant!!.expireString,
+                    "%RANK%", grant!!.rank!!.getDisplayName()
+                )
+                .create()
         }
 
-        @Override
-        public void action(InventoryClickEvent event) {
-            if (!(event.getWhoClicked() instanceof Player)) return;
-
-            Player player = (Player) event.getWhoClicked();
-
-            if (grant.isRemoved()) {
-                return;
+        override fun action(event: InventoryClickEvent) {
+            if (event.whoClicked !is Player) return
+            val player = event.whoClicked as Player
+            if (grant!!.isRemoved) {
+                return
             }
-
-            GrantListener.grantRemoveMap.put(player.getName(), grant);
-            GrantListener.grantTargetRemoveMap.put(player.getName(), target);
-            player.closeInventory();
-            player.sendMessage(CC.translate("&aType the reason for removing this grant. Type 'cancel' to stop this process."));
+            GrantListener.Companion.grantRemoveMap.put(player.name, grant)
+            GrantListener.Companion.grantTargetRemoveMap.put(player.name, target)
+            player.closeInventory()
+            player.sendMessage(CC.translate("&aType the reason for removing this grant. Type 'cancel' to stop this process."))
         }
     }
 
     @AllArgsConstructor
-    private static class PermissionButton extends Button {
-
-        public UUID target;
-        public UserPermission permission;
-        private int slot;
-
-        @Override
-        public int getSlot() {
-            return slot;
+    private class PermissionButton : Button() {
+        var target: UUID? = null
+        var permission: UserPermission? = null
+        private override val slot = 0
+        override fun getSlot(): Int {
+            return slot
         }
 
-        @Override
-        public ItemStack getItem() {
-            if (permission.isRemoved()) {
-                return new ItemBuilder(FlashMenuLanguage.GRANTS_MENU_REMOVED_PERMISSION_BUTTON_MATERIAL.getMaterial())
-                        .setDurability(FlashMenuLanguage.GRANTS_MENU_REMOVED_PERMISSION_BUTTON_DATA.getInt())
-                        .setName(FlashMenuLanguage.GRANTS_MENU_REMOVED_PERMISSION_BUTTON_NAME.getString(),
-                                "%ADDEDAT%", permission.getAddedAtDate(),
-                                "%ADDEDBY%", UserUtils.formattedName(permission.getSentBy()),
-                                "%ADDEDFOR%", permission.getSentFor(),
-                                "%REMOVEDAT%", permission.getRemovedAtDate(),
-                                "%REMOVEDBY%", UserUtils.formattedName(permission.getRemovedBy()),
-                                "%REMOVEDFOR%", permission.getRemovedFor(),
-                                "%PERMISSION%", permission.getNode())
-                        .setLore(FlashMenuLanguage.GRANTS_MENU_REMOVED_PERMISSION_BUTTON_LORE.getStringList(),
-                                "%ADDEDAT%", permission.getAddedAtDate(),
-                                "%ADDEDBY%", UserUtils.formattedName(permission.getSentBy()),
-                                "%ADDEDFOR%", permission.getSentFor(),
-                                "%REMOVEDAT%", permission.getRemovedAtDate(),
-                                "%REMOVEDBY%", UserUtils.formattedName(permission.getRemovedBy()),
-                                "%REMOVEDFOR%", permission.getRemovedFor(),
-                                "%PERMISSION%", permission.getNode())
-                        .create();
-            }
-            return new ItemBuilder(FlashMenuLanguage.GRANTS_MENU_DEFAULT_PERMISSION_BUTTON_MATERIAL.getMaterial())
-                    .setDurability(FlashMenuLanguage.GRANTS_MENU_DEFAULT_PERMISSION_BUTTON_DATA.getInt())
-                    .setName(FlashMenuLanguage.GRANTS_MENU_DEFAULT_PERMISSION_BUTTON_NAME.getString(),
-                            "%ADDEDAT%", permission.getAddedAtDate(),
-                            "%ADDEDBY%", UserUtils.formattedName(permission.getSentBy()),
-                            "%ADDEDFOR%", permission.getSentFor(),
-                            "%TIMELEFT%", permission.getExpireString(),
-                            "%PERMISSION%", permission.getNode())
-                    .setLore(FlashMenuLanguage.GRANTS_MENU_DEFAULT_PERMISSION_BUTTON_LORE.getStringList(),
-                            "%ADDEDAT%", permission.getAddedAtDate(),
-                            "%ADDEDBY%", UserUtils.formattedName(permission.getSentBy()),
-                            "%TIMELEFT%", permission.getExpireString(),
-                            "%ADDEDFOR%", permission.getSentFor(),
-                            "%PERMISSION%", permission.getNode()
+        override fun getItem(): ItemStack? {
+            return if (permission.isRemoved()) {
+                ItemBuilder(FlashMenuLanguage.GRANTS_MENU_REMOVED_PERMISSION_BUTTON_MATERIAL.material)
+                    .setDurability(FlashMenuLanguage.GRANTS_MENU_REMOVED_PERMISSION_BUTTON_DATA.int)
+                    .setName(
+                        FlashMenuLanguage.GRANTS_MENU_REMOVED_PERMISSION_BUTTON_NAME.string,
+                        "%ADDEDAT%", permission!!.addedAtDate,
+                        "%ADDEDBY%", UserUtils.formattedName(permission.getSentBy()),
+                        "%ADDEDFOR%", permission.getSentFor(),
+                        "%REMOVEDAT%", permission!!.removedAtDate,
+                        "%REMOVEDBY%", UserUtils.formattedName(permission.getRemovedBy()),
+                        "%REMOVEDFOR%", permission.getRemovedFor(),
+                        "%PERMISSION%", permission.getNode()
                     )
-                    .create();
+                    .setLore(
+                        FlashMenuLanguage.GRANTS_MENU_REMOVED_PERMISSION_BUTTON_LORE.stringList,
+                        "%ADDEDAT%", permission!!.addedAtDate,
+                        "%ADDEDBY%", UserUtils.formattedName(permission.getSentBy()),
+                        "%ADDEDFOR%", permission.getSentFor(),
+                        "%REMOVEDAT%", permission!!.removedAtDate,
+                        "%REMOVEDBY%", UserUtils.formattedName(permission.getRemovedBy()),
+                        "%REMOVEDFOR%", permission.getRemovedFor(),
+                        "%PERMISSION%", permission.getNode()
+                    )
+                    .create()
+            } else ItemBuilder(FlashMenuLanguage.GRANTS_MENU_DEFAULT_PERMISSION_BUTTON_MATERIAL.material)
+                .setDurability(FlashMenuLanguage.GRANTS_MENU_DEFAULT_PERMISSION_BUTTON_DATA.int)
+                .setName(
+                    FlashMenuLanguage.GRANTS_MENU_DEFAULT_PERMISSION_BUTTON_NAME.string,
+                    "%ADDEDAT%", permission!!.addedAtDate,
+                    "%ADDEDBY%", UserUtils.formattedName(permission.getSentBy()),
+                    "%ADDEDFOR%", permission.getSentFor(),
+                    "%TIMELEFT%", permission!!.expireString,
+                    "%PERMISSION%", permission.getNode()
+                )
+                .setLore(
+                    FlashMenuLanguage.GRANTS_MENU_DEFAULT_PERMISSION_BUTTON_LORE.stringList,
+                    "%ADDEDAT%", permission!!.addedAtDate,
+                    "%ADDEDBY%", UserUtils.formattedName(permission.getSentBy()),
+                    "%TIMELEFT%", permission!!.expireString,
+                    "%ADDEDFOR%", permission.getSentFor(),
+                    "%PERMISSION%", permission.getNode()
+                )
+                .create()
         }
 
-        @Override
-        public void action(InventoryClickEvent event) {
-            if (!(event.getWhoClicked() instanceof Player)) return;
-
-            Player player = (Player) event.getWhoClicked();
-
+        override fun action(event: InventoryClickEvent) {
+            if (event.whoClicked !is Player) return
+            val player = event.whoClicked as Player
             if (permission.isRemoved()) {
-                return;
+                return
             }
-
-            GrantListener.grantRemovePermMap.put(player.getName(), permission);
-            GrantListener.grantTargetRemoveMap.put(player.getName(), target);
-            player.closeInventory();
-            player.sendMessage(CC.translate("&aType the reason for removing this grant. Type 'cancel' to stop this process."));
+            GrantListener.Companion.grantRemovePermMap.put(player.name, permission)
+            GrantListener.Companion.grantTargetRemoveMap.put(player.name, target)
+            player.closeInventory()
+            player.sendMessage(CC.translate("&aType the reason for removing this grant. Type 'cancel' to stop this process."))
         }
     }
 }

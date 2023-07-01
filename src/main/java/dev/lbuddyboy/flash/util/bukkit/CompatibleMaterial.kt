@@ -1,21 +1,18 @@
-package dev.lbuddyboy.flash.util.bukkit;
+package dev.lbuddyboy.flash.util.bukkit
 
-import org.bukkit.Material;
+import org.bukkit.Material
 
-public class CompatibleMaterial {
-
-    public static Material getMaterial(String name) {
-        try {
-            return Material.getMaterial(name);
-        } catch (Exception ignored) {
-            if (name.equalsIgnoreCase("SKULL_ITEM")) {
-                return Material.getMaterial("PLAYER_HEAD");
+object CompatibleMaterial {
+    fun getMaterial(name: String): Material {
+        return try {
+            Material.getMaterial(name)
+        } catch (ignored: Exception) {
+            if (name.equals("SKULL_ITEM", ignoreCase = true)) {
+                return Material.getMaterial("PLAYER_HEAD")
             }
-            if (name.equalsIgnoreCase("BARRIER")) {
-                return Material.REDSTONE_BLOCK;
-            }
-            return Material.getMaterial("LEGACY_" + name);
+            if (name.equals("BARRIER", ignoreCase = true)) {
+                Material.REDSTONE_BLOCK
+            } else Material.getMaterial("LEGACY_$name")
         }
     }
-
 }

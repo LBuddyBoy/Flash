@@ -1,137 +1,139 @@
-package dev.lbuddyboy.flash.user.menu;
+package dev.lbuddyboy.flash.user.menu
 
-import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.FlashMenuLanguage;
-import dev.lbuddyboy.flash.user.listener.PunishmentListener;
-import dev.lbuddyboy.flash.user.model.Punishment;
-import dev.lbuddyboy.flash.user.model.PunishmentType;
-import dev.lbuddyboy.flash.util.bukkit.CC;
-import dev.lbuddyboy.flash.util.bukkit.ItemBuilder;
-import dev.lbuddyboy.flash.util.bukkit.UserUtils;
-import dev.lbuddyboy.flash.util.menu.Button;
-import dev.lbuddyboy.flash.util.menu.button.BackButton;
-import dev.lbuddyboy.flash.util.menu.paged.PagedMenu;
-import lombok.AllArgsConstructor;
-import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.ItemStack;
+import dev.lbuddyboy.flash.Flash
+import dev.lbuddyboy.flash.FlashMenuLanguage
+import dev.lbuddyboy.flash.user.listener.PunishmentListener
+import dev.lbuddyboy.flash.user.model.Punishment
+import dev.lbuddyboy.flash.user.model.PunishmentType
+import dev.lbuddyboy.flash.util.bukkit.CC
+import dev.lbuddyboy.flash.util.bukkit.ItemBuilder
+import dev.lbuddyboy.flash.util.bukkit.UserUtils
+import dev.lbuddyboy.flash.util.menu.Button
+import dev.lbuddyboy.flash.util.menu.button.BackButton
+import dev.lbuddyboy.flash.util.menu.paged.PagedMenu
+import lombok.AllArgsConstructor
+import org.bukkit.entity.Player
+import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.inventory.ItemStack
+import java.util.*
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
-public class PunishmentHistoryMenu extends PagedMenu<Punishment> {
-
-    public UUID target;
-    public PunishmentType type;
-
-    public PunishmentHistoryMenu(UUID target, PunishmentType type) {
-        this.target = target;
-        this.type = type;
-        this.objects = Flash.getInstance().getUserHandler().tryUser(this.target, true).getSortedPunishmentsByType(type);
+class PunishmentHistoryMenu(var target: UUID?, var type: PunishmentType?) : PagedMenu<Punishment?>() {
+    init {
+        objects = Flash.instance.userHandler.tryUser(target, true).getSortedPunishmentsByType(
+            type
+        )
     }
 
-    @Override
-    public String getPageTitle(Player player) {
-        return CC.translate(CC.applyTarget(FlashMenuLanguage.PUNISHMENTS_MENU_TITLE.getString(), target), "%PUNISHMENT_PLURAL%", type.getPlural());
+    override fun getPageTitle(player: Player?): String? {
+        return CC.translate(
+            CC.applyTarget(FlashMenuLanguage.PUNISHMENTS_MENU_TITLE.string, target),
+            "%PUNISHMENT_PLURAL%",
+            type!!.plural
+        )
     }
 
-    @Override
-    public List<Button> getPageButtons(Player player) {
-        List<Button> buttons = new ArrayList<>();
-
-        int i = 0;
-        for (Punishment punishment : this.objects) {
-            if (punishment.getType() != type) continue;
-            buttons.add(new PunishmentButton(i++, punishment));
+    override fun getPageButtons(player: Player): List<Button> {
+        val buttons: MutableList<Button> = ArrayList()
+        var i = 0
+        for (punishment in objects!!) {
+            if (punishment.getType() != type) continue
+            buttons.add(PunishmentButton(i++, punishment))
         }
-
-        return buttons;
+        return buttons
     }
 
-    @Override
-    public boolean autoFill() {
-        return true;
+    override fun autoFill(): Boolean {
+        return true
     }
 
-    @Override
-    public List<Button> getGlobalButtons(Player player) {
-        List<Button> buttons = new ArrayList<>();
-
-        buttons.add(new BackButton(5, new PunishmentHistorySelectionMenu(target)));
-
-        return buttons;
+    override fun getGlobalButtons(player: Player?): List<Button> {
+        val buttons: MutableList<Button> = ArrayList()
+        buttons.add(BackButton(5, PunishmentHistorySelectionMenu(target)))
+        return buttons
     }
 
-    @Override
-    public boolean autoUpdate() {
-        return true;
+    override fun autoUpdate(): Boolean {
+        return true
     }
 
     @AllArgsConstructor
-    private static class PunishmentButton extends Button {
-
-        public int slot;
-        public Punishment punishment;
-
-        @Override
-        public int getSlot() {
-            return slot;
+    private class PunishmentButton : Button() {
+        override var slot = 0
+        var punishment: Punishment? = null
+        override fun getSlot(): Int {
+            return slot
         }
 
-        @Override
-        public ItemStack getItem() {
-            if (punishment.isRemoved() || punishment.isExpired()) {
-                return new ItemBuilder(FlashMenuLanguage.PUNISHMENTS_MENU_REMOVED_PUNISHMENT_BUTTON_MATERIAL.getMaterial())
-                        .setLore(FlashMenuLanguage.PUNISHMENTS_MENU_REMOVED_PUNISHMENT_BUTTON_LORE.getStringList(),
-                                "%ADDEDBY%", UserUtils.formattedName(punishment.getSentBy()),
-                                "%ADDEDFOR%", punishment.getSentFor(),
-                                "%ADDEDAT%", punishment.getAddedAtDate(),
-                                "%TIMELEFT%", punishment.getExpireString(),
-                                "%SERVER%", punishment.getServer(),
-                                "%REMOVEDBY%", punishment.isExpired() ? "&4Console" : UserUtils.formattedName(punishment.getRemovedBy()),
-                                "%REMOVEDFOR%", punishment.isExpired() ? "Expired" : punishment.getRemovedFor(),
-                                "%REMOVEDAT%", punishment.isExpired() ? punishment.getExpiresAtDate() : punishment.getRemovedAtDate()
-                        )
-                        .setName(FlashMenuLanguage.PUNISHMENTS_MENU_REMOVED_PUNISHMENT_BUTTON_NAME.getString(),
-                                "%ADDEDBY%", UserUtils.formattedName(punishment.getSentBy()),
-                                "%ADDEDFOR%", punishment.getSentFor(),
-                                "%ADDEDAT%", punishment.getAddedAtDate(),
-                                "%TIMELEFT%", punishment.getExpireString(),
-                                "%SERVER%", punishment.getServer(),
-                                "%REMOVEDBY%", punishment.isExpired() ? "&4Console" : UserUtils.formattedName(punishment.getRemovedBy()),
-                                "%REMOVEDFOR%", punishment.isExpired() ? "Expired" : punishment.getRemovedFor(),
-                                "%REMOVEDAT%", punishment.isExpired() ? punishment.getExpiresAtDate() : punishment.getRemovedAtDate())
-                        .setDurability(FlashMenuLanguage.PUNISHMENTS_MENU_REMOVED_PUNISHMENT_BUTTON_DATA.getInt())
-                        .create();
-            }
-            return new ItemBuilder(FlashMenuLanguage.PUNISHMENTS_MENU_PUNISHMENT_BUTTON_MATERIAL.getMaterial())
-                    .setName(FlashMenuLanguage.PUNISHMENTS_MENU_PUNISHMENT_BUTTON_NAME.getString(),
-                            "%ADDEDBY%", UserUtils.formattedName(punishment.getSentBy()),
-                            "%SERVER%", punishment.getServer(),
-                            "%ADDEDFOR%", punishment.getSentFor(),
-                            "%ADDEDAT%", punishment.getAddedAtDate(),
-                            "%TIMELEFT%", punishment.getExpireString())
-                    .setLore(FlashMenuLanguage.PUNISHMENTS_MENU_PUNISHMENT_BUTTON_LORE.getStringList(),
-                            "%ADDEDBY%", UserUtils.formattedName(punishment.getSentBy()),
-                            "%SERVER%", punishment.getServer(),
-                            "%ADDEDFOR%", punishment.getSentFor(),
-                            "%ADDEDAT%", punishment.getAddedAtDate(),
-                            "%TIMELEFT%", punishment.getExpireString()
+        override fun getItem(): ItemStack? {
+            return if (punishment.isRemoved() || punishment!!.isExpired) {
+                ItemBuilder(FlashMenuLanguage.PUNISHMENTS_MENU_REMOVED_PUNISHMENT_BUTTON_MATERIAL.material)
+                    .setLore(
+                        FlashMenuLanguage.PUNISHMENTS_MENU_REMOVED_PUNISHMENT_BUTTON_LORE.stringList,
+                        "%ADDEDBY%",
+                        UserUtils.formattedName(punishment.getSentBy()),
+                        "%ADDEDFOR%",
+                        punishment.getSentFor(),
+                        "%ADDEDAT%",
+                        punishment!!.addedAtDate,
+                        "%TIMELEFT%",
+                        punishment!!.expireString,
+                        "%SERVER%",
+                        punishment.getServer(),
+                        "%REMOVEDBY%",
+                        if (punishment!!.isExpired) "&4Console" else UserUtils.formattedName(punishment.getRemovedBy()),
+                        "%REMOVEDFOR%",
+                        if (punishment!!.isExpired) "Expired" else punishment.getRemovedFor(),
+                        "%REMOVEDAT%",
+                        if (punishment!!.isExpired) punishment!!.expiresAtDate else punishment!!.removedAtDate
                     )
-                    .setDurability(FlashMenuLanguage.PUNISHMENTS_MENU_PUNISHMENT_BUTTON_DATA.getInt())
-                    .create();
+                    .setName(
+                        FlashMenuLanguage.PUNISHMENTS_MENU_REMOVED_PUNISHMENT_BUTTON_NAME.string,
+                        "%ADDEDBY%",
+                        UserUtils.formattedName(punishment.getSentBy()),
+                        "%ADDEDFOR%",
+                        punishment.getSentFor(),
+                        "%ADDEDAT%",
+                        punishment!!.addedAtDate,
+                        "%TIMELEFT%",
+                        punishment!!.expireString,
+                        "%SERVER%",
+                        punishment.getServer(),
+                        "%REMOVEDBY%",
+                        if (punishment!!.isExpired) "&4Console" else UserUtils.formattedName(punishment.getRemovedBy()),
+                        "%REMOVEDFOR%",
+                        if (punishment!!.isExpired) "Expired" else punishment.getRemovedFor(),
+                        "%REMOVEDAT%",
+                        if (punishment!!.isExpired) punishment!!.expiresAtDate else punishment!!.removedAtDate
+                    )
+                    .setDurability(FlashMenuLanguage.PUNISHMENTS_MENU_REMOVED_PUNISHMENT_BUTTON_DATA.int)
+                    .create()
+            } else ItemBuilder(FlashMenuLanguage.PUNISHMENTS_MENU_PUNISHMENT_BUTTON_MATERIAL.material)
+                .setName(
+                    FlashMenuLanguage.PUNISHMENTS_MENU_PUNISHMENT_BUTTON_NAME.string,
+                    "%ADDEDBY%", UserUtils.formattedName(punishment.getSentBy()),
+                    "%SERVER%", punishment.getServer(),
+                    "%ADDEDFOR%", punishment.getSentFor(),
+                    "%ADDEDAT%", punishment!!.addedAtDate,
+                    "%TIMELEFT%", punishment!!.expireString
+                )
+                .setLore(
+                    FlashMenuLanguage.PUNISHMENTS_MENU_PUNISHMENT_BUTTON_LORE.stringList,
+                    "%ADDEDBY%", UserUtils.formattedName(punishment.getSentBy()),
+                    "%SERVER%", punishment.getServer(),
+                    "%ADDEDFOR%", punishment.getSentFor(),
+                    "%ADDEDAT%", punishment!!.addedAtDate,
+                    "%TIMELEFT%", punishment!!.expireString
+                )
+                .setDurability(FlashMenuLanguage.PUNISHMENTS_MENU_PUNISHMENT_BUTTON_DATA.int)
+                .create()
         }
 
-        @Override
-        public void action(InventoryClickEvent event) {
-            if (!(event.getWhoClicked() instanceof Player)) return;
-            Player player = (Player) event.getWhoClicked();
-
-            player.closeInventory();
-            PunishmentListener.punishmentRemovePermMap.put(player.getName(), punishment);
-            player.sendMessage(CC.translate("&aType the reason for resolving this punishment."));
+        override fun action(event: InventoryClickEvent) {
+            if (event.whoClicked !is Player) return
+            val player = event.whoClicked as Player
+            player.closeInventory()
+            PunishmentListener.Companion.punishmentRemovePermMap.put(player.name, punishment)
+            player.sendMessage(CC.translate("&aType the reason for resolving this punishment."))
         }
     }
-
 }

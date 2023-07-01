@@ -1,20 +1,14 @@
-package dev.lbuddyboy.flash.server.packet;
+package dev.lbuddyboy.flash.server.packet
 
-import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.redis.JedisPacket;
-import dev.lbuddyboy.flash.server.Server;
-import dev.lbuddyboy.flash.server.model.Notification;
-import lombok.AllArgsConstructor;
-
-import java.util.List;
+import dev.lbuddyboy.flash.Flash
+import dev.lbuddyboy.flash.redis.JedisPacket
+import dev.lbuddyboy.flash.server.model.Notification
+import lombok.AllArgsConstructor
 
 @AllArgsConstructor
-public class NotificationsUpdatePacket implements JedisPacket {
-
-    private List<Notification> notifications;
-
-    @Override
-    public void onReceive() {
-        Flash.getInstance().getServerHandler().setNotifications(this.notifications);
+class NotificationsUpdatePacket : JedisPacket {
+    private val notifications: List<Notification>? = null
+    override fun onReceive() {
+        Flash.instance.serverHandler.setNotifications(notifications)
     }
 }

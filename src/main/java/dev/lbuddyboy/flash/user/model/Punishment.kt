@@ -1,132 +1,118 @@
-package dev.lbuddyboy.flash.user.model;
+package dev.lbuddyboy.flash.user.model
 
-import dev.lbuddyboy.flash.FlashLanguage;
-import dev.lbuddyboy.flash.util.bukkit.CC;
-import dev.lbuddyboy.flash.util.TimeUtils;
-import dev.lbuddyboy.flash.util.bukkit.UserUtils;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
-import org.bukkit.Bukkit;
-
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
-import java.util.UUID;
+import dev.lbuddyboy.flash.FlashLanguage
+import dev.lbuddyboy.flash.util.TimeUtils
+import dev.lbuddyboy.flash.util.bukkit.CC
+import dev.lbuddyboy.flash.util.bukkit.UserUtils
+import lombok.*
+import org.bukkit.Bukkit
+import org.bukkit.entity.Player
+import java.text.SimpleDateFormat
+import java.util.*
 
 @RequiredArgsConstructor
 @Data
-public class Punishment {
+class Punishment {
+    private val id: UUID? = null
+    private val type: PunishmentType? = null
+    private val target: UUID? = null
+    private val sentBy: UUID? = null
+    private val sentAt: Long = 0
+    private val duration: Long = 0
+    private val sentFor: String? = null
+    private val server: String? = null
+    private val sentSilent = false
+    private val removed = false
+    private val removedBy: UUID? = null
+    private val removedFor: String? = null
+    private val removedAt: Long = 0
+    private val removedSilent = false
+    fun getExpireString(): String? {
+        return if (isPermanent()) {
+            "Forever"
+        } else TimeUtils.formatLongIntoDetailedString((getExpiry() - System.currentTimeMillis()) / 1000)
+    }
 
-    private final UUID id;
-    private final PunishmentType type;
-    private final UUID target;
-    private final UUID sentBy;
-    private final long sentAt, duration;
-    private final String sentFor;
-    private final String server;
-    private final boolean sentSilent;
+    fun getExpiry(): Long {
+        return sentAt + duration
+    }
 
-    private boolean removed;
-    private UUID removedBy;
-    private String removedFor;
-    private long removedAt;
-    private boolean removedSilent;
-
-    public String getExpireString() {
+    fun isExpired(): Boolean {
         if (isPermanent()) {
-            return "Forever";
+            return false
         }
-        return TimeUtils.formatLongIntoDetailedString((getExpiry() - System.currentTimeMillis()) / 1000);
+        return if (isRemoved()) false else getExpiry() < System.currentTimeMillis()
     }
 
-    public long getExpiry() {
-        return (this.sentAt + this.duration);
+    fun isPermanent(): Boolean {
+        return duration == Long.MAX_VALUE
     }
 
-    public boolean isExpired() {
-        if (isPermanent()) {
-            return false;
-        }
-        if (isRemoved()) return false;
-        return getExpiry() < System.currentTimeMillis();
+    fun getAddedAtDate(): String {
+        val sdf = SimpleDateFormat()
+        sdf.timeZone = TimeZone.getTimeZone(FlashLanguage.TIMEZONE.string)
+        return sdf.format(sentAt)
     }
 
-    public boolean isPermanent() {
-        return this.duration == Long.MAX_VALUE;
+    fun getRemovedAtDate(): String {
+        val sdf = SimpleDateFormat()
+        sdf.timeZone = TimeZone.getTimeZone(FlashLanguage.TIMEZONE.string)
+        return sdf.format(removedAt)
     }
 
-    public String getAddedAtDate() {
-        SimpleDateFormat sdf = new SimpleDateFormat();
-        sdf.setTimeZone(TimeZone.getTimeZone(FlashLanguage.TIMEZONE.getString()));
-        return sdf.format(sentAt);
+    fun getExpiresAtDate(): String {
+        val sdf = SimpleDateFormat()
+        sdf.timeZone = TimeZone.getTimeZone(FlashLanguage.TIMEZONE.string)
+        return sdf.format(sentAt + duration)
     }
 
-    public String getRemovedAtDate() {
-        SimpleDateFormat sdf = new SimpleDateFormat();
-        sdf.setTimeZone(TimeZone.getTimeZone(FlashLanguage.TIMEZONE.getString()));
-        return sdf.format(removedAt);
-    }
-
-    public String getExpiresAtDate() {
-        SimpleDateFormat sdf = new SimpleDateFormat();
-        sdf.setTimeZone(TimeZone.getTimeZone(FlashLanguage.TIMEZONE.getString()));
-        return sdf.format(sentAt + duration);
-    }
-
-    public void announce() {
-        if (this.removed) {
-            String sender = UserUtils.formattedName(this.removedBy);
-            String target = UserUtils.formattedName(this.target);
-
-            String format = this.sentSilent ? FlashLanguage.PUNISHMENT_UNPUNISH_SILENT_BROADCAST_FORMAT.getString() : FlashLanguage.PUNISHMENT_UNPUNISH_PUBLIC_BROADCAST_FORMAT.getString();
-
+    fun announce() {
+        if (removed) {
+            val sender = UserUtils.formattedName(removedBy)
+            val target = UserUtils.formattedName(target)
+            var format =
+                if (sentSilent) FlashLanguage.PUNISHMENT_UNPUNISH_SILENT_BROADCAST_FORMAT.string else FlashLanguage.PUNISHMENT_UNPUNISH_PUBLIC_BROADCAST_FORMAT.string
             format = format
-                    .replaceAll("%TIME%", isPermanent() ? "permanently" : "temporarily")
-                    .replaceAll("%TARGET_COLORED%", target)
-                    .replaceAll("%FORMAT%", "un" + this.type.getFormat())
-                    .replaceAll("%SENDER_DISPLAY%", sender);
-
-            Bukkit.getConsoleSender().sendMessage(CC.translate(format));
-
-            String finalFormat = format;
-
-            Bukkit.getOnlinePlayers().forEach(player -> {
+                .replace("%TIME%".toRegex(), if (isPermanent()) "permanently" else "temporarily")
+                .replace("%TARGET_COLORED%".toRegex(), target!!)
+                .replace("%FORMAT%".toRegex(), "un" + type.getFormat())
+                .replace("%SENDER_DISPLAY%".toRegex(), sender!!)
+            Bukkit.getConsoleSender().sendMessage(CC.translate(format))
+            val finalFormat = format
+            Bukkit.getOnlinePlayers().forEach { player: Player ->
                 if (!player.hasPermission("flash.staff") && this.isSentSilent()) {
-                    return;
+                    return@forEach
                 }
-                player.sendMessage(CC.translate(finalFormat));
-            });
-
-            return;
-        }
-        String sender = UserUtils.formattedName(this.sentBy);
-        String target = UserUtils.formattedName(this.target);
-
-        String format = this.sentSilent ? FlashLanguage.PUNISHMENT_PUNISH_SILENT_BROADCAST_FORMAT.getString() : FlashLanguage.PUNISHMENT_PUNISH_PUBLIC_BROADCAST_FORMAT.getString();
-
-        format = format
-                .replaceAll("%TIME%", isPermanent() ? "permanently" : "temporarily")
-                .replaceAll("%TARGET_COLORED%", target)
-                .replaceAll("%FORMAT%", this.type.getFormat())
-                .replaceAll("%SENDER_DISPLAY%", sender);
-
-        Bukkit.getConsoleSender().sendMessage(CC.translate(format));
-
-        String finalFormat = format;
-
-        Bukkit.getOnlinePlayers().forEach(player -> {
-            if (!player.hasPermission("flash.staff") && this.isSentSilent()) {
-                return;
+                player.sendMessage(CC.translate(finalFormat))
             }
-            player.sendMessage(CC.translate(finalFormat));
-        });
-
+            return
+        }
+        val sender = UserUtils.formattedName(sentBy)
+        val target = UserUtils.formattedName(target)
+        var format =
+            if (sentSilent) FlashLanguage.PUNISHMENT_PUNISH_SILENT_BROADCAST_FORMAT.string else FlashLanguage.PUNISHMENT_PUNISH_PUBLIC_BROADCAST_FORMAT.string
+        format = format
+            .replace("%TIME%".toRegex(), if (isPermanent()) "permanently" else "temporarily")
+            .replace("%TARGET_COLORED%".toRegex(), target!!)
+            .replace("%FORMAT%".toRegex(), type.getFormat())
+            .replace("%SENDER_DISPLAY%".toRegex(), sender)
+        Bukkit.getConsoleSender().sendMessage(CC.translate(format))
+        val finalFormat = format
+        Bukkit.getOnlinePlayers().forEach { player: Player ->
+            if (!player.hasPermission("flash.staff") && this.isSentSilent()) {
+                return@forEach
+            }
+            player.sendMessage(CC.translate(finalFormat))
+        }
     }
 
-    public String format() {
-        return CC.translate(this.type.getKickMessage(),
-                "%REASON%", this.sentFor,
-                "%TEMP-FORMAT%", FlashLanguage.PUNISHMENT_TEMPORARY_FORMAT.getString().replaceAll("%TIME%", getExpireString())
-        );
+    fun format(): String? {
+        return CC.translate(
+            type!!.kickMessage,
+            "%REASON%",
+            sentFor!!,
+            "%TEMP-FORMAT%",
+            FlashLanguage.PUNISHMENT_TEMPORARY_FORMAT.string.replace("%TIME%".toRegex(), getExpireString()!!)
+        )
     }
-
 }

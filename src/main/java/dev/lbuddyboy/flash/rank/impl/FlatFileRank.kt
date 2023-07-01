@@ -1,88 +1,69 @@
-package dev.lbuddyboy.flash.rank.impl;
+package dev.lbuddyboy.flash.rank.impl
 
-import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.rank.Rank;
-import dev.lbuddyboy.flash.user.User;
-import org.bukkit.ChatColor;
-import org.bukkit.configuration.file.FileConfiguration;
+import dev.lbuddyboy.flash.Flashimport
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+dev.lbuddyboy.flash.rank.Rankimport org.bukkit.*import org.bukkit.configuration.file.FileConfigurationimport
 
-public class FlatFileRank extends Rank {
-
-    public FlatFileRank(String name) {
-        this.uuid = UUID.randomUUID();
-        this.name = name;
-
-        load();
+java.io.IOExceptionimport java.util.*
+class FlatFileRank : Rank {
+    constructor(name: String?) {
+        uuid = UUID.randomUUID()
+        this.name = name
+        load()
     }
 
-    public FlatFileRank(UUID uuid, String name) {
-        this.uuid = uuid;
-        this.name = name;
-
-        load();
+    constructor(uuid: UUID?, name: String?) {
+        this.uuid = uuid
+        this.name = name
+        load()
     }
 
-    @Override
-    public void load() {
-        FileConfiguration config = Flash.getInstance().getRankHandler().getRanksYML().gc();
-
+    override fun load() {
+        val config: FileConfiguration = Flash.instance.rankHandler.getRanksYML().gc()
         if (!config.contains("ranks." + getUuid().toString())) {
-            save(true, true);
-            return;
+            save(true, true)
+            return
         }
-
-        String path = "ranks." + getUuid().toString() + ".";
-
-        this.name = config.getString(path + "name");
-        this.displayName = config.getString(path + "displayName");
-        this.color = ChatColor.valueOf(config.getString(path + "color"));
-        this.weight = config.getInt(path + "weight");
-        this.defaultRank = config.getBoolean(path + "default");
-        this.staff = config.getBoolean(path + "staff");
-        this.prefix = config.getString(path + "prefix");
-        this.suffix = config.getString(path + "suffix");
-        this.permissions = config.getStringList(path + "permissions");
-        this.inheritance = config.getStringList(path + "inheritance");
-
+        val path = "ranks." + getUuid().toString() + "."
+        name = config.getString(path + "name")
+        displayName = config.getString(path + "displayName")
+        color = ChatColor.valueOf(config.getString(path + "color"))
+        weight = config.getInt(path + "weight")
+        defaultRank = config.getBoolean(path + "default")
+        staff = config.getBoolean(path + "staff")
+        prefix = config.getString(path + "prefix")
+        suffix = config.getString(path + "suffix")
+        permissions = config.getStringList(path + "permissions")
+        inheritance = config.getStringList(path + "inheritance")
     }
 
-    @Override
-    public void delete() {
+    override fun delete() {
         // No clue how to delete shit from a yaml file
     }
 
-    @Override
-    public void save(boolean async) {
-        save(async, false);
+    override fun save(async: Boolean) {
+        save(async, false)
     }
 
-    private void save(boolean async, boolean reload) {
-        FileConfiguration config = Flash.getInstance().getRankHandler().getRanksYML().gc();
-        String path = "ranks." + getUuid().toString() + ".";
-
-        config.set(path + "uuid", this.uuid.toString());
-        config.set(path + "name", this.name);
-        config.set(path + "displayName", this.displayName);
-        config.set(path + "color", this.color.name());
-        config.set(path + "weight", this.weight);
-        config.set(path + "default", this.defaultRank);
-        config.set(path + "staff", this.staff);
-        config.set(path + "prefix", this.prefix);
-        config.set(path + "suffix", this.suffix);
-        config.set(path + "permissions", this.permissions);
-        config.set(path + "inheritance", this.inheritance);
-
+    private fun save(async: Boolean, reload: Boolean) {
+        val config: FileConfiguration = Flash.instance.rankHandler.getRanksYML().gc()
+        val path = "ranks." + getUuid().toString() + "."
+        config[path + "uuid"] = uuid.toString()
+        config[path + "name"] = name
+        config[path + "displayName"] = displayName
+        config[path + "color"] = color.name
+        config[path + "weight"] = weight
+        config[path + "default"] = defaultRank
+        config[path + "staff"] = staff
+        config[path + "prefix"] = prefix
+        config[path + "suffix"] = suffix
+        config[path + "permissions"] = permissions
+        config[path + "inheritance"] = inheritance
         try {
-            Flash.getInstance().getRankHandler().getRanksYML().save();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            Flash.instance.rankHandler.getRanksYML().save()
+        } catch (e: IOException) {
+            throw RuntimeException(e)
         }
-        if (reload) load();
+        if (reload) load()
     }
-
 }

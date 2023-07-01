@@ -1,88 +1,90 @@
-package dev.lbuddyboy.flash.handler;
+package dev.lbuddyboy.flash.handler
 
-import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.schedule.Task;
-import dev.lbuddyboy.flash.util.JavaUtils;
-import dev.lbuddyboy.flash.util.TimeUtils;
-import dev.lbuddyboy.flash.util.YamlDoc;
-import dev.lbuddyboy.flash.util.bukkit.CC;
-import lombok.Getter;
-import org.bukkit.Bukkit;
-
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
+import dev.lbuddyboy.flash.Flash
+import dev.lbuddyboy.flash.schedule.Task
+import dev.lbuddyboy.flash.util.JavaUtils
+import dev.lbuddyboy.flash.util.TimeUtils
+import dev.lbuddyboy.flash.util.YamlDoc
+import dev.lbuddyboy.flash.util.bukkit.CC
+import lombok.Getter
+import org.bukkit.Bukkit
+import java.io.IOException
+import java.util.*
+import java.util.stream.Collectors
 
 @Getter
-public class ScheduleHandler {
+class ScheduleHandler {
+    private val tasks: MutableList<Task>
+    private val messageInterval: MutableMap<Task, MutableList<Long>?>
+    private val config: YamlDoc
 
-    private final List<Task> tasks;
-    private final Map<Task, List<Long>> messageInterval;
-    private final YamlDoc config;
-
-    public ScheduleHandler() {
-        this.tasks = new ArrayList<>();
-        this.messageInterval = new HashMap<>();
-        this.config = new YamlDoc(Flash.getInstance().getDataFolder(), "schedule.yml");
-
-        for (String key : this.config.gc().getConfigurationSection("schedule").getKeys(false)) {
-            this.tasks.add(new Task(key, new Date(this.config.gc().getLong(key + ".date")), this.config.gc().getString(key + ".command")));
+    init {
+        tasks = ArrayList()
+        messageInterval = HashMap()
+        config = YamlDoc(Flash.instance.dataFolder, "schedule.yml")
+        for (key in config.gc().getConfigurationSection("schedule").getKeys(false)) {
+            tasks.add(
+                Task(
+                    key, Date(config.gc().getLong("$key.date")), config.gc().getString(
+                        "$key.command"
+                    )
+                )
+            )
         }
-
-        Bukkit.getScheduler().runTaskTimerAsynchronously(Flash.getInstance(), () -> {
-            for (Task task : this.tasks) {
-                if (task.getDate().after(new Date())) {
-                    Bukkit.getScheduler().runTask(Flash.getInstance(), () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), task.getCommand()));
-                    this.tasks.remove(task);
-                    this.messageInterval.remove(task);
-                    this.config.gc().set("schedule." + task.getId() + ".executed", true);
+        Bukkit.getScheduler().runTaskTimerAsynchronously(Flash.instance, {
+            for (task in tasks) {
+                if (task.date.after(Date())) {
+                    Bukkit.getScheduler().runTask(Flash.instance) {
+                        Bukkit.dispatchCommand(
+                            Bukkit.getConsoleSender(),
+                            task.command
+                        )
+                    }
+                    tasks.remove(task)
+                    messageInterval.remove(task)
+                    config.gc()["schedule." + task.id + ".executed"] = true
                     try {
-                        this.config.save();
-                    } catch (IOException ignored) {}
+                        config.save()
+                    } catch (ignored: IOException) {
+                    }
                 } else {
-                    for (Long l : getReminderIntervals()) {
-                        if (messageInterval.get(task) != null && messageInterval.get(task).contains(l))
-                            continue;
-                        if (l > task.getDate().getTime() - System.currentTimeMillis()) {
-
-                            List<Long> newList = messageInterval.containsKey(task) ? messageInterval.get(task) : new ArrayList<>();
-
-                            newList.add(l);
-
-                            messageInterval.put(task, newList);
-
-                            String timeForm = TimeUtils.formatLongIntoDetailedString(((task.getDate().getTime() - System.currentTimeMillis()) / 1000) + 1);
-                            Bukkit.broadcastMessage(CC.translate("&g&l[TASKS] " + task.getId() + "&f will commence in &g" + timeForm));
-
-                            break;
+                    for (l in reminderIntervals) {
+                        if (messageInterval[task] != null && messageInterval[task]!!.contains(l)) continue
+                        if (l > task.date.time - System.currentTimeMillis()) {
+                            val newList = if (messageInterval.containsKey(task)) messageInterval[task] else ArrayList()
+                            newList!!.add(l)
+                            messageInterval[task] = newList
+                            val timeForm =
+                                TimeUtils.formatLongIntoDetailedString((task.date.time - System.currentTimeMillis()) / 1000 + 1)
+                            Bukkit.broadcastMessage(CC.translate("&g&l[TASKS] " + task.id + "&f will commence in &g" + timeForm))
+                            break
                         }
                     }
                 }
             }
-
-        }, 60, 60);
-
+        }, 60, 60)
     }
 
-    public void createTask(Task task) {
-        this.getTasks().add(task);
-        this.config.gc().set("schedule." + task.getId() + ".date", task.getDate().getTime());
-        this.config.gc().set("schedule." + task.getId() + ".command", task.getCommand());
+    fun createTask(task: Task) {
+        this.getTasks().add(task)
+        config.gc()["schedule." + task.id + ".date"] = task.date.time
+        config.gc()["schedule." + task.id + ".command"] = task.command
         try {
-            this.config.save();
-        } catch (IOException ignored) {}
+            config.save()
+        } catch (ignored: IOException) {
+        }
     }
 
-    public void delete(Task task) {
-        this.getTasks().remove(task);
-        this.config.gc().set("schedule." + task.getId() + ".executed", true);
+    fun delete(task: Task) {
+        this.getTasks().remove(task)
+        config.gc()["schedule." + task.id + ".executed"] = true
         try {
-            this.config.save();
-        } catch (IOException ignored) {}
+            config.save()
+        } catch (ignored: IOException) {
+        }
     }
 
-    public List<Long> getReminderIntervals() {
-        return this.config.gc().getStringList( "reminder.times").stream().map(JavaUtils::parse).collect(Collectors.toList());
-    }
-
+    val reminderIntervals: List<Long>
+        get() = config.gc().getStringList("reminder.times").stream().map { input: String? -> JavaUtils.parse(input) }
+            .collect(Collectors.toList())
 }

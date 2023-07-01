@@ -1,205 +1,199 @@
-package dev.lbuddyboy.flash.handler;
+package dev.lbuddyboy.flash.handler
 
-import com.mongodb.client.model.Filters;
-import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.FlashLanguage;
-import dev.lbuddyboy.flash.rank.Rank;
-import dev.lbuddyboy.flash.user.User;
-import dev.lbuddyboy.flash.user.impl.FlatFileUser;
-import dev.lbuddyboy.flash.user.impl.MongoUser;
-import dev.lbuddyboy.flash.user.impl.RedisUser;
-import dev.lbuddyboy.flash.user.listener.*;
-import dev.lbuddyboy.flash.user.model.Prefix;
-import dev.lbuddyboy.flash.util.YamlDoc;
-import dev.lbuddyboy.flash.util.gson.GSONUtils;
-import lombok.Getter;
-import lombok.Setter;
-import org.bson.Document;
-import redis.clients.jedis.JedisPool;
-
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
+import com.mongodb.client.model.Filters
+import dev.lbuddyboy.flash.Flash
+import dev.lbuddyboy.flash.FlashLanguage
+import dev.lbuddyboy.flash.rank.Rank
+import dev.lbuddyboy.flash.user.User
+import dev.lbuddyboy.flash.user.impl.FlatFileUser
+import dev.lbuddyboy.flash.user.impl.MongoUser
+import dev.lbuddyboy.flash.user.impl.RedisUser
+import dev.lbuddyboy.flash.user.listener.*
+import dev.lbuddyboy.flash.user.model.Prefix
+import dev.lbuddyboy.flash.util.YamlDoc
+import dev.lbuddyboy.flash.util.gson.GSONUtils
+import lombok.Getter
+import lombok.Setter
+import redis.clients.jedis.JedisPool
+import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
 @Getter
-public class UserHandler {
+class UserHandler {
+    private val users: MutableMap<UUID, User>
+    private var usersYML: YamlDoc? = null
 
-    private final Map<UUID, User> users;
-    private YamlDoc usersYML;
     @Setter
-    private List<Prefix> prefixes;
+    private val prefixes: MutableList<Prefix>
 
-    public UserHandler() {
-        this.users = new ConcurrentHashMap<>();
-        this.prefixes = new ArrayList<>();
-
-        switch (FlashLanguage.CACHE_TYPE.getString().toUpperCase()) {
-            case "FLATFILE":
-            case "YAML":
-                this.usersYML = new YamlDoc(Flash.getInstance().getDataFolder(), "users.yml");
-                break;
+    init {
+        users = ConcurrentHashMap()
+        prefixes = ArrayList()
+        when (FlashLanguage.CACHE_TYPE.string.uppercase(Locale.getDefault())) {
+            "FLATFILE", "YAML" -> usersYML = YamlDoc(
+                Flash.instance.dataFolder, "users.yml"
+            )
         }
-
-        for (Document document : Flash.getInstance().getMongoHandler().getPrefixCollection().find()) prefixes.add(GSONUtils.getGSON().fromJson(document.toJson(), GSONUtils.PREFIX));
-
-        Flash.getInstance().getServer().getPluginManager().registerEvents(new FreezeListener(), Flash.getInstance());
-        Flash.getInstance().getServer().getPluginManager().registerEvents(new GrantListener(), Flash.getInstance());
-        Flash.getInstance().getServer().getPluginManager().registerEvents(new NoteListener(), Flash.getInstance());
-        Flash.getInstance().getServer().getPluginManager().registerEvents(new PunishmentListener(), Flash.getInstance());
-        Flash.getInstance().getServer().getPluginManager().registerEvents(new UserListener(), Flash.getInstance());
-
+        for (document in Flash.instance.mongoHandler.prefixCollection.find()) prefixes.add(
+            GSONUtils.getGSON().fromJson(document.toJson(), GSONUtils.PREFIX)
+        )
+        Flash.instance.server.pluginManager.registerEvents(FreezeListener(), Flash.instance)
+        Flash.instance.server.pluginManager.registerEvents(GrantListener(), Flash.instance)
+        Flash.instance.server.pluginManager.registerEvents(NoteListener(), Flash.instance)
+        Flash.instance.server.pluginManager.registerEvents(PunishmentListener(), Flash.instance)
+        Flash.instance.server.pluginManager.registerEvents(UserListener(), Flash.instance)
     }
 
-    public User getUser(UUID uuid, boolean searchDb) {
-        if (searchDb) {
-            if (users.containsKey(uuid))
-                return getUser(uuid, false);
-            switch (FlashLanguage.CACHE_TYPE.getString().toUpperCase()) {
-                case "REDIS":
-                    return new RedisUser(uuid, Flash.getInstance().getCacheHandler().getUserCache().getName(uuid), true);
-                case "MONGO":
-                    return new MongoUser(uuid, Flash.getInstance().getCacheHandler().getUserCache().getName(uuid), true);
-                case "FLATFILE":
-                case "YAML":
-                    return new FlatFileUser(uuid, Flash.getInstance().getCacheHandler().getUserCache().getName(uuid), true);
-                default:
-                    return null;
+    fun getUser(uuid: UUID, searchDb: Boolean): User? {
+        return if (searchDb) {
+            if (users.containsKey(uuid)) getUser(uuid, false) else when (FlashLanguage.CACHE_TYPE.string.uppercase(
+                Locale.getDefault()
+            )) {
+                "REDIS" -> RedisUser(
+                    uuid,
+                    Flash.instance.cacheHandler.userCache.getName(uuid),
+                    true
+                )
+
+                "MONGO" -> MongoUser(
+                    uuid,
+                    Flash.instance.cacheHandler.userCache.getName(uuid),
+                    true
+                )
+
+                "FLATFILE", "YAML" -> FlatFileUser(
+                    uuid,
+                    Flash.instance.cacheHandler.userCache.getName(uuid),
+                    true
+                )
+
+                else -> null
+            }
+        } else users[uuid]
+    }
+
+    fun getUserRank(uuid: UUID, searchDb: Boolean): User? {
+        return if (searchDb) {
+            if (users.containsKey(uuid)) getUser(uuid, false) else when (FlashLanguage.CACHE_TYPE.string.uppercase(
+                Locale.getDefault()
+            )) {
+                "REDIS" -> {
+                    val user =
+                        RedisUser(uuid, Flash.instance.cacheHandler.userCache.getName(uuid), false)
+                    user.loadRank()
+                    user
+                }
+
+                "MONGO" -> {
+                    val user =
+                        MongoUser(uuid, Flash.instance.cacheHandler.userCache.getName(uuid), false)
+                    user.loadRank()
+                    user
+                }
+
+                "FLATFILE", "YAML" -> {
+                    val user =
+                        FlatFileUser(
+                            uuid,
+                            Flash.instance.cacheHandler.userCache.getName(uuid),
+                            false
+                        )
+                    user.loadRank()
+                    user
+                }
+
+                else -> null
+            }
+        } else users[uuid]
+    }
+
+    fun tryUser(uuid: UUID, searchDb: Boolean): User? {
+        return try {
+            getUser(uuid, searchDb)
+        } catch (ignored: Exception) {
+            null
+        }
+    }
+
+    fun tryUserRank(uuid: UUID, searchDb: Boolean): User? {
+        return try {
+            getUserRank(uuid, searchDb)
+        } catch (ignored: Exception) {
+            null
+        }
+    }
+
+    fun createUser(uuid: UUID?, name: String?): User? {
+        return when (FlashLanguage.CACHE_TYPE.string.uppercase(Locale.getDefault())) {
+            "REDIS" -> RedisUser(uuid, name, true)
+            "MONGO" -> MongoUser(uuid, name, true)
+            "FLATFILE", "YAML" -> FlatFileUser(uuid, name, true)
+            else -> null
+        }
+    }
+
+    fun deleteUser(uuid: UUID) {
+        val user = tryUser(uuid, true) ?: return
+        users.remove(uuid)
+        when (FlashLanguage.CACHE_TYPE.string.uppercase(Locale.getDefault())) {
+            "REDIS" -> {
+                RedisHandler.Companion.requestJedis().getResource().hdel("Users", uuid.toString())
+                Flash.instance.mongoHandler.userCollection.deleteOne(Filters.eq("uuid", uuid.toString()))
+            }
+
+            "MONGO" -> Flash.instance.mongoHandler.userCollection.deleteOne(Filters.eq("uuid", uuid.toString()))
+            "FLATFILE", "YAML" -> {}
+            else -> {}
+        }
+    }
+
+    fun relativeAlts(ip: String): List<UUID> {
+        val uuids: MutableList<UUID> = ArrayList()
+        when (FlashLanguage.CACHE_TYPE.string.uppercase(Locale.getDefault())) {
+            "REDIS" -> {
+                val pool: JedisPool = RedisHandler.Companion.requestJedis()
+                for ((key) in pool.resource.hgetAll("Users")) {
+                    val user = RedisUser(UUID.fromString(key), null, true)
+                    if (user.getIp() != ip) continue
+                    uuids.add(user.getUuid())
+                }
+            }
+
+            "MONGO" -> for (document in Flash.instance.mongoHandler.userCollection.find()) {
+                try {
+                    if (!document.containsKey("ip")) continue
+                    val altIP = document.getString("ip") ?: continue
+                    if (altIP != ip) continue
+                    uuids.add(UUID.fromString(document.getString("uuid")))
+                } catch (ignored: Exception) {
+                }
+            }
+
+            "FLATFILE", "YAML" -> for (key in usersYML!!.gc().getConfigurationSection("users").getKeys(false)) {
+                val altIP = usersYML.gc().getString("users.$key.ip")
+                if (ip != altIP) continue
+                uuids.add(UUID.fromString(key))
             }
         }
-        return users.get(uuid);
+        return uuids
     }
 
-    public User getUserRank(UUID uuid, boolean searchDb) {
-        if (searchDb) {
-            if (users.containsKey(uuid))
-                return getUser(uuid, false);
-            switch (FlashLanguage.CACHE_TYPE.getString().toUpperCase()) {
-                case "REDIS": {
-                    RedisUser user = new RedisUser(uuid, Flash.getInstance().getCacheHandler().getUserCache().getName(uuid), false);
-                    user.loadRank();
-                    return user;
-                }
-                case "MONGO": {
-                    MongoUser user = new MongoUser(uuid, Flash.getInstance().getCacheHandler().getUserCache().getName(uuid), false);
-                    user.loadRank();
-                    return user;
-                }
-                case "FLATFILE":
-                case "YAML": {
-                    FlatFileUser user = new FlatFileUser(uuid, Flash.getInstance().getCacheHandler().getUserCache().getName(uuid), false);
-                    user.loadRank();
-                    return user;
-                }
-                default:
-                    return null;
+    fun getPrefix(lookUp: String): Prefix? {
+        for (prefix in prefixes) {
+            if (prefix.id == lookUp) return prefix
+        }
+        return null
+    }
+
+    val rankConversion: Map<Long, Rank>
+        get() {
+            val conversion: MutableMap<Long, Rank> = HashMap()
+            for (key in FlashLanguage.SYNC_CONVERSION.stringList) {
+                val args = key.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                conversion[java.lang.Long.valueOf(args[0])] = Flash.instance.rankHandler.getRank(
+                    args[1]
+                )
             }
+            return conversion
         }
-        return users.get(uuid);
-    }
-
-    public User tryUser(UUID uuid, boolean searchDb) {
-        try {
-            return getUser(uuid, searchDb);
-        } catch (Exception ignored) {
-            return null;
-        }
-    }
-
-    public User tryUserRank(UUID uuid, boolean searchDb) {
-        try {
-            return getUserRank(uuid, searchDb);
-        } catch (Exception ignored) {
-            return null;
-        }
-    }
-
-    public User createUser(UUID uuid, String name) {
-        switch (FlashLanguage.CACHE_TYPE.getString().toUpperCase()) {
-            case "REDIS":
-                return new RedisUser(uuid, name, true);
-            case "MONGO":
-                return new MongoUser(uuid, name, true);
-            case "FLATFILE":
-            case "YAML":
-                return new FlatFileUser(uuid, name, true);
-            default:
-                return null;
-        }
-    }
-
-    public void deleteUser(UUID uuid) {
-        User user = tryUser(uuid, true);
-        if (user == null) return;
-
-        users.remove(uuid);
-        switch (FlashLanguage.CACHE_TYPE.getString().toUpperCase()) {
-            case "REDIS":
-                RedisHandler.requestJedis().getResource().hdel("Users", uuid.toString());
-            case "MONGO":
-                Flash.getInstance().getMongoHandler().getUserCollection().deleteOne(Filters.eq("uuid", uuid.toString()));
-            case "FLATFILE":
-            case "YAML":
-                // NOT SUPPORTED
-            default:
-                // NOT SUPPORTED
-        }
-    }
-
-    public List<UUID> relativeAlts(String ip) {
-        List<UUID> uuids = new ArrayList<>();
-
-        switch (FlashLanguage.CACHE_TYPE.getString().toUpperCase()) {
-            case "REDIS":
-                JedisPool pool = RedisHandler.requestJedis();
-                for (Map.Entry<String, String> entry : pool.getResource().hgetAll("Users").entrySet()) {
-                    RedisUser user = new RedisUser(UUID.fromString(entry.getKey()), null, true);
-                    if (!user.getIp().equals(ip)) continue;
-
-                    uuids.add(user.getUuid());
-                }
-
-                break;
-            case "MONGO":
-                for (Document document : Flash.getInstance().getMongoHandler().getUserCollection().find()) {
-                    try {
-                        if (!document.containsKey("ip")) continue;
-                        String altIP = document.getString("ip");
-                        if (altIP == null) continue;
-                        if (!altIP.equals(ip)) continue;
-
-                        uuids.add(UUID.fromString(document.getString("uuid")));
-                    } catch (Exception ignored) {
-
-                    }
-                }
-                break;
-            case "FLATFILE":
-            case "YAML":
-                for (String key : this.usersYML.gc().getConfigurationSection("users").getKeys(false)) {
-                    String altIP = this.usersYML.gc().getString("users." + key + ".ip");
-                    if (!ip.equals(altIP)) continue;
-
-                    uuids.add(UUID.fromString(key));
-                }
-                break;
-        }
-        return uuids;
-    }
-
-    public Prefix getPrefix(String lookUp) {
-        for (Prefix prefix : this.prefixes) {
-            if (prefix.getId().equals(lookUp)) return prefix;
-        }
-        return null;
-    }
-
-    public Map<Long, Rank> getRankConversion() {
-        Map<Long, Rank> conversion = new HashMap<>();
-        for (String key : FlashLanguage.SYNC_CONVERSION.getStringList()) {
-            String[] args = key.split(":");
-            conversion.put(Long.valueOf(args[0]), Flash.getInstance().getRankHandler().getRank(args[1]));
-        }
-        return conversion;
-    }
-
 }

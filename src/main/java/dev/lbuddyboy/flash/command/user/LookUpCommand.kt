@@ -1,55 +1,42 @@
-package dev.lbuddyboy.flash.command.user;
+package dev.lbuddyboy.flash.command.user
 
-import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.*;
-import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.user.User;
-import dev.lbuddyboy.flash.user.menu.SearchUsersMenu;
-import dev.lbuddyboy.flash.user.model.UserPermission;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import co.aikar.commands.BaseCommand
+import co.aikar.commands.annotation.*
+import dev.lbuddyboy.flash.Flash
+import dev.lbuddyboy.flash.user.User
+import dev.lbuddyboy.flash.user.menu.SearchUsersMenu
+import dev.lbuddyboy.flash.user.model.UserPermission
+import org.bukkit.entity.Player
+import java.util.stream.Collectors
 
 @CommandAlias("lookup|paramlookup")
 @CommandPermission("flash.command.lookup")
-public class LookUpCommand extends BaseCommand {
-
+class LookUpCommand : BaseCommand() {
     @Default
     @CommandCompletion("@target")
-    public void lookup(Player sender, @Name("params {rank:<rank>|permission:<perm>}") String param) {
-        List<User> users = new ArrayList<>();
-
+    fun lookup(sender: Player?, @Name("params {rank:<rank>|permission:<perm>}") param: String) {
+        val users: MutableList<User?> = ArrayList()
         if (param.startsWith("permission:")) {
-            String[] args = param.split(":");
-
-            for (UUID target : Flash.getInstance().getCacheHandler().getUserCache().allUUIDs()) {
-                User user = Flash.getInstance().getUserHandler().tryUser(target, true);
-                if (user == null) continue;
-
-                if (user.getActivePermissions().stream().map(UserPermission::getNode).collect(Collectors.toList()).contains(args[1])) {
-                    users.add(user);
+            val args = param.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            for (target in Flash.instance.cacheHandler.getUserCache().allUUIDs()) {
+                val user = Flash.instance.userHandler.tryUser(target, true) ?: continue
+                if (user.activePermissions.stream().map { obj: UserPermission? -> obj.getNode() }
+                        .collect(Collectors.toList()).contains(
+                        args[1]
+                    )
+                ) {
+                    users.add(user)
                 }
             }
         } else if (param.startsWith("rank:")) {
-            String[] args = param.split(":");
-
-            for (UUID target : Flash.getInstance().getCacheHandler().getUserCache().allUUIDs()) {
-                User user = Flash.getInstance().getUserHandler().tryUserRank(target, true);
-                if (user == null) continue;
-
-                if (user.getActiveRank().getName().equalsIgnoreCase(args[1])) {
-                    users.add(user);
+            val args = param.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            for (target in Flash.instance.cacheHandler.getUserCache().allUUIDs()) {
+                val user = Flash.instance.userHandler.tryUserRank(target, true) ?: continue
+                if (user.activeRank.getName().equals(args[1], ignoreCase = true)) {
+                    users.add(user)
                 }
             }
         }
-
-
-        new SearchUsersMenu(users).openMenu(sender);
-
+        SearchUsersMenu(users).openMenu(sender!!)
     }
-
 }

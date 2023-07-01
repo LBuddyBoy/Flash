@@ -1,261 +1,262 @@
-package dev.lbuddyboy.flash.user;
+package dev.lbuddyboy.flash.user
 
-import com.google.gson.JsonObject;
-import com.mongodb.client.model.Filters;
-import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.FlashLanguage;
-import dev.lbuddyboy.flash.rank.Rank;
-import dev.lbuddyboy.flash.user.comparator.*;
-import dev.lbuddyboy.flash.user.model.*;
-import dev.lbuddyboy.flash.util.bukkit.CC;
-import lombok.Data;
-import org.apache.commons.lang.WordUtils;
-import org.bson.Document;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.permissions.PermissionAttachment;
-import org.bukkit.permissions.PermissionAttachmentInfo;
-
-import java.util.*;
-import java.util.stream.Collectors;
+import com.mongodb.client.model.Filters
+import dev.lbuddyboy.flash.Flash
+import dev.lbuddyboy.flash.FlashLanguage
+import dev.lbuddyboy.flash.rank.Rank
+import dev.lbuddyboy.flash.user.comparator.*
+import dev.lbuddyboy.flash.user.model.*
+import dev.lbuddyboy.flash.user.model.Note
+import dev.lbuddyboy.flash.util.bukkit.CC
+import lombok.*
+import org.apache.commons.lang.WordUtils
+import org.bson.Document
+import org.bukkit.*
+import org.bukkit.entity.Player
+import java.util.*
+import java.util.function.Consumer
+import java.util.stream.Collectors
 
 @Data
-public abstract class User {
-
-    public UUID uuid = null;
-    public String name = null;
-    public String ip = null;
-    public List<UserPermission> permissions = new ArrayList<>();
-    public List<String> knownIps = new ArrayList<>();
-    public List<UUID> blocked = new ArrayList<>();
-    public List<Grant> grants = new ArrayList<>();
-    public List<Note> notes = new ArrayList<>();
-    public List<Punishment> punishments = new ArrayList<>();
-    public List<Promotion> promotions = new ArrayList<>();
-    public List<Demotion> demotions = new ArrayList<>();
-    public Grant activeGrant = null;
-    public Prefix activePrefix = null;
-
-    public PlayerInfo playerInfo = new PlayerInfo(true, false, false, -1, null, -1, -1, new ArrayList<>());
-    public List<ServerInfo> serverInfo = new ArrayList<>();
-    public StaffInfo staffInfo = new StaffInfo();
-    public boolean needsSaving = false;
-
-    public abstract void load();
-    public abstract void save(boolean async);
-    public void loadRank() {
-
+abstract class User {
+    var uuid: UUID? = null
+    var name: String? = null
+    var ip: String? = null
+    var permissions: MutableList<UserPermission?> = ArrayList()
+    var knownIps: List<String> = ArrayList()
+    var blocked: List<UUID> = ArrayList()
+    var grants: MutableList<Grant> = ArrayList()
+    var notes: List<Note> = ArrayList()
+    var punishments: List<Punishment> = ArrayList()
+    var promotions: List<Promotion> = ArrayList()
+    var demotions: List<Demotion> = ArrayList()
+    var activeGrant: Grant? = null
+    var activePrefix: Prefix? = null
+    var playerInfo = PlayerInfo(true, false, false, -1, null, -1, -1, ArrayList())
+    var serverInfo: List<ServerInfo> = ArrayList()
+    var staffInfo = StaffInfo()
+    var needsSaving = false
+    abstract fun load()
+    abstract fun save(async: Boolean)
+    open fun loadRank() {}
+    fun getDisplayName(): String {
+        return if (activePrefix != null) CC.translate(getActivePrefix().getDisplay() + getActiveRank().getPrefix() + name + getActiveRank().getSuffix()) else CC.translate(
+            getActiveRank().getPrefix() + name + getActiveRank().getSuffix()
+        )
     }
 
-    public String getDisplayName() {
-        if (activePrefix != null) return CC.translate(getActivePrefix().getDisplay() + getActiveRank().getPrefix() + name + getActiveRank().getSuffix());
-        return CC.translate(getActiveRank().getPrefix() + name + getActiveRank().getSuffix());
+    fun getColoredName(): String {
+        return getActiveRank().getColor().toString() + name
     }
 
-    public String getColoredName() {
-        return getActiveRank().getColor() + name;
-    }
-
-    public Punishment getActivePunishment(PunishmentType type) {
-        for (Punishment punishment : this.punishments) {
-            if (punishment.getType() != type) continue;
-            if (punishment.isExpired() || punishment.isRemoved()) continue;
-
-            return punishment;
+    fun getActivePunishment(type: PunishmentType): Punishment? {
+        for (punishment in punishments) {
+            if (punishment.type != type) continue
+            if (punishment.isExpired || punishment.isRemoved) continue
+            return punishment
         }
-        return null;
+        return null
     }
 
-    public Note getNote(String title) {
-        return this.notes.stream().filter(note -> note.getTitle().equals(title)).collect(Collectors.toList()).get(0);
+    fun getNote(title: String): Note {
+        return notes.stream().filter { note: Note -> note.title == title }
+            .collect(Collectors.toList())[0]
     }
 
-    public Prefix getActivePrefix() {
-        if (activePrefix == null) return null;
-        return Flash.getInstance().getUserHandler().getPrefix(activePrefix.getId());
+    fun getActivePrefix(): Prefix? {
+        return if (activePrefix == null) null else Flash.instance.userHandler.getPrefix(activePrefix.getId())
     }
 
-    public boolean hasActivePunishment(PunishmentType type) {
-        return getActivePunishment(type) != null;
+    fun hasActivePunishment(type: PunishmentType): Boolean {
+        return getActivePunishment(type) != null
     }
 
-    public List<Punishment> getSortedPunishments() {
-        return this.punishments.stream().sorted(new PunishmentDateComparator().reversed().thenComparing(new PunishmentRemovedComparator().reversed())).collect(Collectors.toList());
+    fun getSortedPunishments(): List<Punishment> {
+        return punishments.stream()
+            .sorted(PunishmentDateComparator().reversed().thenComparing(PunishmentRemovedComparator().reversed()))
+            .collect(Collectors.toList())
     }
 
-    public List<Punishment> getSortedPunishmentsByType(PunishmentType type) {
-        return this.punishments.stream().filter(punishment -> punishment.getType() == type).sorted(new PunishmentDateComparator().reversed().thenComparing(new PunishmentRemovedComparator().reversed())).collect(Collectors.toList());
+    fun getSortedPunishmentsByType(type: PunishmentType): List<Punishment> {
+        return punishments.stream().filter { punishment: Punishment -> punishment.type == type }
+            .sorted(PunishmentDateComparator().reversed().thenComparing(PunishmentRemovedComparator().reversed()))
+            .collect(Collectors.toList())
     }
 
-    public Rank getActiveRank() {
-        Grant active = activeGrant;
-        if (active == null) return Flash.getInstance().getRankHandler().getDefaultRank();
-
-        return active.getRank();
+    fun getActiveRank(): Rank? {
+        val active = activeGrant ?: return Flash.instance.rankHandler.getDefaultRank()
+        return active.rank
     }
 
-    public Grant getActiveGrant() {
-        Grant active = activeGrant;
-        if (active == null)
-            return this.grants.stream().filter(grant -> grant.getRank() != null && grant.getRank().isDefaultRank()).collect(Collectors.toList()).get(0);
-
-        return active;
+    fun getActiveGrant(): Grant {
+        return activeGrant
+            ?: return grants.stream()
+                .filter { grant: Grant -> grant.rank != null && grant.rank.isDefaultRank }
+                .collect(Collectors.toList())[0]
     }
 
-    public List<Grant> getActiveGrants() {
-        return this.grants.stream().filter(grant -> !grant.isExpired() && !grant.isRemoved()).collect(Collectors.toList());
+    fun getActiveGrants(): List<Grant> {
+        return grants.stream().filter { grant: Grant -> !grant.isExpired && !grant.isRemoved }
+            .collect(Collectors.toList())
     }
 
-    public List<Grant> getSortedGrants() {
-        return this.grants.stream().sorted(new GrantWeightComparator().reversed().thenComparing(new GrantDateComparator().reversed())).collect(Collectors.toList());
+    fun getSortedGrants(): List<Grant> {
+        return grants.stream()
+            .sorted(GrantWeightComparator().reversed().thenComparing(GrantDateComparator().reversed()))
+            .collect(Collectors.toList())
     }
 
-    public List<Note> getSortedNotes() {
-        return this.notes.stream().sorted(new NoteDateComparator()).collect(Collectors.toList());
+    fun getSortedNotes(): List<Note> {
+        return notes.stream().sorted(NoteDateComparator()).collect(Collectors.toList())
     }
 
-    public List<UserPermission> getActivePermissions() {
-        return this.permissions.stream().filter(permission -> !permission.isExpired() && !permission.isRemoved()).collect(Collectors.toList());
+    fun getActivePermissions(): List<UserPermission?> {
+        return permissions.stream()
+            .filter { permission: UserPermission? -> !permission!!.isExpired && !permission.isRemoved }
+            .collect(Collectors.toList())
     }
 
-    public List<UserPermission> getSortedPermissions() {
-        return this.permissions.stream().sorted(new UserPermissionDateComparator().reversed().thenComparing(new UserPermissionDateComparator().reversed())).collect(Collectors.toList());
+    fun getSortedPermissions(): List<UserPermission?> {
+        return permissions.stream()
+            .sorted(UserPermissionDateComparator().reversed().thenComparing(UserPermissionDateComparator().reversed()))
+            .collect(Collectors.toList())
     }
 
-    public void updateGrants() {
-        for (Grant grant : grants) {
-            if (grant.isRemoved()) continue;
-            if (!grant.isExpired()) continue;
-
-            grant.setRemovedAt(System.currentTimeMillis());
-            grant.setRemovedFor("Expired");
-            grant.setRemovedBy(null);
-            if (activeGrant != null && activeGrant.equals(grant)) {
-                activeGrant = null;
+    fun updateGrants() {
+        for (grant in grants) {
+            if (grant.isRemoved) continue
+            if (!grant.isExpired) continue
+            grant.removedAt = System.currentTimeMillis()
+            grant.removedFor = "Expired"
+            grant.removedBy = null
+            if (activeGrant != null && activeGrant == grant) {
+                activeGrant = null
             }
         }
-
-        List<Grant> grants = this.getActiveGrants().stream().sorted(new GrantWeightComparator().reversed().thenComparing(new GrantDateComparator().reversed())).collect(Collectors.toList());
-
-        for (Grant grant : grants) {
-            if (grant.getRank() == null) continue;
-            if (!Arrays.stream(grant.getScopes()).map(String::toLowerCase).collect(Collectors.toList()).contains("global") && !Arrays.asList(grant.getScopes()).contains(FlashLanguage.SERVER_NAME.getString()))
-                continue;
-
-            activeGrant = grant;
-            buildPlayer();
-            break;
+        val grants = getActiveGrants().stream()
+            .sorted(GrantWeightComparator().reversed().thenComparing(GrantDateComparator().reversed()))
+            .collect(Collectors.toList())
+        for (grant in grants) {
+            if (grant.rank == null) continue
+            if (!Arrays.stream(grant.scopes).map { obj: String -> obj.lowercase(Locale.getDefault()) }
+                    .collect(Collectors.toList()).contains("global") && !Arrays.asList(*grant.scopes)
+                    .contains(FlashLanguage.SERVER_NAME.string)) continue
+            activeGrant = grant
+            buildPlayer()
+            break
         }
     }
 
-    public void updatePerms() {
-        for (UserPermission permission : permissions) {
-            if (!permission.isExpired()) continue;
-            if (permission.isRemoved()) continue;
-
-            permission.setRemovedAt(System.currentTimeMillis());
-            permission.setRemovedBy(null);
-            permission.setRemovedFor("Expired");
-            permission.setRemoved(true);
+    fun updatePerms() {
+        for (permission in permissions) {
+            if (!permission!!.isExpired) continue
+            if (permission.isRemoved) continue
+            permission.removedAt = System.currentTimeMillis()
+            permission.removedBy = null
+            permission.removedFor = "Expired"
+            permission.isRemoved = true
         }
     }
 
-    public void buildPlayer() {
-        Player player = Bukkit.getPlayer(uuid);
-        if (player == null) return;
-
-        setupPermissionsAttachment();
-
-        player.setDisplayName(getDisplayName());
-        player.setPlayerListName(getColoredName());
+    fun buildPlayer() {
+        val player = Bukkit.getPlayer(uuid) ?: return
+        setupPermissionsAttachment()
+        player.displayName = getDisplayName()
+        player.playerListName = getColoredName()
     }
 
-    public boolean hasGrant(UUID id) {
-        return this.grants.stream().map(Grant::getUuid).collect(Collectors.toList()).contains(id);
+    fun hasGrant(id: UUID): Boolean {
+        return grants.stream().map { obj: Grant -> obj.uuid }.collect(Collectors.toList()).contains(id)
     }
 
-    public boolean hasPunishment(UUID id) {
-        return this.punishments.stream().map(Punishment::getId).collect(Collectors.toList()).contains(id);
+    fun hasPunishment(id: UUID): Boolean {
+        return punishments.stream().map { obj: Punishment -> obj.id }.collect(Collectors.toList()).contains(id)
     }
 
-    public boolean hasNote(UUID id) {
-        return this.notes.stream().map(Note::getId).collect(Collectors.toList()).contains(id);
+    fun hasNote(id: UUID): Boolean {
+        return notes.stream().map { obj: Note -> obj.id }.collect(Collectors.toList()).contains(id)
     }
 
-    public void setupPermissionsAttachment() {
-        Player player = Bukkit.getPlayer(uuid);
-        if (player == null) return;
-
-        for (PermissionAttachmentInfo attachmentInfo : player.getEffectivePermissions()) {
-            if (attachmentInfo.getAttachment() == null) continue;
-
-            attachmentInfo.getAttachment().getPermissions().forEach((permission, value) -> attachmentInfo.getAttachment().unsetPermission(permission));
+    fun setupPermissionsAttachment() {
+        val player = Bukkit.getPlayer(uuid) ?: return
+        for (attachmentInfo in player.effectivePermissions) {
+            if (attachmentInfo.attachment == null) continue
+            attachmentInfo.attachment.permissions.forEach { (permission: String?, value: Boolean?) ->
+                attachmentInfo.attachment.unsetPermission(
+                    permission
+                )
+            }
         }
-
-        PermissionAttachment attachment = player.addAttachment(Flash.getInstance());
-
-        if (player.isOp()) attachment.setPermission("op", true);
-        getActiveRank().getPermissions().forEach(permission -> attachment.setPermission(permission, true));
-        getActiveRank().getInheritedPermissions().forEach(permission -> attachment.setPermission(permission, true));
-        getActivePermissions().stream().map(UserPermission::getNode).forEach(permission -> attachment.setPermission(permission, true));
-
-        player.recalculatePermissions();
+        val attachment = player.addAttachment(Flash.instance)
+        if (player.isOp) attachment.setPermission("op", true)
+        getActiveRank().getPermissions()
+            .forEach(Consumer { permission: String? -> attachment.setPermission(permission, true) })
+        getActiveRank().getInheritedPermissions()
+            .forEach(Consumer { permission: String? -> attachment.setPermission(permission, true) })
+        getActivePermissions().stream().map { obj: UserPermission? -> obj.getNode() }
+            .forEach { permission: String? -> attachment.setPermission(permission, true) }
+        player.recalculatePermissions()
         try {
-            Player.class.getMethod("updateCommands");
-        } catch (NoSuchMethodException ignored) {
-
+            Player::class.java.getMethod("updateCommands")
+        } catch (ignored: NoSuchMethodException) {
         }
     }
 
-    public void addPerm(UserPermission permission) {
-        if (!permission.getNode().startsWith("group.")) {
-            this.permissions.add(permission);
-            return;
+    fun addPerm(permission: UserPermission) {
+        if (!permission.node.startsWith("group.")) {
+            permissions.add(permission)
+            return
         }
-        String striped = permission.getNode().replaceAll("group", "").replaceAll("\\.", "");
-        String key = WordUtils.capitalize(striped);
-
-        Rank rank = Flash.getInstance().getRankHandler().getRank(key);
-        if (rank == null) return;
-        Grant grant = new Grant(UUID.randomUUID(), rank.getUuid(), key, null, "Imported from LuckPerms", System.currentTimeMillis(), permission.getDuration(), new String[]{"GLOBAL"});
-
-        grants.add(grant);
+        val striped = permission.node.replace("group".toRegex(), "").replace("\\.".toRegex(), "")
+        val key = WordUtils.capitalize(striped)
+        val rank = Flash.instance.rankHandler.getRank(key) ?: return
+        val grant = Grant(
+            UUID.randomUUID(),
+            rank.getUuid(),
+            key,
+            null,
+            "Imported from LuckPerms",
+            System.currentTimeMillis(),
+            permission.duration,
+            arrayOf("GLOBAL")
+        )
+        grants.add(grant)
     }
 
-    public String colorAlt() {
-        ChatColor color = ChatColor.GRAY;
-
-        if (Bukkit.getPlayer(uuid) != null) color = ChatColor.GREEN;
-        if (hasActivePunishment(PunishmentType.MUTE)) color = getActivePunishment(PunishmentType.MUTE).getType().getColor();
-        if (hasActivePunishment(PunishmentType.BAN)) color = getActivePunishment(PunishmentType.BAN).getType().getColor();
-        if (hasActivePunishment(PunishmentType.IP_BAN)) color = getActivePunishment(PunishmentType.IP_BAN).getType().getColor();
-        if (hasActivePunishment(PunishmentType.BLACKLIST)) color = getActivePunishment(PunishmentType.BLACKLIST).getType().getColor();
-
-        return color + name;
+    fun colorAlt(): String {
+        var color = ChatColor.GRAY
+        if (Bukkit.getPlayer(uuid) != null) color = ChatColor.GREEN
+        if (hasActivePunishment(PunishmentType.MUTE)) color = getActivePunishment(PunishmentType.MUTE).getType().color
+        if (hasActivePunishment(PunishmentType.BAN)) color = getActivePunishment(PunishmentType.BAN).getType().color
+        if (hasActivePunishment(PunishmentType.IP_BAN)) color =
+            getActivePunishment(PunishmentType.IP_BAN).getType().color
+        if (hasActivePunishment(PunishmentType.BLACKLIST)) color =
+            getActivePunishment(PunishmentType.BLACKLIST).getType().color
+        return color.toString() + name
     }
 
-    public boolean isDiscordSynced() {
-        return getDiscordSyncedId() != 0;
+    fun isDiscordSynced(): Boolean {
+        return getDiscordSyncedId() != 0L
     }
 
-    public Rank getDiscordRank() {
-        Document document = Flash.getInstance().getMongoHandler().getSyncCollection().find(Filters.eq("playerUUID", this.uuid.toString())).first();
-        if (document == null) return null;
-        return Flash.getInstance().getUserHandler().getRankConversion().get(document.getLong("rankId"));
+    fun getDiscordRank(): Rank? {
+        val document: Document = Flash.instance.mongoHandler.getSyncCollection()
+            .find(Filters.eq("playerUUID", uuid.toString())).first()
+            ?: return null
+        return Flash.instance.userHandler.rankConversion[document.getLong("rankId")]
     }
 
-    public long getDiscordSyncedId() {
-        Document document = Flash.getInstance().getMongoHandler().getSyncCollection().find(Filters.eq("playerUUID", this.uuid.toString())).first();
-        if (document == null) return 0;
-        return document.getLong("memberId");
+    fun getDiscordSyncedId(): Long {
+        val document: Document = Flash.instance.mongoHandler.getSyncCollection()
+            .find(Filters.eq("playerUUID", uuid.toString())).first()
+            ?: return 0
+        return document.getLong("memberId")
     }
 
-    public String getDiscordSyncedName() {
-        Document document = Flash.getInstance().getMongoHandler().getSyncCollection().find(Filters.eq("playerUUID", this.uuid.toString())).first();
-        if (document == null) return "None";
-        return document.getString("memberName");
+    fun getDiscordSyncedName(): String {
+        val document: Document = Flash.instance.mongoHandler.getSyncCollection()
+            .find(Filters.eq("playerUUID", uuid.toString())).first()
+            ?: return "None"
+        return document.getString("memberName")
     }
-
 }

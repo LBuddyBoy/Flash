@@ -1,32 +1,24 @@
-package dev.lbuddyboy.flash.command.param;
+package dev.lbuddyboy.flash.command.param
 
-import co.aikar.commands.BukkitCommandExecutionContext;
-import co.aikar.commands.InvalidCommandArgument;
-import co.aikar.commands.contexts.ContextResolver;
-import dev.lbuddyboy.flash.Flash;
-import org.bukkit.GameMode;
-import org.bukkit.entity.Player;
+import co.aikar.commands.BukkitCommandExecutionContext
+import co.aikar.commands.InvalidCommandArgument
+import co.aikar.commands.contexts.ContextResolver
+import org.bukkit.GameMode
+import java.util.*
 
-import java.util.UUID;
-
-public class GamemodeParam implements ContextResolver<GameMode, BukkitCommandExecutionContext> {
-
-    @Override
-    public GameMode getContext(BukkitCommandExecutionContext arg) throws InvalidCommandArgument {
-        Player sender = arg.getPlayer();
-        String source = arg.popFirstArg();
-
-        try {
-
-            GameMode gameMode = GameMode.valueOf(source.toUpperCase());
-
-            if (GameMode.getByValue(gameMode.getValue()) == null) {
-                gameMode = GameMode.getByValue(Integer.parseInt(source));
+class GamemodeParam : ContextResolver<GameMode, BukkitCommandExecutionContext> {
+    @Throws(InvalidCommandArgument::class)
+    override fun getContext(arg: BukkitCommandExecutionContext): GameMode {
+        val sender = arg.player
+        val source = arg.popFirstArg()
+        return try {
+            var gameMode = GameMode.valueOf(source.uppercase(Locale.getDefault()))
+            if (GameMode.getByValue(gameMode.value) == null) {
+                gameMode = GameMode.getByValue(source.toInt())
             }
-
-            return gameMode;
-        } catch (Exception ignored) {
-            throw new InvalidCommandArgument("No gamemode with the name " + source + " found.");
+            gameMode
+        } catch (ignored: Exception) {
+            throw InvalidCommandArgument("No gamemode with the name $source found.")
         }
     }
 }

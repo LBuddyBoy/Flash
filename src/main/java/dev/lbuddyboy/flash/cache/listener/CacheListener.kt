@@ -1,15 +1,13 @@
-package dev.lbuddyboy.flash.cache.listener;
+package dev.lbuddyboy.flash.cache.listener
 
-import dev.lbuddyboy.flash.Flash;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import dev.lbuddyboy.flash.Flash
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 
-public class CacheListener implements Listener {
-
+class CacheListener : Listener {
     @EventHandler
-    public void onAsyncPlayerPreLogin(AsyncPlayerPreLoginEvent event) {
-        Flash.getInstance().getCacheHandler().getUserCache().update(event.getUniqueId(), event.getName(), true);
+    fun onAsyncPlayerPreLogin(event: AsyncPlayerPreLoginEvent) {
+        Flash.instance.cacheHandler.getUserCache().update(event.uniqueId, event.name, true)
     }
-
 }

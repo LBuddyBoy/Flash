@@ -1,14 +1,9 @@
-package dev.lbuddyboy.flash.user.comparator;
+package dev.lbuddyboy.flash.user.comparator
 
-import dev.lbuddyboy.flash.user.model.Punishment;
-import dev.lbuddyboy.flash.user.model.UserPermission;
+import dev.lbuddyboy.flash.user.model.Punishment
 
-import java.util.Comparator;
-
-public class PunishmentDateComparator implements Comparator<Punishment> {
-
-    @Override
-    public int compare(Punishment punishment, Punishment otherPunishment) {
-        return Long.compare(punishment.getSentAt(), otherPunishment.getSentAt());
+class PunishmentDateComparator : Comparator<Punishment> {
+    override fun compare(punishment: Punishment, otherPunishment: Punishment): Int {
+        return java.lang.Long.compare(punishment.sentAt, otherPunishment.sentAt)
     }
 }

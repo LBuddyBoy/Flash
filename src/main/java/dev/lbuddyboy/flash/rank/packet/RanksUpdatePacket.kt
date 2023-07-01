@@ -1,29 +1,19 @@
-package dev.lbuddyboy.flash.rank.packet;
+package dev.lbuddyboy.flash.rank.packet
 
-import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.rank.Rank;
-import dev.lbuddyboy.flash.redis.JedisPacket;
-import dev.lbuddyboy.flash.util.bukkit.CC;
-import lombok.AllArgsConstructor;
+import dev.lbuddyboy.flash.Flashimport
 
-import java.util.Map;
-import java.util.UUID;
-
+dev.lbuddyboy.flash.rank.Rankimport dev.lbuddyboy.flash.redis.JedisPacketimport dev.lbuddyboy.flash.util.bukkit.CCimport lombok.AllArgsConstructorimport java.util.*
 @AllArgsConstructor
-public class RanksUpdatePacket implements JedisPacket {
-
-    private Map<UUID, Rank> newRanks;
-
-    @Override
-    public void onReceive() {
-        Flash.getInstance().getRankHandler().setRanks(this.newRanks);
-        CC.broadCastStaff("&4[Rank] &aAll ranks have been updated & refreshed!");
-        for (Rank rank : newRanks.values()) {
-            if (rank.isDefaultRank()) {
-                Flash.getInstance().getRankHandler().setDefaultRank(rank);
-                break;
+class RanksUpdatePacket : JedisPacket {
+    private val newRanks: Map<UUID, Rank>? = null
+    override fun onReceive() {
+        Flash.instance.rankHandler.setRanks(newRanks)
+        CC.broadCastStaff("&4[Rank] &aAll ranks have been updated & refreshed!")
+        for (rank in newRanks!!.values) {
+            if (rank.isDefaultRank) {
+                Flash.instance.rankHandler.setDefaultRank(rank)
+                break
             }
         }
     }
-
 }

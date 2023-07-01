@@ -1,107 +1,68 @@
-package dev.lbuddyboy.flash.rank.impl;
+package dev.lbuddyboy.flash.rank.impl
 
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.ReplaceOptions;
-import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.rank.Rank;
-import dev.lbuddyboy.flash.rank.packet.RanksUpdatePacket;
-import dev.lbuddyboy.flash.user.User;
-import dev.lbuddyboy.flash.util.bukkit.Tasks;
-import dev.lbuddyboy.flash.util.gson.GSONUtils;
-import org.bson.Document;
-import org.bukkit.ChatColor;
+import com.mongodb.client.model.Filtersimport
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+com.mongodb.client.model.ReplaceOptionsimport dev.lbuddyboy.flash.Flashimport dev.lbuddyboy.flash.rank.Rankimport dev.lbuddyboy.flash.rank.packet.RanksUpdatePacketimport dev.lbuddyboy.flash.util.gson.GSONUtilsimport org.bson.Documentimport org.bukkit.*import java.util.*
 
-public class MongoRank extends Rank {
-
-    public MongoRank(String name) {
-        this.uuid = UUID.randomUUID();
-        this.name = name;
-
-        load();
+class MongoRank : Rank {
+    constructor(name: String?) {
+        uuid = UUID.randomUUID()
+        this.name = name
+        load()
     }
 
-    public MongoRank(UUID uuid, String name) {
-        this.uuid = uuid;
-        this.name = name;
-
-        load();
+    constructor(uuid: UUID?, name: String?) {
+        this.uuid = uuid
+        this.name = name
+        load()
     }
 
-    @Override
-    public void load() {
-        Document document = Flash.getInstance().getMongoHandler().getRankCollection().find(Filters.eq("uuid", this.uuid.toString())).first();
-
+    override fun load() {
+        val document: Document =
+            Flash.instance.mongoHandler.getRankCollection().find(Filters.eq("uuid", uuid.toString())).first()
         if (document == null) {
-            save(true, true);
-            return;
+            save(true, true)
+            return
         }
-
-        if (document.containsKey("name"))
-            this.name = document.getString("name");
-
-        if (document.containsKey("displayName"))
-            this.displayName = document.getString("displayName");
-
-        if (document.containsKey("color"))
-            this.color = ChatColor.valueOf(document.getString("color"));
-
-        if (document.containsKey("weight"))
-            this.weight = document.getInteger("weight");
-
-        if (document.containsKey("prefix"))
-            this.prefix = document.getString("prefix");
-
-        if (document.containsKey("suffix"))
-            this.suffix = document.getString("suffix");
-
-        if (document.containsKey("default"))
-            this.defaultRank = document.getBoolean("default");
-
-        if (document.containsKey("staff"))
-            this.staff = document.getBoolean("staff");
-
-        if (document.containsKey("permissions"))
-            this.permissions = GSONUtils.getGSON().fromJson(document.getString("permissions"), GSONUtils.STRING);
-
-        if (document.containsKey("inheritance"))
-            this.inheritance = GSONUtils.getGSON().fromJson(document.getString("inheritance"), GSONUtils.STRING);
-
+        if (document.containsKey("name")) name = document.getString("name")
+        if (document.containsKey("displayName")) displayName = document.getString("displayName")
+        if (document.containsKey("color")) color = ChatColor.valueOf(document.getString("color"))
+        if (document.containsKey("weight")) weight = document.getInteger("weight")
+        if (document.containsKey("prefix")) prefix = document.getString("prefix")
+        if (document.containsKey("suffix")) suffix = document.getString("suffix")
+        if (document.containsKey("default")) defaultRank = document.getBoolean("default")
+        if (document.containsKey("staff")) staff = document.getBoolean("staff")
+        if (document.containsKey("permissions")) permissions =
+            GSONUtils.getGSON().fromJson(document.getString("permissions"), GSONUtils.STRING)
+        if (document.containsKey("inheritance")) inheritance =
+            GSONUtils.getGSON().fromJson(document.getString("inheritance"), GSONUtils.STRING)
     }
 
-    @Override
-    public void delete() {
-        Flash.getInstance().getRankHandler().getRanks().remove(this.uuid);
-        Flash.getInstance().getMongoHandler().getRankCollection().deleteOne(Filters.eq("uuid", this.uuid.toString()));
-        new RanksUpdatePacket(Flash.getInstance().getRankHandler().getRanks()).send();
+    override fun delete() {
+        Flash.instance.rankHandler.getRanks().remove(uuid)
+        Flash.instance.mongoHandler.getRankCollection().deleteOne(Filters.eq("uuid", uuid.toString()))
+        RanksUpdatePacket(Flash.instance.rankHandler.getRanks()).send()
     }
 
-    @Override
-    public void save(boolean async) {
-        save(async, false);
+    override fun save(async: Boolean) {
+        save(async, false)
     }
 
-    private void save(boolean async, boolean reload) {
-        Document document = new Document();
-
-        document.put("uuid", this.uuid.toString());
-        document.put("name", this.name);
-        document.put("displayName", this.displayName);
-        document.put("color", this.color.name());
-        document.put("weight", this.weight);
-        document.put("prefix", this.prefix);
-        document.put("suffix", this.suffix);
-        document.put("default", this.defaultRank);
-        document.put("staff", this.staff);
-        document.put("permissions", GSONUtils.getGSON().toJson(this.permissions, GSONUtils.STRING));
-        document.put("inheritance", GSONUtils.getGSON().toJson(this.inheritance, GSONUtils.STRING));
-
-        Flash.getInstance().getMongoHandler().getRankCollection().replaceOne(Filters.eq("uuid", this.uuid.toString()), document, new ReplaceOptions().upsert(true));
-
-        if (reload) load();
+    private fun save(async: Boolean, reload: Boolean) {
+        val document = Document()
+        document["uuid"] = uuid.toString()
+        document["name"] = name
+        document["displayName"] = displayName
+        document["color"] = color.name
+        document["weight"] = weight
+        document["prefix"] = prefix
+        document["suffix"] = suffix
+        document["default"] = defaultRank
+        document["staff"] = staff
+        document["permissions"] = GSONUtils.getGSON().toJson(permissions, GSONUtils.STRING)
+        document["inheritance"] = GSONUtils.getGSON().toJson(inheritance, GSONUtils.STRING)
+        Flash.instance.mongoHandler.getRankCollection()
+            .replaceOne(Filters.eq("uuid", uuid.toString()), document, ReplaceOptions().upsert(true))
+        if (reload) load()
     }
-
 }

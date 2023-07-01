@@ -1,30 +1,27 @@
-package dev.lbuddyboy.flash.util;
+package dev.lbuddyboy.flash.util
 
-import dev.lbuddyboy.flash.FlashLanguage;
-import org.bukkit.entity.Player;
+import dev.lbuddyboy.flash.FlashLanguage
+import org.bukkit.entity.Player
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.net.URL
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-
-public class NameMCUtils {
-
-    public static boolean hasLiked(Player player) {
-        boolean voted = false;
+object NameMCUtils {
+    fun hasLiked(player: Player): Boolean {
+        var voted = false
         try {
-            URL url = new URL("https://api.namemc.com/server/" + FlashLanguage.SERVER_IP.getString() + "/likes?profile=" + player.getUniqueId().toString());
-            URLConnection urlConnection = url.openConnection();
-            InputStream inputStream = urlConnection.getInputStream();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-            String line = null;
-            while ((line = bufferedReader.readLine()) != null) {
-                voted = Boolean.parseBoolean(line);
+            val url =
+                URL("https://api.namemc.com/server/" + FlashLanguage.SERVER_IP.string + "/likes?profile=" + player.uniqueId.toString())
+            val urlConnection = url.openConnection()
+            val inputStream = urlConnection.getInputStream()
+            val bufferedReader = BufferedReader(InputStreamReader(inputStream))
+            var line: String? = null
+            while (bufferedReader.readLine().also { line = it } != null) {
+                voted = java.lang.Boolean.parseBoolean(line)
             }
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (ex: Exception) {
+            ex.printStackTrace()
         }
-        return voted;
+        return voted
     }
 }

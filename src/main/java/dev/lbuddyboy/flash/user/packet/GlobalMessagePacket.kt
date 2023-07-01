@@ -1,39 +1,31 @@
-package dev.lbuddyboy.flash.user.packet;
+package dev.lbuddyboy.flash.user.packet
 
-import dev.lbuddyboy.flash.redis.JedisPacket;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import dev.lbuddyboy.flash.redis.JedisPacket
+import org.bukkit.Bukkit
+import java.util.*
+import java.util.function.Consumer
 
-import java.util.List;
-import java.util.UUID;
+class GlobalMessagePacket : JedisPacket {
+    private val target: UUID
+    private var messages: List<String>? = null
+    private var message: String? = null
 
-public class GlobalMessagePacket implements JedisPacket {
-
-    private final UUID target;
-    private List<String> messages;
-    private String message;
-
-    public GlobalMessagePacket(UUID target, List<String> messages) {
-        this.target = target;
-        this.messages = messages;
+    constructor(target: UUID, messages: List<String>?) {
+        this.target = target
+        this.messages = messages
     }
 
-    public GlobalMessagePacket(UUID target, String message) {
-        this.target = target;
-        this.message = message;
+    constructor(target: UUID, message: String?) {
+        this.target = target
+        this.message = message
     }
 
-    @Override
-    public void onReceive() {
-        Player player = Bukkit.getPlayer(this.target);
-        if (player == null) return;
-
-        if (this.messages != null) {
-            this.messages.forEach(player::sendMessage);
-            return;
+    override fun onReceive() {
+        val player = Bukkit.getPlayer(target) ?: return
+        if (messages != null) {
+            messages!!.forEach(Consumer { s: String? -> player.sendMessage(s) })
+            return
         }
-
-        player.sendMessage(this.message);
+        player.sendMessage(message)
     }
-
 }

@@ -1,105 +1,74 @@
-package dev.lbuddyboy.flash.user.listener;
+package dev.lbuddyboy.flash.user.listener
 
-import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.command.user.UserCommand;
-import dev.lbuddyboy.flash.command.user.note.NotesCommand;
-import dev.lbuddyboy.flash.user.User;
-import dev.lbuddyboy.flash.user.menu.GrantMenu;
-import dev.lbuddyboy.flash.user.menu.GrantsMenu;
-import dev.lbuddyboy.flash.user.menu.NotesMenu;
-import dev.lbuddyboy.flash.user.model.*;
-import dev.lbuddyboy.flash.user.packet.GrantRemovePacket;
-import dev.lbuddyboy.flash.user.packet.NoteRemovePacket;
-import dev.lbuddyboy.flash.user.packet.PermissionRemovePacket;
-import dev.lbuddyboy.flash.util.bukkit.CC;
-import dev.lbuddyboy.flash.util.bukkit.Tasks;
-import dev.lbuddyboy.flash.util.bukkit.UserUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
+import dev.lbuddyboy.flash.Flash
+import dev.lbuddyboy.flash.command.user.note.NotesCommand
+import dev.lbuddyboy.flash.user.User
+import dev.lbuddyboy.flash.user.menu.NotesMenu
+import dev.lbuddyboy.flash.user.model.Note
+import dev.lbuddyboy.flash.user.packet.NoteRemovePacket
+import dev.lbuddyboy.flash.util.bukkit.CC
+import dev.lbuddyboy.flash.util.bukkit.Tasks
+import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
+import org.bukkit.event.Listener
+import org.bukkit.event.player.AsyncPlayerChatEvent
+import java.util.*
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-public class NoteListener implements Listener {
-
-    public static Map<String, Note> noteRemoveMap = new HashMap<>();
-    public static Map<String, UUID> noteTargetRemoveMap = new HashMap<>();
-
-    public static Map<String, UUID> noteTargetAddMap = new HashMap<>();
-    public static Map<String, String> noteTargetAddTitleMap = new HashMap<>();
-
+class NoteListener : Listener {
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onChat(AsyncPlayerChatEvent event) {
-
-        if (!noteRemoveMap.containsKey(event.getPlayer().getName())) return;
-
-        event.setCancelled(true);
-
-        Note note = noteRemoveMap.remove(event.getPlayer().getName());
-        UUID uuid = noteTargetRemoveMap.remove(event.getPlayer().getName());
-
-        if (event.getMessage().equalsIgnoreCase("cancel")) {
-            Tasks.run(() -> new NotesMenu(uuid).openMenu(event.getPlayer()));
-            return;
+    fun onChat(event: AsyncPlayerChatEvent) {
+        if (!noteRemoveMap.containsKey(event.player.name)) return
+        event.isCancelled = true
+        val note = noteRemoveMap.remove(event.player.name)
+        val uuid = noteTargetRemoveMap.remove(event.player.name)
+        if (event.message.equals("cancel", ignoreCase = true)) {
+            Tasks.run { NotesMenu(uuid).openMenu(event.player) }
+            return
         }
-
-        User user = Flash.getInstance().getUserHandler().tryUser(uuid, true);
-
-        note.setRemoved(true);
-        note.setRemovedFor(event.getMessage());
-        note.setRemovedAt(System.currentTimeMillis());
-        note.setRemovedBy(event.getPlayer().getUniqueId());
-
-        new NoteRemovePacket(uuid, note).send();
-        user.save(true);
-
-        event.getPlayer().sendMessage(CC.translate("&aRemoved the " + note.getTitle() + " note from " + user.getColoredName() + "&a."));
-
-        Tasks.run(() -> new NotesMenu(uuid).openMenu(event.getPlayer()));
+        val user: User = Flash.instance.userHandler.tryUser(uuid, true)
+        note.setRemoved(true)
+        note.setRemovedFor(event.message)
+        note.setRemovedAt(System.currentTimeMillis())
+        note.setRemovedBy(event.player.uniqueId)
+        NoteRemovePacket(uuid, note).send()
+        user.save(true)
+        event.player.sendMessage(CC.translate("&aRemoved the " + note.getTitle() + " note from " + user.coloredName + "&a."))
+        Tasks.run { NotesMenu(uuid).openMenu(event.player) }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onChatAdd(AsyncPlayerChatEvent event) {
-
-        if (!noteTargetAddMap.containsKey(event.getPlayer().getName())) return;
-
-        event.setCancelled(true);
-
-        UUID uuid = noteTargetAddMap.get(event.getPlayer().getName());
-        if (!noteTargetAddTitleMap.containsKey(event.getPlayer().getName())) {
-
-            if (event.getMessage().equalsIgnoreCase("cancel")) {
-                UUID finalUuid = uuid;
-                Tasks.run(() -> new NotesMenu(finalUuid));
-                return;
+    fun onChatAdd(event: AsyncPlayerChatEvent) {
+        if (!noteTargetAddMap.containsKey(event.player.name)) return
+        event.isCancelled = true
+        var uuid = noteTargetAddMap[event.player.name]
+        if (!noteTargetAddTitleMap.containsKey(event.player.name)) {
+            if (event.message.equals("cancel", ignoreCase = true)) {
+                val finalUuid = uuid
+                Tasks.run { NotesMenu(finalUuid) }
+                return
             }
-
-            noteTargetAddTitleMap.put(event.getPlayer().getName(), event.getMessage());
-            event.getPlayer().sendMessage(CC.translate("&aNow, please type the note you would like to add."));
-            return;
+            noteTargetAddTitleMap[event.player.name] = event.message
+            event.player.sendMessage(CC.translate("&aNow, please type the note you would like to add."))
+            return
         }
-
-        uuid = noteTargetAddMap.remove(event.getPlayer().getName());
-        String title = noteTargetAddTitleMap.remove(event.getPlayer().getName());
-
-        if (event.getMessage().equalsIgnoreCase("cancel")) {
-            UUID finalUuid1 = uuid;
-            Tasks.run(() -> new NotesMenu(finalUuid1).openMenu(event.getPlayer()));
-            return;
+        uuid = noteTargetAddMap.remove(event.player.name)
+        val title = noteTargetAddTitleMap.remove(event.player.name)
+        if (event.message.equals("cancel", ignoreCase = true)) {
+            val finalUuid1 = uuid
+            Tasks.run { NotesMenu(finalUuid1).openMenu(event.player) }
+            return
         }
-
-        User user = Flash.getInstance().getUserHandler().tryUser(uuid, true);
-
-        NotesCommand.add(event.getPlayer(), uuid, title, event.getMessage());
-
-        event.getPlayer().sendMessage(CC.translate("&aAdded the " + title + " note from " + user.getColoredName() + "&a."));
-
-        UUID finalUuid2 = uuid;
-        Tasks.run(() -> new NotesMenu(finalUuid2).openMenu(event.getPlayer()));
+        val user: User = Flash.instance.userHandler.tryUser(uuid, true)
+        NotesCommand.add(event.player, uuid, title, event.message)
+        event.player.sendMessage(CC.translate("&aAdded the " + title + " note from " + user.coloredName + "&a."))
+        val finalUuid2 = uuid
+        Tasks.run { NotesMenu(finalUuid2).openMenu(event.player) }
     }
 
+    companion object {
+        var noteRemoveMap: MutableMap<String, Note?> = HashMap()
+        var noteTargetRemoveMap: MutableMap<String, UUID?> = HashMap()
+        var noteTargetAddMap: MutableMap<String, UUID?> = HashMap()
+        var noteTargetAddTitleMap: MutableMap<String, String> = HashMap()
+    }
 }

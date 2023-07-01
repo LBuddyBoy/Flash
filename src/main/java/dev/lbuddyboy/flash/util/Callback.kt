@@ -1,12 +1,12 @@
-package dev.lbuddyboy.flash.util;
+package dev.lbuddyboy.flash.util
 
-public interface Callback<T, O> {
-    void call(T t, O t2);
-
-    public static interface SingleCallback<T> {
-        void call(T t);
+interface Callback<T, O> {
+    fun call(t: T, t2: O)
+    interface SingleCallback<T> {
+        fun call(t: T)
     }
-    public static interface TripleCallback<T, V, O> {
-        void call(T t, V v, O o);
+
+    interface TripleCallback<T, V, O> {
+        fun call(t: T, v: V, o: O)
     }
 }

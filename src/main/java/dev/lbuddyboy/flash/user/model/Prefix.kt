@@ -1,35 +1,28 @@
-package dev.lbuddyboy.flash.user.model;
+package dev.lbuddyboy.flash.user.model
 
-import com.mongodb.client.model.UpdateOptions;
-import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.user.packet.PrefixesUpdatePacket;
-import dev.lbuddyboy.flash.util.gson.GSONUtils;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import org.bson.Document;
-
-import javax.print.Doc;
+import com.mongodb.client.model.UpdateOptions
+import dev.lbuddyboy.flash.Flash
+import dev.lbuddyboy.flash.util.gson.GSONUtils
+import lombok.*
+import org.bson.Document
 
 @AllArgsConstructor
 @Data
-public class Prefix {
-
-    private String id, display;
-    private int weight;
-
-    public void save() {
-        Document prefixDocument = Document.parse(GSONUtils.getGSON().toJson(this, GSONUtils.PREFIX));
-        prefixDocument.remove("_id");
-
-        Document query = new Document("_id", id);
-        Document prefixUpdate = new Document("$set", prefixDocument);
-
-        Flash.getInstance().getMongoHandler().getPrefixCollection().updateOne(query, prefixUpdate, new UpdateOptions().upsert(true));
+class Prefix {
+    private val id: String? = null
+    private val display: String? = null
+    private val weight = 0
+    fun save() {
+        val prefixDocument = Document.parse(GSONUtils.getGSON().toJson(this, GSONUtils.PREFIX))
+        prefixDocument.remove("_id")
+        val query = Document("_id", id)
+        val prefixUpdate = Document("\$set", prefixDocument)
+        Flash.instance.mongoHandler.getPrefixCollection()
+            .updateOne(query, prefixUpdate, UpdateOptions().upsert(true))
     }
 
-    public void delete() {
-        Document query = new Document("_id", id);
-        Flash.getInstance().getMongoHandler().getPrefixCollection().deleteOne(query);
+    fun delete() {
+        val query = Document("_id", id)
+        Flash.instance.mongoHandler.getPrefixCollection().deleteOne(query)
     }
-
 }

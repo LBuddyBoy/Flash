@@ -1,19 +1,15 @@
-package dev.lbuddyboy.flash.cache.packet;
+package dev.lbuddyboy.flash.cache.packet
 
-import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.redis.JedisPacket;
-import lombok.AllArgsConstructor;
-
-import java.util.UUID;
+import dev.lbuddyboy.flash.Flash
+import dev.lbuddyboy.flash.redis.JedisPacket
+import lombok.AllArgsConstructor
+import java.util.*
 
 @AllArgsConstructor
-public class CacheDistributePacket implements JedisPacket {
-
-    private UUID uuid;
-    private String name;
-
-    @Override
-    public void onReceive() {
-        Flash.getInstance().getCacheHandler().getUserCache().update(uuid, name, false);
+class CacheDistributePacket : JedisPacket {
+    private val uuid: UUID? = null
+    private val name: String? = null
+    override fun onReceive() {
+        Flash.instance.cacheHandler.getUserCache().update(uuid, name, false)
     }
 }

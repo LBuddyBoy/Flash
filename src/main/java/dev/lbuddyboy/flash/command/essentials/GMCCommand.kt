@@ -1,24 +1,22 @@
-package dev.lbuddyboy.flash.command.essentials;
+package dev.lbuddyboy.flash.command.essentials
 
-import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.*;
-import dev.lbuddyboy.flash.util.bukkit.CC;
-import org.bukkit.GameMode;
-import org.bukkit.entity.Player;
+import co.aikar.commands.BaseCommand
+import co.aikar.commands.annotation.*
+import dev.lbuddyboy.flash.util.bukkit.CC
+import org.bukkit.GameMode
+import org.bukkit.entity.Player
 
 @CommandAlias("gmc")
 @CommandPermission("flash.command.gamemode.creative")
-public class GMCCommand extends BaseCommand {
-
+object GMCCommand : BaseCommand() {
     @Default
     @CommandCompletion("@target")
-    public static void gmc(Player sender, @Name("target") @Default("self") Player target) {
-        target.setGameMode(GameMode.CREATIVE);
-        if (sender == target) {
-            sender.sendMessage(CC.translate("&cGameMode&7: &fCREATIVE"));
+    fun gmc(sender: Player, @Name("target") @Default("self") target: Player) {
+        target.gameMode = GameMode.CREATIVE
+        if (sender === target) {
+            sender.sendMessage(CC.translate("&cGameMode&7: &fCREATIVE"))
         } else {
-            sender.sendMessage(CC.translate("&c" + target.getName() + "'s GameMode&7: &fCREATIVE"));
+            sender.sendMessage(CC.translate("&c" + target.name + "'s GameMode&7: &fCREATIVE"))
         }
     }
-
 }

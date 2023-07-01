@@ -1,59 +1,51 @@
-package dev.lbuddyboy.flash.user.model;
+package dev.lbuddyboy.flash.user.model
 
-import dev.lbuddyboy.flash.FlashLanguage;
-import dev.lbuddyboy.flash.util.TimeUtils;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
-
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
-import java.util.UUID;
+import dev.lbuddyboy.flash.FlashLanguage
+import dev.lbuddyboy.flash.util.TimeUtils
+import lombok.Data
+import lombok.RequiredArgsConstructor
+import java.text.SimpleDateFormat
+import java.util.*
 
 @Data
 @RequiredArgsConstructor
-public class UserPermission {
-
-    private final String node;
-    private final long duration;
-    private final long sentAt;
-    private final UUID sentBy;
-    private final String sentFor;
-
-    private UUID removedBy;
-    private long removedAt;
-    private String removedFor;
-    private boolean removed;
-
-    public String getExpireString() {
-        if (isPermanent()) {
-            return "Never";
-        }
-        return TimeUtils.formatLongIntoDetailedString((getExpiry() - System.currentTimeMillis()) / 1000);
+class UserPermission {
+    private val node: String? = null
+    private val duration: Long = 0
+    private val sentAt: Long = 0
+    private val sentBy: UUID? = null
+    private val sentFor: String? = null
+    private val removedBy: UUID? = null
+    private val removedAt: Long = 0
+    private val removedFor: String? = null
+    private val removed = false
+    fun getExpireString(): String? {
+        return if (isPermanent()) {
+            "Never"
+        } else TimeUtils.formatLongIntoDetailedString((getExpiry() - System.currentTimeMillis()) / 1000)
     }
 
-    public long getExpiry() {
-        return (this.sentAt + this.duration);
+    fun getExpiry(): Long {
+        return sentAt + duration
     }
 
-    public boolean isExpired() {
-        if (isPermanent()) return false;
-        return getExpiry() < System.currentTimeMillis();
+    fun isExpired(): Boolean {
+        return if (isPermanent()) false else getExpiry() < System.currentTimeMillis()
     }
 
-    public boolean isPermanent() {
-        return this.duration == Long.MAX_VALUE;
+    fun isPermanent(): Boolean {
+        return duration == Long.MAX_VALUE
     }
 
-    public String getAddedAtDate() {
-        SimpleDateFormat sdf = new SimpleDateFormat();
-        sdf.setTimeZone(TimeZone.getTimeZone(FlashLanguage.TIMEZONE.getString()));
-        return sdf.format(sentAt);
+    fun getAddedAtDate(): String {
+        val sdf = SimpleDateFormat()
+        sdf.timeZone = TimeZone.getTimeZone(FlashLanguage.TIMEZONE.string)
+        return sdf.format(sentAt)
     }
 
-    public String getRemovedAtDate() {
-        SimpleDateFormat sdf = new SimpleDateFormat();
-        sdf.setTimeZone(TimeZone.getTimeZone(FlashLanguage.TIMEZONE.getString()));
-        return sdf.format(removedAt);
+    fun getRemovedAtDate(): String {
+        val sdf = SimpleDateFormat()
+        sdf.timeZone = TimeZone.getTimeZone(FlashLanguage.TIMEZONE.string)
+        return sdf.format(removedAt)
     }
-
 }

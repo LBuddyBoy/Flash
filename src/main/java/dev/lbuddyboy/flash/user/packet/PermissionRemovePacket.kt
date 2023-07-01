@@ -1,36 +1,25 @@
-package dev.lbuddyboy.flash.user.packet;
+package dev.lbuddyboy.flash.user.packet
 
-import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.redis.JedisPacket;
-import dev.lbuddyboy.flash.user.User;
-import dev.lbuddyboy.flash.user.model.UserPermission;
-import lombok.AllArgsConstructor;
-
-import java.util.UUID;
+import dev.lbuddyboy.flash.Flash
+import dev.lbuddyboy.flash.redis.JedisPacket
+import dev.lbuddyboy.flash.user.model.UserPermission
+import lombok.AllArgsConstructor
+import java.util.*
 
 @AllArgsConstructor
-public class PermissionRemovePacket implements JedisPacket {
-
-    private UUID uuid;
-    private UserPermission permission;
-
-    @Override
-    public void onReceive() {
-        User user = Flash.getInstance().getUserHandler().tryUser(this.uuid, false);
-        if (user == null) return;
-
-        for (UserPermission userPermission : user.getPermissions()) {
-            if (!userPermission.getNode().equals(permission.getNode())) continue;
-
-            userPermission.setRemovedBy(permission.getRemovedBy());
-            userPermission.setRemovedFor(permission.getRemovedFor());
-            userPermission.setRemovedAt(permission.getRemovedAt());
-            userPermission.setRemoved(permission.isRemoved());
+class PermissionRemovePacket : JedisPacket {
+    private val uuid: UUID? = null
+    private val permission: UserPermission? = null
+    override fun onReceive() {
+        val user = Flash.instance.userHandler.tryUser(uuid, false) ?: return
+        for (userPermission in user.getPermissions()) {
+            if (userPermission.node != permission.getNode()) continue
+            userPermission.removedBy = permission.getRemovedBy()
+            userPermission.removedFor = permission.getRemovedFor()
+            userPermission.removedAt = permission.getRemovedAt()
+            userPermission.isRemoved = permission.isRemoved()
         }
-
-        user.save(true);
-        user.updateGrants();
-
+        user.save(true)
+        user.updateGrants()
     }
-
 }

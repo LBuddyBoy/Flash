@@ -1,20 +1,14 @@
-package dev.lbuddyboy.flash.cache;
+package dev.lbuddyboy.flash.cache
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*
 
-public abstract class UserCache {
-
-    public abstract UUID getUUID(String name);
-    public abstract String getName(UUID uuid);
-    public abstract void load();
-    public List<UUID> allUUIDs() {
-        return new ArrayList<>();
+abstract class UserCache {
+    abstract fun getUUID(name: String?): UUID?
+    abstract fun getName(uuid: UUID?): String?
+    abstract fun load()
+    open fun allUUIDs(): List<UUID> {
+        return ArrayList()
     }
 
-    public abstract void update(UUID uuid, String name, boolean save);
-
+    abstract fun update(uuid: UUID, name: String?, save: Boolean)
 }

@@ -1,16 +1,13 @@
-package dev.lbuddyboy.flash.schedule;
+package dev.lbuddyboy.flash.schedule
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
-import java.util.Date;
+import lombok.AllArgsConstructor
+import lombok.Data
+import java.util.*
 
 @AllArgsConstructor
 @Data
-public class Task {
-
-    private String id;
-    private Date date;
-    private String command;
-
+class Task {
+    private val id: String? = null
+    private val date: Date? = null
+    private val command: String? = null
 }

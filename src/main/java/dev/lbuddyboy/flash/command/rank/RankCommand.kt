@@ -1,330 +1,385 @@
-package dev.lbuddyboy.flash.command.rank;
+package dev.lbuddyboy.flash.command.rank
 
-import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.*;
-import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.FlashLanguage;
-import dev.lbuddyboy.flash.rank.Rank;
-import dev.lbuddyboy.flash.rank.editor.menu.RankEditorMenu;
-import dev.lbuddyboy.flash.rank.menu.RankListMenu;
-import dev.lbuddyboy.flash.rank.packet.RanksUpdatePacket;
-import dev.lbuddyboy.flash.user.User;
-import dev.lbuddyboy.flash.util.bukkit.CC;
-import dev.lbuddyboy.flash.util.PagedItem;
-import org.apache.commons.lang.StringUtils;
-import org.bukkit.ChatColor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
-import java.util.Arrays;
-import java.util.List;
+import co.aikar.commands.BaseCommand
+import co.aikar.commands.annotation.*
+import dev.lbuddyboy.flash.Flash
+import dev.lbuddyboy.flash.FlashLanguage
+import dev.lbuddyboy.flash.rank.Rank
+import dev.lbuddyboy.flash.rank.editor.menu.RankEditorMenu
+import dev.lbuddyboy.flash.rank.menu.RankListMenu
+import dev.lbuddyboy.flash.rank.packet.RanksUpdatePacket
+import dev.lbuddyboy.flash.util.PagedItem
+import dev.lbuddyboy.flash.util.bukkit.CC
+import org.apache.commons.lang.StringUtils
+import org.bukkit.*
+import org.bukkit.command.CommandSender
+import org.bukkit.entity.Player
 
 @CommandAlias("rank|ranks")
 @CommandPermission("flash.command.rank")
-public class RankCommand extends BaseCommand {
-
+object RankCommand : BaseCommand() {
     @Default
-    public static void def(CommandSender sender, @Name("page") @Default("1") int page) {
-        PagedItem item = new PagedItem(COMMANDS, FlashLanguage.RANK_HELP.getStringList(), 5);
-
-        item.send(sender, page);
-
-        sender.sendMessage(CC.CHAT_BAR);
+    fun def(sender: CommandSender, @Name("page") @Default("1") page: Int) {
+        val item = PagedItem(COMMANDS, FlashLanguage.RANK_HELP.stringList, 5)
+        item.send(sender, page)
+        sender.sendMessage(CC.CHAT_BAR)
     }
 
     @Subcommand("help")
-    public static void help(CommandSender sender, @Name("page") @Default("1") int page) {
-        def(sender, page);
+    fun help(sender: CommandSender, @Name("page") @Default("1") page: Int) {
+        def(sender, page)
     }
 
     @Subcommand("list|dump")
-    public static void list(CommandSender sender) {
-        for (String s : FlashLanguage.RANK_LIST_HEADER.getStringList()) sender.sendMessage(CC.translate(s));
-
-        for (Rank rank : Flash.getInstance().getRankHandler().getSortedRanks()) {
-            sender.sendMessage(CC.translate(FlashLanguage.RANK_LIST_FORMAT.getString(),
+    fun list(sender: CommandSender) {
+        for (s in FlashLanguage.RANK_LIST_HEADER.stringList!!) sender.sendMessage(CC.translate(s))
+        for (rank in Flash.instance.rankHandler.sortedRanks) {
+            sender.sendMessage(
+                CC.translate(
+                    FlashLanguage.RANK_LIST_FORMAT.string,
                     "%rank%", rank.getName(),
-                    "%display%", rank.getDisplayName(),
-                    "%default%", rank.isDefaultRank() ? "True" : "False",
+                    "%display%", rank.getDisplayName()!!,
+                    "%default%", if (rank.isDefaultRank) "True" else "False",
                     "%weight%", rank.getWeight(),
                     "%prefix%", rank.getPrefix(),
                     "%suffix%", rank.getSuffix()
-            ));
+                )
+            )
         }
-
     }
 
     @Subcommand("info")
     @CommandPermission("flash.command.rank.info")
     @CommandCompletion("@rank")
-    public static void info(CommandSender sender, @Name("rank") Rank rank) {
-        sender.sendMessage(CC.translate("&cDefault: ") + (rank.isDefaultRank() ? "&aYes" : "&cNo"));
-        sender.sendMessage(CC.translate("&cStaff: ") + (rank.isStaff() ? "&aYes" : "&cNo"));
-        sender.sendMessage(CC.translate("&cPermissions: ") + StringUtils.join(rank.getPermissions(), ", "));
-        sender.sendMessage(CC.translate("&cInherited Permissions: ") + StringUtils.join(rank.getInheritedPermissions(), ", "));
-        sender.sendMessage(CC.translate("&cInherited Ranks: " + StringUtils.join(rank.getInheritance(), ", ")));
+    fun info(sender: CommandSender, @Name("rank") rank: Rank) {
+        sender.sendMessage(CC.translate("&cDefault: ") + if (rank.isDefaultRank) "&aYes" else "&cNo")
+        sender.sendMessage(CC.translate("&cStaff: ") + if (rank.isStaff) "&aYes" else "&cNo")
+        sender.sendMessage(CC.translate("&cPermissions: ") + StringUtils.join(rank.getPermissions(), ", "))
+        sender.sendMessage(
+            CC.translate("&cInherited Permissions: ") + StringUtils.join(
+                rank.inheritedPermissions,
+                ", "
+            )
+        )
+        sender.sendMessage(CC.translate("&cInherited Ranks: " + StringUtils.join(rank.getInheritance(), ", ")))
     }
 
     @Subcommand("create")
     @CommandPermission("flash.command.rank.create")
-    public static void create(CommandSender sender, @Name("rank") String name) {
-        Rank rank = Flash.getInstance().getRankHandler().getRank(name);
-
+    fun create(sender: CommandSender, @Name("rank") name: String?) {
+        var rank = Flash.instance.rankHandler.getRank(name)
         if (rank != null) {
-            sender.sendMessage(CC.translate(FlashLanguage.RANK_EXISTS.getString()));
-            return;
+            sender.sendMessage(CC.translate(FlashLanguage.RANK_EXISTS.string))
+            return
         }
-        rank = Flash.getInstance().getRankHandler().createRank(name);
-
-        rank.setDisplayName(name);
-        rank.save(true);
-
-        Flash.getInstance().getRankHandler().getRanks().put(rank.getUuid(), rank);
-
-        sender.sendMessage(CC.translate(FlashLanguage.RANK_CREATE.getString(), "%rank%", rank.getColoredName()));
-
-        new RanksUpdatePacket(Flash.getInstance().getRankHandler().getRanks()).send();
-
+        rank = Flash.instance.rankHandler.createRank(name)
+        rank.setDisplayName(name)
+        rank.save(true)
+        Flash.instance.rankHandler.getRanks().put(rank.getUuid(), rank)
+        sender.sendMessage(CC.translate(FlashLanguage.RANK_CREATE.string, "%rank%", rank.getColoredName()))
+        RanksUpdatePacket(Flash.instance.rankHandler.getRanks()).send()
     }
 
     @Subcommand("delete")
     @CommandPermission("flash.command.rank.delete")
     @CommandCompletion("@rank")
-    public static void delete(CommandSender sender, @Name("rank") Rank rank) {
-        if (FlashLanguage.CACHE_TYPE.getString().equalsIgnoreCase("YAML") || FlashLanguage.CACHE_TYPE.getString().equalsIgnoreCase("FLATFILE")) {
-            sender.sendMessage(CC.translate("&cRanks cannot be deleted due to the cache type you are using. Delete it manually in the ranks.yml."));
-            return;
+    fun delete(sender: CommandSender, @Name("rank") rank: Rank) {
+        if (FlashLanguage.CACHE_TYPE.string.equals("YAML", ignoreCase = true) || FlashLanguage.CACHE_TYPE.string.equals(
+                "FLATFILE",
+                ignoreCase = true
+            )
+        ) {
+            sender.sendMessage(CC.translate("&cRanks cannot be deleted due to the cache type you are using. Delete it manually in the ranks.yml."))
+            return
         }
-
-        rank.delete();
-
-        sender.sendMessage(CC.translate(FlashLanguage.RANK_DELETE.getString(), "%rank%", rank.getColoredName()));
-
+        rank.delete()
+        sender.sendMessage(CC.translate(FlashLanguage.RANK_DELETE.string, "%rank%", rank.coloredName))
     }
 
     @Subcommand("toggledefault")
     @CommandPermission("flash.command.rank.toggledefault")
     @CommandCompletion("@rank")
-    public static void toggleDefault(CommandSender sender, @Name("rank") Rank rank) {
-        String previous = rank.isDefaultRank() ? "True" : "False";
-
-        rank.setDefaultRank(!rank.isDefaultRank());
-        rank.save(true);
-
-        sender.sendMessage(CC.translate(FlashLanguage.RANK_SET_DEFAULT.getString(), "%rank%", rank.getColoredName(), "%old-status%", previous, "%new-status%", rank.isDefaultRank() ? "&aTrue" : "&cFalse"));
-
-        new RanksUpdatePacket(Flash.getInstance().getRankHandler().getRanks()).send();
-
+    fun toggleDefault(sender: CommandSender, @Name("rank") rank: Rank) {
+        val previous = if (rank.isDefaultRank) "True" else "False"
+        rank.isDefaultRank = !rank.isDefaultRank
+        rank.save(true)
+        sender.sendMessage(
+            CC.translate(
+                FlashLanguage.RANK_SET_DEFAULT.string,
+                "%rank%",
+                rank.coloredName,
+                "%old-status%",
+                previous,
+                "%new-status%",
+                if (rank.isDefaultRank) "&aTrue" else "&cFalse"
+            )
+        )
+        RanksUpdatePacket(Flash.instance.rankHandler.getRanks()).send()
     }
 
     @Subcommand("togglestaff")
     @CommandPermission("flash.command.rank.togglestaff")
     @CommandCompletion("@rank")
-    public static void toggleStaff(CommandSender sender, @Name("rank") Rank rank) {
-        String previous = rank.isStaff() ? "True" : "False";
-
-        rank.setStaff(!rank.isStaff());
-        rank.save(true);
-
-        sender.sendMessage(CC.translate(FlashLanguage.RANK_SET_STAFF.getString(), "%rank%", rank.getColoredName(), "%old-status%", previous, "%new-status%", rank.isStaff() ? "&aTrue" : "&cFalse"));
-
-        new RanksUpdatePacket(Flash.getInstance().getRankHandler().getRanks()).send();
-
+    fun toggleStaff(sender: CommandSender, @Name("rank") rank: Rank) {
+        val previous = if (rank.isStaff) "True" else "False"
+        rank.isStaff = !rank.isStaff
+        rank.save(true)
+        sender.sendMessage(
+            CC.translate(
+                FlashLanguage.RANK_SET_STAFF.string,
+                "%rank%",
+                rank.coloredName,
+                "%old-status%",
+                previous,
+                "%new-status%",
+                if (rank.isStaff) "&aTrue" else "&cFalse"
+            )
+        )
+        RanksUpdatePacket(Flash.instance.rankHandler.getRanks()).send()
     }
 
     @Subcommand("setname|name|rename")
     @CommandPermission("flash.command.rank.setname")
     @CommandCompletion("@rank")
-    public static void setName(CommandSender sender, @Name("rank") Rank rank, @Name("newName") String newName) {
-        String previous = rank.getColoredName();
-
-        rank.setName(newName);
-        rank.save(true);
-
-        sender.sendMessage(CC.translate(FlashLanguage.RANK_SET_NAME.getString(), "%rank%", previous, "%new-rank%", rank.getColoredName()));
-
-        new RanksUpdatePacket(Flash.getInstance().getRankHandler().getRanks()).send();
-
+    fun setName(sender: CommandSender, @Name("rank") rank: Rank, @Name("newName") newName: String?) {
+        val previous = rank.coloredName
+        rank.setName(newName)
+        rank.save(true)
+        sender.sendMessage(
+            CC.translate(
+                FlashLanguage.RANK_SET_NAME.string,
+                "%rank%",
+                previous!!,
+                "%new-rank%",
+                rank.coloredName
+            )
+        )
+        RanksUpdatePacket(Flash.instance.rankHandler.getRanks()).send()
     }
 
     @Subcommand("setdisplayname|displayname|setdisplay")
     @CommandPermission("flash.command.rank.setdisplayname")
     @CommandCompletion("@rank")
-    public static void setDisplayName(CommandSender sender, @Name("rank") Rank rank, @Name("newDisplay") String newDisplayName) {
-        String previous = rank.getDisplayName();
-
-        rank.setDisplayName(newDisplayName);
-        rank.save(true);
-
-        sender.sendMessage(CC.translate(FlashLanguage.RANK_SET_DISPLAY_NAME.getString(), "%rank%", rank.getColoredName(), "%old-display%", previous, "%new-display%", rank.getDisplayName()));
-
-        new RanksUpdatePacket(Flash.getInstance().getRankHandler().getRanks()).send();
-
+    fun setDisplayName(sender: CommandSender, @Name("rank") rank: Rank, @Name("newDisplay") newDisplayName: String?) {
+        val previous = rank.getDisplayName()
+        rank.setDisplayName(newDisplayName)
+        rank.save(true)
+        sender.sendMessage(
+            CC.translate(
+                FlashLanguage.RANK_SET_DISPLAY_NAME.string,
+                "%rank%",
+                rank.coloredName,
+                "%old-display%",
+                previous!!,
+                "%new-display%",
+                rank.getDisplayName()!!
+            )
+        )
+        RanksUpdatePacket(Flash.instance.rankHandler.getRanks()).send()
     }
 
     @Subcommand("editor")
     @CommandPermission("flash.command.rank.editor")
-    public static void editor(Player sender) {
-        new RankListMenu(((player, rank) -> new RankEditorMenu(rank).openMenu(player))).openMenu(sender);
+    fun editor(sender: Player?) {
+        RankListMenu { player: Player?, rank: Rank? ->
+            RankEditorMenu(rank).openMenu(
+                player!!
+            )
+        }.openMenu(sender!!)
     }
 
     @Subcommand("setcolor|color|setdisplaycolor")
     @CommandPermission("flash.command.rank.setcolor")
     @CommandCompletion("@rank @chatcolors")
-    public static void setColor(CommandSender sender, @Name("rank") Rank rank, @Name("newColor") ChatColor color) {
-        String previous = rank.getColor() + rank.getColor().name();
-
-        rank.setColor(color);
-        rank.save(true);
-
-        sender.sendMessage(CC.translate(FlashLanguage.RANK_SET_COLOR.getString(), "%rank%", rank.getColoredName(), "%old-color%", previous, "%new-color%", rank.getColor() + rank.getColor().name()));
-
-        new RanksUpdatePacket(Flash.getInstance().getRankHandler().getRanks()).send();
-
+    fun setColor(sender: CommandSender, @Name("rank") rank: Rank, @Name("newColor") color: ChatColor?) {
+        val previous = rank.getColor().toString() + rank.getColor().name
+        rank.setColor(color)
+        rank.save(true)
+        sender.sendMessage(
+            CC.translate(
+                FlashLanguage.RANK_SET_COLOR.string,
+                "%rank%",
+                rank.coloredName,
+                "%old-color%",
+                previous,
+                "%new-color%",
+                rank.getColor().toString() + rank.getColor().name
+            )
+        )
+        RanksUpdatePacket(Flash.instance.rankHandler.getRanks()).send()
     }
 
     @Subcommand("setweight|weight|setpriority")
     @CommandPermission("flash.command.rank.setweight")
     @CommandCompletion("@rank")
-    public static void setWeight(CommandSender sender, @Name("rank") Rank rank, @Name("newWeight") int weight) {
-        int previous = rank.getWeight();
-
-        rank.setWeight(weight);
-        rank.save(true);
-
-        sender.sendMessage(CC.translate(FlashLanguage.RANK_SET_WEIGHT.getString(), "%rank%", rank.getColoredName(), "%old-weight%", previous, "%new-weight%", rank.getWeight()));
-
-        new RanksUpdatePacket(Flash.getInstance().getRankHandler().getRanks()).send();
-
+    fun setWeight(sender: CommandSender, @Name("rank") rank: Rank, @Name("newWeight") weight: Int) {
+        val previous = rank.getWeight()
+        rank.setWeight(weight)
+        rank.save(true)
+        sender.sendMessage(
+            CC.translate(
+                FlashLanguage.RANK_SET_WEIGHT.string,
+                "%rank%",
+                rank.coloredName,
+                "%old-weight%",
+                previous,
+                "%new-weight%",
+                rank.getWeight()
+            )
+        )
+        RanksUpdatePacket(Flash.instance.rankHandler.getRanks()).send()
     }
 
     @Subcommand("setprefix|prefix")
     @CommandPermission("flash.command.rank.setprefix")
     @CommandCompletion("@rank")
-    public static void setPrefix(CommandSender sender, @Name("rank") Rank rank, @Name("prefix") String prefix) {
-        String previous = rank.getPrefix();
-
-        rank.setPrefix(prefix);
-        rank.save(true);
-
-        sender.sendMessage(CC.translate(FlashLanguage.RANK_SET_PREFIX.getString(), "%rank%", rank.getColoredName(), "%old-prefix%", previous, "%new-prefix%", rank.getPrefix()));
-
-        new RanksUpdatePacket(Flash.getInstance().getRankHandler().getRanks()).send();
-
+    fun setPrefix(sender: CommandSender, @Name("rank") rank: Rank, @Name("prefix") prefix: String?) {
+        val previous = rank.getPrefix()
+        rank.setPrefix(prefix)
+        rank.save(true)
+        sender.sendMessage(
+            CC.translate(
+                FlashLanguage.RANK_SET_PREFIX.string,
+                "%rank%",
+                rank.coloredName,
+                "%old-prefix%",
+                previous,
+                "%new-prefix%",
+                rank.getPrefix()
+            )
+        )
+        RanksUpdatePacket(Flash.instance.rankHandler.getRanks()).send()
     }
 
     @Subcommand("setsuffix|suffix")
     @CommandPermission("flash.command.rank.setsuffix")
     @CommandCompletion("@rank")
-    public static void setSuffix(CommandSender sender, @Name("rank") Rank rank, @Name("prefix") String suffix) {
-        String previous = rank.getPrefix();
-
-        rank.setSuffix(suffix);
-        rank.save(true);
-
-        sender.sendMessage(CC.translate(FlashLanguage.RANK_SET_SUFFIX.getString(), "%rank%", rank.getColoredName(), "%old-suffix%", previous, "%new-suffix%", rank.getSuffix()));
-
-        new RanksUpdatePacket(Flash.getInstance().getRankHandler().getRanks()).send();
-
+    fun setSuffix(sender: CommandSender, @Name("rank") rank: Rank, @Name("prefix") suffix: String?) {
+        val previous = rank.getPrefix()
+        rank.setSuffix(suffix)
+        rank.save(true)
+        sender.sendMessage(
+            CC.translate(
+                FlashLanguage.RANK_SET_SUFFIX.string,
+                "%rank%",
+                rank.coloredName,
+                "%old-suffix%",
+                previous,
+                "%new-suffix%",
+                rank.getSuffix()
+            )
+        )
+        RanksUpdatePacket(Flash.instance.rankHandler.getRanks()).send()
     }
 
     @Subcommand("addpermission|addperm")
     @CommandPermission("flash.command.rank.addpermission")
     @CommandCompletion("@rank @permissions")
-    public static void addPermission(CommandSender sender, @Name("rank") Rank rank, @Name("permission") String permission) {
-
+    fun addPermission(sender: CommandSender, @Name("rank") rank: Rank, @Name("permission") permission: String?) {
         if (rank.getPermissions().contains(permission)) {
-            sender.sendMessage(CC.translate("&cThat rank already has that permission."));
-            return;
+            sender.sendMessage(CC.translate("&cThat rank already has that permission."))
+            return
         }
-
-        rank.getPermissions().add(permission);
-        rank.save(true);
-
-        sender.sendMessage(CC.translate(FlashLanguage.RANK_ADD_PERM.getString(), "%rank%", rank.getColoredName(), "%permission%", permission));
-
-        new RanksUpdatePacket(Flash.getInstance().getRankHandler().getRanks()).send();
-
-        for (User user : rank.getUsersWithRank()) {
-            user.setupPermissionsAttachment();
+        rank.getPermissions().add(permission)
+        rank.save(true)
+        sender.sendMessage(
+            CC.translate(
+                FlashLanguage.RANK_ADD_PERM.string,
+                "%rank%",
+                rank.coloredName,
+                "%permission%",
+                permission!!
+            )
+        )
+        RanksUpdatePacket(Flash.instance.rankHandler.getRanks()).send()
+        for (user in rank.usersWithRank) {
+            user!!.setupPermissionsAttachment()
         }
     }
 
     @Subcommand("removepermission|removeperm|delperm|delpermission")
     @CommandPermission("flash.command.rank.removepermission")
     @CommandCompletion("@rank")
-    public static void removePermission(CommandSender sender, @Name("rank") Rank rank, @Name("permission") String permission) {
-
+    fun removePermission(sender: CommandSender, @Name("rank") rank: Rank, @Name("permission") permission: String?) {
         if (!rank.getPermissions().contains(permission)) {
-            sender.sendMessage(CC.translate("&cThat rank does not have that permission."));
-            return;
+            sender.sendMessage(CC.translate("&cThat rank does not have that permission."))
+            return
         }
-
-        rank.getPermissions().remove(permission);
-        rank.save(true);
-
-        sender.sendMessage(CC.translate(FlashLanguage.RANK_REMOVE_PERM.getString(), "%rank%", rank.getColoredName(), "%permission%", permission));
-
-        new RanksUpdatePacket(Flash.getInstance().getRankHandler().getRanks()).send();
-        
+        rank.getPermissions().remove(permission)
+        rank.save(true)
+        sender.sendMessage(
+            CC.translate(
+                FlashLanguage.RANK_REMOVE_PERM.string,
+                "%rank%",
+                rank.coloredName,
+                "%permission%",
+                permission!!
+            )
+        )
+        RanksUpdatePacket(Flash.instance.rankHandler.getRanks()).send()
     }
 
     @Subcommand("addinheritance|addinherit|addparent")
     @CommandPermission("flash.command.rank.addinheritance")
     @CommandCompletion("@rank @rank")
-    public static void addInherit(CommandSender sender, @Name("rank") Rank rank, @Name("parent") @Single String inherit) {
-
+    fun addInherit(sender: CommandSender, @Name("rank") rank: Rank, @Name("parent") @Single inherit: String?) {
         if (rank.getInheritance().contains(inherit)) {
-            sender.sendMessage(CC.translate("&cThat rank already has that inheritance."));
-            return;
+            sender.sendMessage(CC.translate("&cThat rank already has that inheritance."))
+            return
         }
-
-        rank.getInheritance().add(inherit);
-        rank.save(true);
-
-        sender.sendMessage(CC.translate(FlashLanguage.RANK_ADD_INHERIT.getString(), "%rank%", rank.getColoredName(), "%inherit%", inherit));
-
-        new RanksUpdatePacket(Flash.getInstance().getRankHandler().getRanks()).send();
-
+        rank.getInheritance().add(inherit)
+        rank.save(true)
+        sender.sendMessage(
+            CC.translate(
+                FlashLanguage.RANK_ADD_INHERIT.string,
+                "%rank%",
+                rank.coloredName,
+                "%inherit%",
+                inherit!!
+            )
+        )
+        RanksUpdatePacket(Flash.instance.rankHandler.getRanks()).send()
     }
 
     @Subcommand("removeinheritance|reminherit|reminheritance|removeinherit|delinherit|delinheritance")
     @CommandPermission("flash.command.rank.removepermission")
     @CommandCompletion("@rank @rank")
-    public static void removeInherit(CommandSender sender, @Name("rank") Rank rank, @Name("inherit") @Single String inherit) {
-
+    fun removeInherit(sender: CommandSender, @Name("rank") rank: Rank, @Name("inherit") @Single inherit: String?) {
         if (!rank.getInheritance().contains(inherit)) {
-            sender.sendMessage(CC.translate("&cThat rank doesn't have that inheritance."));
-            return;
+            sender.sendMessage(CC.translate("&cThat rank doesn't have that inheritance."))
+            return
         }
-
-        rank.getInheritance().remove(inherit);
-        rank.save(true);
-
-        sender.sendMessage(CC.translate(FlashLanguage.RANK_REMOVE_INHERIT.getString(), "%rank%", rank.getColoredName(), "%inherit%", inherit));
-
-        new RanksUpdatePacket(Flash.getInstance().getRankHandler().getRanks()).send();
-
+        rank.getInheritance().remove(inherit)
+        rank.save(true)
+        sender.sendMessage(
+            CC.translate(
+                FlashLanguage.RANK_REMOVE_INHERIT.string,
+                "%rank%",
+                rank.coloredName,
+                "%inherit%",
+                inherit!!
+            )
+        )
+        RanksUpdatePacket(Flash.instance.rankHandler.getRanks()).send()
     }
 
-    private static final int itemsPerPage = 5;
-    private static final List<String> COMMANDS = Arrays.asList(
-            "&c/rank editor &7- &fdisplay a menu to edit all ranks",
-            "&c/rank info <rank> &7- &fdisplay a list of the ranks attributes",
-            "&c/rank create <name> &7- &fcreates a new rank",
-            "&c/rank delete <rank> &7- &fdeletes an existing rank",
-            "&c/rank setname <rank> <name> &7- &fsets the ranks name attribute",
-            "&c/rank setprefix <rank> <prefix> &7- &fsets the ranks prefix attribute",
-            "&c/rank setsuffix <rank> <suffix> &7- &fsets the ranks suffix attribute",
-            "&c/rank addpermission <rank> <permission> &7- &fadds a permission to a rank",
-            "&c/rank delpermission <rank> <permission> &7- &fdeletes a permission from a rank",
-            "&c/rank addinheritance <rank> <rank> &7- &fadds an inheritance to a rank",
-            "&c/rank delinheritance <rank> <rank> &7- &fdeletes an inheritance from a rank",
-            "&c/rank setweight <rank> <weight> &7- &fsets the ranks weight attribute",
-            "&c/rank setdisplayname <rank> <name> &7- &fsets the ranks display name attribute",
-            "&c/rank togglestaff <rank> &7- &ftoggles the staff status attribute",
-            "&c/rank toggledefault <rank> &7- &ftoggles the default rank status attribute",
-            "&c/rank setcolor <rank> <color> &7- &fsets the ranks color attribute"
-    );
-
+    private const val itemsPerPage = 5
+    private val COMMANDS: List<String> = mutableListOf(
+        "&c/rank editor &7- &fdisplay a menu to edit all ranks",
+        "&c/rank info <rank> &7- &fdisplay a list of the ranks attributes",
+        "&c/rank create <name> &7- &fcreates a new rank",
+        "&c/rank delete <rank> &7- &fdeletes an existing rank",
+        "&c/rank setname <rank> <name> &7- &fsets the ranks name attribute",
+        "&c/rank setprefix <rank> <prefix> &7- &fsets the ranks prefix attribute",
+        "&c/rank setsuffix <rank> <suffix> &7- &fsets the ranks suffix attribute",
+        "&c/rank addpermission <rank> <permission> &7- &fadds a permission to a rank",
+        "&c/rank delpermission <rank> <permission> &7- &fdeletes a permission from a rank",
+        "&c/rank addinheritance <rank> <rank> &7- &fadds an inheritance to a rank",
+        "&c/rank delinheritance <rank> <rank> &7- &fdeletes an inheritance from a rank",
+        "&c/rank setweight <rank> <weight> &7- &fsets the ranks weight attribute",
+        "&c/rank setdisplayname <rank> <name> &7- &fsets the ranks display name attribute",
+        "&c/rank togglestaff <rank> &7- &ftoggles the staff status attribute",
+        "&c/rank toggledefault <rank> &7- &ftoggles the default rank status attribute",
+        "&c/rank setcolor <rank> <color> &7- &fsets the ranks color attribute"
+    )
 }

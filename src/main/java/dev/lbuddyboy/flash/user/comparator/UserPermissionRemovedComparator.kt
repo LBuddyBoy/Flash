@@ -1,13 +1,12 @@
-package dev.lbuddyboy.flash.user.comparator;
+package dev.lbuddyboy.flash.user.comparator
 
-import dev.lbuddyboy.flash.user.model.UserPermission;
+import dev.lbuddyboy.flash.user.model.UserPermission
+import java.lang.Boolean
+import kotlin.Comparator
+import kotlin.Int
 
-import java.util.Comparator;
-
-public class UserPermissionRemovedComparator implements Comparator<UserPermission> {
-
-    @Override
-    public int compare(UserPermission permission, UserPermission otherPermission) {
-        return Boolean.compare(permission.isRemoved(), otherPermission.isRemoved());
+class UserPermissionRemovedComparator : Comparator<UserPermission> {
+    override fun compare(permission: UserPermission, otherPermission: UserPermission): Int {
+        return Boolean.compare(permission.isRemoved, otherPermission.isRemoved)
     }
 }

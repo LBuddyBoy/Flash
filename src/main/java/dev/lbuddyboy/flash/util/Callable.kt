@@ -1,8 +1,9 @@
-package dev.lbuddyboy.flash.util;
+package dev.lbuddyboy.flash.util
 
-public interface Callable {
+interface Callable {
+    fun call()
 
-    boolean sent = false;
-
-    void call();
+    companion object {
+        const val sent = false
+    }
 }

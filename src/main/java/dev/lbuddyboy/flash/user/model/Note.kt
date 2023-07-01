@@ -1,41 +1,32 @@
-package dev.lbuddyboy.flash.user.model;
+package dev.lbuddyboy.flash.user.model
 
-import com.google.gson.JsonObject;
-import dev.lbuddyboy.flash.FlashLanguage;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
-import java.util.UUID;
+import dev.lbuddyboy.flash.FlashLanguage
+import lombok.Data
+import lombok.RequiredArgsConstructor
+import java.text.SimpleDateFormat
+import java.util.*
 
 @RequiredArgsConstructor
 @Data
-public class Note {
-
-    private final UUID id;
-    private final String title;
-    private final String message;
-    private final UUID sender;
-    private final long sentAt;
-
-    private boolean removed;
-    private UUID removedBy;
-    private long removedAt;
-    private String removedFor;
-
-    public String getRemovedAtDate() {
-        SimpleDateFormat sdf = new SimpleDateFormat();
-        sdf.setTimeZone(TimeZone.getTimeZone(FlashLanguage.TIMEZONE.getString()));
-        return sdf.format(removedAt);
+class Note {
+    private val id: UUID? = null
+    private val title: String? = null
+    private val message: String? = null
+    private val sender: UUID? = null
+    private val sentAt: Long = 0
+    private val removed = false
+    private val removedBy: UUID? = null
+    private val removedAt: Long = 0
+    private val removedFor: String? = null
+    fun getRemovedAtDate(): String {
+        val sdf = SimpleDateFormat()
+        sdf.timeZone = TimeZone.getTimeZone(FlashLanguage.TIMEZONE.string)
+        return sdf.format(removedAt)
     }
 
-    public String getDateSentAt() {
-        SimpleDateFormat sdf = new SimpleDateFormat();
-        sdf.setTimeZone(TimeZone.getTimeZone(FlashLanguage.TIMEZONE.getString()));
-        return sdf.format(new Date(this.sentAt));
+    fun getDateSentAt(): String {
+        val sdf = SimpleDateFormat()
+        sdf.timeZone = TimeZone.getTimeZone(FlashLanguage.TIMEZONE.string)
+        return sdf.format(Date(sentAt))
     }
-
 }

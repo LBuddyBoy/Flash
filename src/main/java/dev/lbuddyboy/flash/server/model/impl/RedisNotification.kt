@@ -1,48 +1,47 @@
-package dev.lbuddyboy.flash.server.model.impl;
+package dev.lbuddyboy.flash.server.model.impl
 
-import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.handler.RedisHandler;
-import dev.lbuddyboy.flash.server.model.Notification;
-import dev.lbuddyboy.flash.server.packet.NotificationsUpdatePacket;
-import dev.lbuddyboy.flash.util.gson.GSONUtils;
+import dev.lbuddyboy.flash.Flash
+import dev.lbuddyboy.flash.handler.RedisHandler.Companion.requestJedis
+import dev.lbuddyboy.flash.server.model.Notification
+import dev.lbuddyboy.flash.server.packet.NotificationsUpdatePacket
+import dev.lbuddyboy.flash.util.gson.GSONUtils
+import java.util.*
 
-import java.util.UUID;
-
-public class RedisNotification extends Notification {
-
-    public RedisNotification(UUID id) {
-        this.id = id;
-
-        load();
+class RedisNotification : Notification {
+    constructor(id: UUID?) {
+        this.id = id
+        load()
     }
 
-    public RedisNotification(String title, String message) {
-        this.id = UUID.randomUUID();
-        this.title = title;
-        this.message = message;
-        this.sentAt = System.currentTimeMillis();
-
-        save();
+    constructor(title: String?, message: String?) {
+        id = UUID.randomUUID()
+        this.title = title
+        this.message = message
+        sentAt = System.currentTimeMillis()
+        save()
     }
 
-    @Override
-    public void load() {
-        Notification notification = GSONUtils.getGSON().fromJson(RedisHandler.requestJedis().getResource().hget("Notifications", this.id.toString()), GSONUtils.NOTIFICATION);
-
-        this.title = notification.getTitle();
-        this.message = notification.getMessage();
-        this.sentAt = notification.getSentAt();
+    override fun load() {
+        val notification = GSONUtils.getGSON().fromJson<Notification>(
+            requestJedis().resource.hget("Notifications", id.toString()),
+            GSONUtils.NOTIFICATION
+        )
+        title = notification.getTitle()
+        message = notification.getMessage()
+        sentAt = notification.getSentAt()
     }
 
-    @Override
-    public void delete() {
-        Flash.getInstance().getServerHandler().getNotifications().remove(this);
-        RedisHandler.requestJedis().getResource().hdel("Notifications", this.id.toString());
-        new NotificationsUpdatePacket(Flash.getInstance().getServerHandler().getNotifications()).send();
+    override fun delete() {
+        Flash.instance.serverHandler.getNotifications().remove(this)
+        requestJedis().resource.hdel("Notifications", id.toString())
+        NotificationsUpdatePacket(Flash.instance.serverHandler.getNotifications()).send()
     }
 
-    @Override
-    public void save() {
-        RedisHandler.requestJedis().getResource().hset("Notifications", this.id.toString(), GSONUtils.getGSON().toJson(this, GSONUtils.NOTIFICATION));
+    override fun save() {
+        requestJedis().resource.hset(
+            "Notifications",
+            id.toString(),
+            GSONUtils.getGSON().toJson(this, GSONUtils.NOTIFICATION)
+        )
     }
 }

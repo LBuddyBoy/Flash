@@ -1,128 +1,106 @@
-package dev.lbuddyboy.flash.handler;
+package dev.lbuddyboy.flash.handler
 
-import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.FlashLanguage;
-import dev.lbuddyboy.flash.rank.Rank;
-import dev.lbuddyboy.flash.rank.comparator.RankWeightComparator;
-import dev.lbuddyboy.flash.rank.editor.listener.RankEditorListener;
-import dev.lbuddyboy.flash.rank.impl.FlatFileRank;
-import dev.lbuddyboy.flash.rank.impl.MongoRank;
-import dev.lbuddyboy.flash.rank.impl.RedisRank;
-import dev.lbuddyboy.flash.rank.packet.RanksUpdatePacket;
-import dev.lbuddyboy.flash.util.bukkit.Tasks;
-import dev.lbuddyboy.flash.util.YamlDoc;
-import dev.lbuddyboy.flash.util.gson.GSONUtils;
-import lombok.Getter;
-import lombok.Setter;
-import org.bson.Document;
-import org.bukkit.Bukkit;
-
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
+import dev.lbuddyboy.flash.Flash
+import dev.lbuddyboy.flash.FlashLanguage
+import dev.lbuddyboy.flash.rank.Rank
+import dev.lbuddyboy.flash.rank.comparator.RankWeightComparator
+import dev.lbuddyboy.flash.rank.editor.listener.RankEditorListener
+import dev.lbuddyboy.flash.rank.impl.FlatFileRank
+import dev.lbuddyboy.flash.rank.impl.MongoRank
+import dev.lbuddyboy.flash.rank.impl.RedisRank
+import dev.lbuddyboy.flash.rank.packet.RanksUpdatePacket
+import dev.lbuddyboy.flash.util.YamlDoc
+import dev.lbuddyboy.flash.util.bukkit.Tasks
+import dev.lbuddyboy.flash.util.gson.GSONUtils
+import lombok.Getter
+import lombok.Setter
+import org.bukkit.Bukkit
+import java.util.*
+import java.util.concurrent.ConcurrentHashMap
+import java.util.stream.Collectors
 
 @Getter
 @Setter
-public class RankHandler {
+class RankHandler {
+    private val ranks: MutableMap<UUID, Rank?>
+    private var ranksYML: YamlDoc? = null
+    private var defaultRank: Rank? = null
 
-    private Map<UUID, Rank> ranks;
-    private YamlDoc ranksYML;
-    private Rank defaultRank;
-
-    public RankHandler() {
-        this.ranks = new ConcurrentHashMap<>();
-
-        switch (FlashLanguage.CACHE_TYPE.getString().toUpperCase()) {
-            case "FLATFILE":
-            case "YAML":
-                this.ranksYML = new YamlDoc(Flash.getInstance().getDataFolder(), "ranks.yml");
-                break;
+    init {
+        ranks = ConcurrentHashMap()
+        when (FlashLanguage.CACHE_TYPE.string.uppercase(Locale.getDefault())) {
+            "FLATFILE", "YAML" -> ranksYML = YamlDoc(
+                Flash.instance.dataFolder, "ranks.yml"
+            )
         }
-
-        Bukkit.getServer().getPluginManager().registerEvents(new RankEditorListener(), Flash.getInstance());
-
-        Tasks.run(this::loadAll);
+        Bukkit.getServer().pluginManager.registerEvents(RankEditorListener(), Flash.instance)
+        Tasks.run { loadAll() }
     }
 
-    public void loadAll() {
-        switch (FlashLanguage.CACHE_TYPE.getString().toUpperCase()) {
-            case "REDIS": {
-                for (Map.Entry<String, String> entry : RedisHandler.requestJedis().getResource().hgetAll("Ranks").entrySet()) {
-                    String key = entry.getKey();
-                    String value = entry.getValue();
-
-                    this.ranks.put(UUID.fromString(key), GSONUtils.getGSON().fromJson(value, GSONUtils.REDIS_RANK));
+    fun loadAll() {
+        when (FlashLanguage.CACHE_TYPE.string.uppercase(Locale.getDefault())) {
+            "REDIS" -> {
+                for ((key, value) in RedisHandler.Companion.requestJedis().getResource().hgetAll("Ranks").entries) {
+                    ranks[UUID.fromString(key)] = GSONUtils.getGSON().fromJson<Rank>(value, GSONUtils.REDIS_RANK)
                 }
-                break;
             }
-            case "MONGO": {
-                for (Document document : Flash.getInstance().getMongoHandler().getRankCollection().find()) {
-                    UUID uuid = UUID.fromString(document.getString("uuid"));
 
-                    this.ranks.put(uuid, new MongoRank(uuid, document.getString("name")));
+            "MONGO" -> {
+                for (document in Flash.instance.mongoHandler.rankCollection.find()) {
+                    val uuid = UUID.fromString(document.getString("uuid"))
+                    ranks[uuid] = MongoRank(uuid, document.getString("name"))
                 }
-                break;
             }
-            case "FLATFILE":
-            case "YAML": {
+
+            "FLATFILE", "YAML" -> {
                 try {
-                    for (String key : this.ranksYML.gc().getConfigurationSection("ranks").getKeys(false)) {
-                        UUID uuid = UUID.fromString(key);
-                        String name = this.ranksYML.gc().getString("ranks." + key + ".name");
-
-                        this.ranks.put(uuid, new FlatFileRank(uuid, name));
+                    for (key in ranksYML!!.gc().getConfigurationSection("ranks").getKeys(false)) {
+                        val uuid = UUID.fromString(key)
+                        val name = ranksYML.gc().getString("ranks.$key.name")
+                        ranks[uuid] = FlatFileRank(uuid, name)
                     }
-                } catch (Exception ignored) {
-
+                } catch (ignored: Exception) {
                 }
-                break;
             }
         }
-
-        for (Rank rank : ranks.values()) {
-            if (rank.isDefaultRank()) {
-                this.defaultRank = rank;
-                break;
+        for (rank in ranks.values) {
+            if (rank!!.isDefaultRank) {
+                defaultRank = rank
+                break
             }
         }
         if (getDefaultRank() == null) {
-            this.defaultRank = createRank("Default");
-            this.defaultRank.setDefaultRank(true);
-            ranks.put(this.defaultRank.getUuid(), this.defaultRank);
-            this.defaultRank.save(true);
+            defaultRank = createRank("Default")
+            defaultRank!!.isDefaultRank = true
+            ranks[defaultRank!!.getUuid()] = defaultRank
+            defaultRank!!.save(true)
         }
-
-        new RanksUpdatePacket(this.ranks).send();
+        RanksUpdatePacket(ranks).send()
     }
 
-    public Rank getRank(String name) {
-        for (Rank rank : this.ranks.values()) {
-            if (rank.getName().equals(name)) return rank;
+    fun getRank(name: String): Rank? {
+        for (rank in ranks.values) {
+            if (rank!!.getName() == name) return rank
         }
-        return null;
+        return null
     }
 
-    public Rank createRank(String name) {
-        switch (FlashLanguage.CACHE_TYPE.getString().toUpperCase()) {
-            case "REDIS": return new RedisRank(name);
-            case "MONGO": return new MongoRank(name);
-            case "FLATFILE":
-            case "YAML": return new FlatFileRank(name);
-            default: return null;
+    fun createRank(name: String?): Rank? {
+        return when (FlashLanguage.CACHE_TYPE.string.uppercase(Locale.getDefault())) {
+            "REDIS" -> RedisRank(name)
+            "MONGO" -> MongoRank(name)
+            "FLATFILE", "YAML" -> FlatFileRank(name)
+            else -> null
         }
     }
 
-    public List<Rank> getSortedRanks() {
-        return ranks.values().stream().sorted(new RankWeightComparator().reversed()).collect(Collectors.toList());
-    }
+    val sortedRanks: List<Rank?>
+        get() = ranks.values.stream().sorted(RankWeightComparator().reversed()).collect(Collectors.toList())
 
-    public Rank getDefaultRank() {
-        for (Rank rank : getRanks().values()) {
-            if (rank.isDefaultRank()) return rank;
+    fun getDefaultRank(): Rank? {
+        for (rank in getRanks().values) {
+            if (rank.isDefaultRank) return rank
         }
-        return null;
+        return null
     }
-
 }

@@ -1,74 +1,42 @@
-package dev.lbuddyboy.flash.rank.menu;
+package dev.lbuddyboy.flash.rank.menu
 
-import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.rank.Rank;
-import dev.lbuddyboy.flash.util.Callback;
-import dev.lbuddyboy.flash.util.bukkit.ColorUtil;
-import dev.lbuddyboy.flash.util.bukkit.ItemBuilder;
-import dev.lbuddyboy.flash.util.menu.Button;
-import dev.lbuddyboy.flash.util.menu.paged.PagedMenu;
-import lombok.AllArgsConstructor;
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.ItemStack;
+import dev.lbuddyboy.flash.Flashimport
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class RankListMenu extends PagedMenu<Rank> {
-
-    public Callback<Player, Rank> callback;
-
-    public RankListMenu(Callback<Player, Rank> callback) {
-        this.callback = callback;
-        this.objects = Flash.getInstance().getRankHandler().getSortedRanks();
+dev.lbuddyboy.flash.rank.Rankimport dev.lbuddyboy.flash.util.Callbackimport dev.lbuddyboy.flash.util.bukkit.ColorUtilimport dev.lbuddyboy.flash.util.bukkit.ItemBuilderimport dev.lbuddyboy.flash.util.menu.Buttonimport dev.lbuddyboy.flash.util.menu.paged.PagedMenuimport lombok.AllArgsConstructorimport org.bukkit.Materialimport org.bukkit.entity.Playerimport org.bukkit.event.inventory.InventoryClickEventimport org.bukkit.inventory.ItemStack
+class RankListMenu(var callback: Callback<Player, Rank>) : PagedMenu<Rank?>() {
+    init {
+        objects = Flash.instance.rankHandler.sortedRanks
     }
 
-    @Override
-    public String getPageTitle(Player player) {
-        return "Select a rank...";
+    override fun getPageTitle(player: Player?): String? {
+        return "Select a rank..."
     }
 
-    @Override
-    public List<Button> getPageButtons(Player player) {
-        List<Button> buttons = new ArrayList<>();
-
-        int slot = 0;
-        for (Rank rank : this.objects) {
-            buttons.add(new RankButton(slot, callback, rank));
+    override fun getPageButtons(player: Player): List<Button> {
+        val buttons: MutableList<Button> = ArrayList()
+        val slot = 0
+        for (rank in objects!!) {
+            buttons.add(RankButton(slot, callback, rank))
         }
-
-        return buttons;
+        return buttons
     }
 
     @AllArgsConstructor
-    private static class RankButton extends Button {
+    private class RankButton : Button() {
+        override var slot = 0
+            get() = slot
+        var callback: Callback<Player, Rank>? = null
+        var rank: Rank? = null
+        override val item: ItemStack?
+            get() = ItemBuilder(Material.WOOL)
+                .setName(rank!!.getDisplayName())
+                .setDurability(ColorUtil.COLOR_MAP!![rank.getColor()]!!.woolData.toShort())
+                .create()
 
-        public int slot;
-        public Callback<Player, Rank> callback;
-        public Rank rank;
-
-        @Override
-        public int getSlot() {
-            return slot;
-        }
-
-        @Override
-        public ItemStack getItem() {
-            return new ItemBuilder(Material.WOOL)
-                    .setName(rank.getDisplayName())
-                    .setDurability(ColorUtil.COLOR_MAP.get(rank.getColor()).getWoolData())
-                    .create();
-        }
-
-        @Override
-        public void action(InventoryClickEvent event) {
-            if (!(event.getWhoClicked() instanceof Player)) return;
-            Player player = (Player) event.getWhoClicked();
-
-            callback.call(player, rank);
+        override fun action(event: InventoryClickEvent) {
+            if (event.whoClicked !is Player) return
+            val player = event.whoClicked as Player
+            callback!!.call(player, rank!!)
         }
     }
-
 }

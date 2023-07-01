@@ -1,27 +1,21 @@
-package dev.lbuddyboy.flash.redis;
+package dev.lbuddyboy.flash.redis
 
-import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.FlashLanguage;
-import dev.lbuddyboy.flash.handler.RedisHandler;
-import dev.lbuddyboy.flash.util.gson.GSONUtils;
-import redis.clients.jedis.Jedis;
+import dev.lbuddyboy.flash.handler.RedisHandler
+import dev.lbuddyboy.flash.handler.RedisHandler.Companion.requestJedis
+import dev.lbuddyboy.flash.util.gson.GSONUtils
 
-public interface JedisPacket {
-
-    void onReceive();
-
-    default void send() {
+interface JedisPacket {
+    fun onReceive()
+    fun send() {
         if (!RedisHandler.isEnabled()) {
-            onReceive();
-            return;
+            onReceive()
+            return
         }
-
-        new Thread(() -> {
-            try (Jedis jedis = RedisHandler.requestJedis().getResource()) {
-                String encodedPacket = this.getClass().getName() + "||" + GSONUtils.GSON.toJson(this);
-                jedis.publish("Flash:Global", encodedPacket);
+        Thread {
+            requestJedis().resource.use { jedis ->
+                val encodedPacket = this.javaClass.name + "||" + GSONUtils.GSON.toJson(this)
+                jedis.publish("Flash:Global", encodedPacket)
             }
-        }).start();
+        }.start()
     }
 }
-

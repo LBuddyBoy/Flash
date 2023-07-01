@@ -1,156 +1,115 @@
-package dev.lbuddyboy.flash.rank.editor.menu;
+package dev.lbuddyboy.flash.rank.editor.menu
 
-import dev.lbuddyboy.flash.rank.Rank;
-import dev.lbuddyboy.flash.rank.editor.EditorType;
-import dev.lbuddyboy.flash.rank.editor.RankEdit;
-import dev.lbuddyboy.flash.rank.editor.listener.RankEditorListener;
-import dev.lbuddyboy.flash.rank.menu.RankListMenu;
-import dev.lbuddyboy.flash.util.*;
-import dev.lbuddyboy.flash.util.bukkit.CC;
-import dev.lbuddyboy.flash.util.bukkit.ColorUtil;
-import dev.lbuddyboy.flash.util.bukkit.CompatibleMaterial;
-import dev.lbuddyboy.flash.util.bukkit.ItemBuilder;
-import dev.lbuddyboy.flash.util.menu.Button;
-import dev.lbuddyboy.flash.util.menu.Menu;
-import dev.lbuddyboy.flash.util.menu.button.BackButton;
-import lombok.AllArgsConstructor;
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.ItemStack;
+import dev.lbuddyboy.flash.rank.Rankimport
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+dev.lbuddyboy.flash.rank.editor.EditorTypeimport dev.lbuddyboy.flash.rank.editor.RankEditimport dev.lbuddyboy.flash.rank.editor.listener.RankEditorListenerimport dev.lbuddyboy.flash.rank.menu.RankListMenuimport dev.lbuddyboy.flash.util.*import dev.lbuddyboy.flash.util.bukkit.CCimport
 
+dev.lbuddyboy.flash.util.bukkit.ColorUtilimport dev.lbuddyboy.flash.util.bukkit.CompatibleMaterialimport dev.lbuddyboy.flash.util.bukkit.ItemBuilderimport dev.lbuddyboy.flash.util.menu.Buttonimport dev.lbuddyboy.flash.util.menu.Menuimport dev.lbuddyboy.flash.util.menu.button.BackButtonimport lombok.AllArgsConstructorimport org.bukkit.Materialimport org.bukkit.entity.Playerimport org.bukkit.event.inventory.InventoryClickEventimport org.bukkit.inventory.ItemStackimport java.util.*
 @AllArgsConstructor
-public class RankEditorMenu extends Menu {
-
-    public Rank rank;
-
-    @Override
-    public String getTitle(Player player) {
-        return "Editing: " + rank.getName();
+class RankEditorMenu : Menu() {
+    var rank: Rank? = null
+    override fun getTitle(player: Player?): String? {
+        return "Editing: " + rank.getName()
     }
 
-    @Override
-    public List<Button> getButtons(Player player) {
-        List<Button> buttons = new ArrayList<>();
-
-        buttons.add(new BackButton(1, new RankListMenu((p, r) -> {
-            p.closeInventory();
-            new RankEditorMenu(r).openMenu(p);
-        })));
-
-        buttons.add(new RankDisplayButton(rank));
-        buttons.add(new UsersButton(rank));
-
-        for (EditorType type : EditorType.values()) {
-            buttons.add(new RankActionButton(type.getSlot(), rank, type.getButton(), type, type.getStack()));
+    override fun getButtons(player: Player): List<Button> {
+        val buttons: MutableList<Button> = ArrayList()
+        buttons.add(BackButton(1, RankListMenu { p: Player, r: Rank? ->
+            p.closeInventory()
+            RankEditorMenu(r).openMenu(p)
+        }))
+        buttons.add(RankDisplayButton(rank))
+        buttons.add(UsersButton(rank))
+        for (type in EditorType.values()) {
+            buttons.add(RankActionButton(type.slot, rank, type.button, type, type.stack))
         }
-
-        return buttons;
+        return buttons
     }
 
-    @Override
-    public int getSize(Player player) {
-        return 54;
+    override fun getSize(player: Player): Int {
+        return 54
     }
 
-    @Override
-    public boolean autoFill() {
-        return true;
+    override fun autoFill(): Boolean {
+        return true
     }
 
     @AllArgsConstructor
-    private static class RankActionButton extends Button {
-
-        public int slot;
-        public Rank rank;
-        public Callback<Player, Rank> callback;
-        public EditorType type;
-        public ItemStack stack;
-
-        @Override
-        public int getSlot() {
-            return slot;
+    private class RankActionButton : Button() {
+        override var slot = 0
+        var rank: Rank? = null
+        var callback: Callback<Player, Rank>? = null
+        var type: EditorType? = null
+        var stack: ItemStack? = null
+        override fun getSlot(): Int {
+            return slot
         }
 
-        @Override
-        public ItemStack getItem() {
-            return stack;
+        override fun getItem(): ItemStack? {
+            return stack
         }
 
-        @Override
-        public void action(InventoryClickEvent event) {
-            if (!(event.getWhoClicked() instanceof Player)) return;
-            Player player = (Player) event.getWhoClicked();
-
-            callback.call(player, rank);
-            if (type == EditorType.PERMISSIONS || type == EditorType.INHERITANCE) return;
-            RankEditorListener.rankEditorMap.put(player, new RankEdit(rank, type));
+        override fun action(event: InventoryClickEvent) {
+            if (event.whoClicked !is Player) return
+            val player = event.whoClicked as Player
+            callback!!.call(player, rank!!)
+            if (type == EditorType.PERMISSIONS || type == EditorType.INHERITANCE) return
+            RankEditorListener.Companion.rankEditorMap.put(player, RankEdit(rank, type))
         }
     }
 
     @AllArgsConstructor
-    private static class RankDisplayButton extends Button {
-
-        public Rank rank;
-
-        @Override
-        public int getSlot() {
-            return 13;
+    private class RankDisplayButton : Button() {
+        var rank: Rank? = null
+        override fun getSlot(): Int {
+            return 13
         }
 
-        @Override
-        public ItemStack getItem() {
-            return new ItemBuilder(Material.WOOL)
-                    .setName(rank.getColoredName())
-                    .setDurability(ColorUtil.COLOR_MAP.get(rank.getColor()).getWoolData())
-                    .setLore(Arrays.asList(
-                            CC.MENU_BAR,
-                            "&cDisplay Name&7: &f" + rank.getDisplayName(),
-                            "&cWeight&7: &f" + rank.getWeight(),
-                            "&cColor&7: &f" + rank.getColor().name(),
-                            "&cPrefix&7: &f" + rank.getPrefix(),
-                            "&cSuffix&7: &f" + rank.getSuffix(),
-                            "&cDefault Rank&7: &f" + (rank.isDefaultRank() ? "&a&l✓" : "&c&l✕"),
-                            CC.MENU_BAR
-                    ))
-                    .create();
+        override fun getItem(): ItemStack? {
+            return ItemBuilder(Material.WOOL)
+                .setName(rank.getColoredName())
+                .setDurability(ColorUtil.COLOR_MAP!![rank.getColor()]!!.woolData.toShort())
+                .setLore(
+                    Arrays.asList(
+                        CC.MENU_BAR,
+                        "&cDisplay Name&7: &f" + rank!!.getDisplayName(),
+                        "&cWeight&7: &f" + rank.getWeight(),
+                        "&cColor&7: &f" + rank.getColor().name,
+                        "&cPrefix&7: &f" + rank.getPrefix(),
+                        "&cSuffix&7: &f" + rank.getSuffix(),
+                        "&cDefault Rank&7: &f" + if (rank.isDefaultRank()) "&a&l✓" else "&c&l✕",
+                        CC.MENU_BAR
+                    )
+                )
+                .create()
         }
     }
 
     @AllArgsConstructor
-    private static class UsersButton extends Button {
-
-        public Rank rank;
-
-        @Override
-        public int getSlot() {
-            return 15;
+    private class UsersButton : Button() {
+        var rank: Rank? = null
+        override fun getSlot(): Int {
+            return 15
         }
 
-        @Override
-        public ItemStack getItem() {
-            return new ItemBuilder(CompatibleMaterial.getMaterial("SKULL_ITEM"))
-                    .setName("&eUsers")
-                    .setLore(Arrays.asList(
-                            CC.MENU_BAR,
-                            "&7Click to view all users with this rank.",
-                            CC.MENU_BAR
-                    ))
-                    .setDurability(3)
-                    .create();
+        override fun getItem(): ItemStack? {
+            return ItemBuilder(CompatibleMaterial.getMaterial("SKULL_ITEM"))
+                .setName("&eUsers")
+                .setLore(
+                    Arrays.asList(
+                        CC.MENU_BAR,
+                        "&7Click to view all users with this rank.",
+                        CC.MENU_BAR
+                    )
+                )
+                .setDurability(3)
+                .create()
         }
 
-        @Override
-        public void action(InventoryClickEvent event) {
-            if (!(event.getWhoClicked() instanceof Player)) return;
-            Player player = (Player) event.getWhoClicked();
-
-            new RankUsersMenu(rank).openMenu(player);
+        override fun action(event: InventoryClickEvent) {
+            if (event.whoClicked !is Player) return
+            val player = event.whoClicked as Player
+            RankUsersMenu(rank).openMenu(player)
         }
     }
-
 }

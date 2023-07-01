@@ -1,15 +1,11 @@
-package dev.lbuddyboy.flash.util.bukkit;
+package dev.lbuddyboy.flash.util.bukkit
 
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.ItemStack
 
-public class ItemUtils {
-
-    public static void setDisplayName(ItemStack stack, String name) {
-        ItemMeta meta = stack.getItemMeta();
-        meta.setDisplayName(name);
-        stack.setItemMeta(meta);
-
+object ItemUtils {
+    fun setDisplayName(stack: ItemStack, name: String?) {
+        val meta = stack.itemMeta
+        meta.displayName = name
+        stack.itemMeta = meta
     }
-
 }

@@ -1,34 +1,36 @@
-package dev.lbuddyboy.flash.util.bukkit;
+package dev.lbuddyboy.flash.util.bukkit
 
-import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.util.Callable;
-import org.bukkit.Bukkit;
-import org.bukkit.scheduler.BukkitScheduler;
+import dev.lbuddyboy.flash.Flash
+import dev.lbuddyboy.flash.util.Callable
+import org.bukkit.Bukkit
 
-public class Tasks {
-
-    public static void run(Callable callable) {
-        Bukkit.getServer().getScheduler().runTask(Flash.getInstance(), callable::call);
+object Tasks {
+    fun run(callable: Callable) {
+        Bukkit.getServer().scheduler.runTask(Flash.instance) { callable.call() }
     }
 
-    public static void runAsync(Callable callable) {
-        Bukkit.getServer().getScheduler().runTaskAsynchronously(Flash.getInstance(), callable::call);
+    fun runAsync(callable: Callable) {
+        Bukkit.getServer().scheduler.runTaskAsynchronously(Flash.instance) { callable.call() }
     }
 
-    public static void runLater(Callable callable, long delay) {
-        Bukkit.getServer().getScheduler().runTaskLater(Flash.getInstance(), callable::call, delay);
+    fun runLater(callable: Callable, delay: Long) {
+        Bukkit.getServer().scheduler.runTaskLater(Flash.instance, { callable.call() }, delay)
     }
 
-    public static void runAsyncLater(Callable callable, long delay) {
-        Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(Flash.getInstance(), callable::call, delay);
+    fun runAsyncLater(callable: Callable, delay: Long) {
+        Bukkit.getServer().scheduler.runTaskLaterAsynchronously(Flash.instance, { callable.call() }, delay)
     }
 
-    public static void runTimer(Callable callable, long delay, long interval) {
-        Bukkit.getServer().getScheduler().runTaskTimer(Flash.getInstance(), callable::call, delay, interval);
+    fun runTimer(callable: Callable, delay: Long, interval: Long) {
+        Bukkit.getServer().scheduler.runTaskTimer(Flash.instance, { callable.call() }, delay, interval)
     }
 
-    public static void runAsyncTimer(Callable callable, long delay, long interval) {
-        Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(Flash.getInstance(), callable::call, delay, interval);
+    fun runAsyncTimer(callable: Callable, delay: Long, interval: Long) {
+        Bukkit.getServer().scheduler.runTaskTimerAsynchronously(
+            Flash.instance,
+            { callable.call() },
+            delay,
+            interval
+        )
     }
-
 }

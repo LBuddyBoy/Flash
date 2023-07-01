@@ -1,71 +1,56 @@
-package dev.lbuddyboy.flash.cache.impl;
+package dev.lbuddyboy.flash.cache.impl
 
-import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.cache.UserCache;
-import dev.lbuddyboy.flash.cache.packet.CacheDistributePacket;
-import dev.lbuddyboy.flash.util.bukkit.CC;
-import org.bukkit.Bukkit;
+import dev.lbuddyboy.flash.Flash
+import dev.lbuddyboy.flash.cache.UserCache
+import dev.lbuddyboy.flash.cache.packet.CacheDistributePacket
+import dev.lbuddyboy.flash.util.bukkit.CC
+import org.bukkit.Bukkit
+import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-
-public class FlatFileCache extends UserCache {
-
-    public Map<UUID, String> uuidNameMap = new ConcurrentHashMap<>();
-    public Map<String, UUID> nameUUIDMap = new ConcurrentHashMap<>();
-
-    @Override
-    public String getName(UUID uuid) {
-        return uuidNameMap.get(uuid);
+class FlatFileCache : UserCache() {
+    var uuidNameMap: MutableMap<UUID?, String?> = ConcurrentHashMap()
+    var nameUUIDMap: MutableMap<String?, UUID> = ConcurrentHashMap()
+    override fun getName(uuid: UUID?): String? {
+        return uuidNameMap[uuid]
     }
 
-    @Override
-    public UUID getUUID(String name) {
-        return nameUUIDMap.get(name);
+    override fun getUUID(name: String?): UUID? {
+        return nameUUIDMap[name]
     }
 
-    @Override
-    public List<UUID> allUUIDs() {
-        return new ArrayList<>(nameUUIDMap.values());
+    override fun allUUIDs(): List<UUID> {
+        return ArrayList(nameUUIDMap.values)
     }
 
-    @Override
-    public void load() {
-
-        int i = 0;
+    override fun load() {
+        var i = 0
         try {
-            for (String key : Flash.getInstance().getUserHandler().getUsersYML().gc().getConfigurationSection("profiles").getKeys(false)) {
-                UUID uuid = UUID.fromString(key);
-                String name = Flash.getInstance().getUserHandler().getUsersYML().gc().getString("profiles." + key + ".name");
-
-                uuidNameMap.put(uuid, name);
-                nameUUIDMap.put(name, uuid);
-                ++i;
+            for (key in Flash.instance.userHandler.getUsersYML().gc().getConfigurationSection("profiles")
+                .getKeys(false)) {
+                val uuid = UUID.fromString(key)
+                val name: String = Flash.instance.userHandler.getUsersYML().gc().getString(
+                    "profiles.$key.name"
+                )
+                uuidNameMap[uuid] = name
+                nameUUIDMap[name] = uuid
+                ++i
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-
-        Bukkit.getConsoleSender().sendMessage(CC.translate("&fInitiated the &aFlatFile Cache&f."));
+        Bukkit.getConsoleSender().sendMessage(CC.translate("&fInitiated the &aFlatFile Cache&f."))
         if (i > 0) {
-            Bukkit.getConsoleSender().sendMessage(CC.translate("&fCached &b" + i + "&f names & uuids."));
+            Bukkit.getConsoleSender().sendMessage(CC.translate("&fCached &b$i&f names & uuids."))
         }
     }
 
-    @Override
-    public void update(UUID uuid, String name, boolean save) {
+    override fun update(uuid: UUID, name: String?, save: Boolean) {
         // User updates will already handle this.
-
         if (save) {
-            new CacheDistributePacket(uuid, name).send();
+            CacheDistributePacket(uuid, name).send()
         }
-
-        uuidNameMap.put(uuid, name);
-        nameUUIDMap.put(name, uuid);
-
+        uuidNameMap[uuid] = name
+        nameUUIDMap[name] = uuid
     }
-
 }

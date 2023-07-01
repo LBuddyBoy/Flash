@@ -1,37 +1,26 @@
-package dev.lbuddyboy.flash.util.bukkit;
+package dev.lbuddyboy.flash.util.bukkit
 
-import dev.lbuddyboy.flash.Flash;
-import dev.lbuddyboy.flash.user.User;
-import dev.lbuddyboy.flash.user.model.Punishment;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
+import dev.lbuddyboy.flash.Flash
+import dev.lbuddyboy.flash.user.User
+import dev.lbuddyboy.flash.user.model.Punishment
+import org.bukkit.command.CommandSender
+import org.bukkit.entity.Player
+import java.util.*
 
-import java.util.UUID;
-
-public class UserUtils {
-
-    public static String formattedName(UUID uuid) {
-        User user = Flash.getInstance().getUserHandler().tryUser(uuid, true);
-
-        if (user == null) {
-            return "&4Console";
-        }
-
-        return user.getColoredName();
+object UserUtils {
+    fun formattedName(uuid: UUID?): String? {
+        val user = Flash.instance.userHandler.tryUser(uuid, true) ?: return "&4Console"
+        return user.coloredName
     }
 
-    public static String formattedName(CommandSender sender) {
-        if (!(sender instanceof Player)) {
-            return "&4Console";
-        }
-
-        return formattedName(((Player) sender).getUniqueId());
+    fun formattedName(sender: CommandSender?): String? {
+        return if (sender !is Player) {
+            "&4Console"
+        } else formattedName(sender.uniqueId)
     }
 
-    public static void addPunishment(UUID uuid, Punishment punishment) {
-        User user = Flash.getInstance().getUserHandler().tryUser(uuid, true);
-
-        user.getStaffInfo().getKnownPunishments().add(punishment);
+    fun addPunishment(uuid: UUID?, punishment: Punishment?) {
+        val user: User = Flash.instance.userHandler.tryUser(uuid, true)
+        user.getStaffInfo().knownPunishments.add(punishment)
     }
-
 }

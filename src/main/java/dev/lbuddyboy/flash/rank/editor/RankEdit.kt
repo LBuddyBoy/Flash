@@ -1,16 +1,11 @@
-package dev.lbuddyboy.flash.rank.editor;
+package dev.lbuddyboy.flash.rank.editor
 
-import dev.lbuddyboy.flash.rank.Rank;
-import dev.lbuddyboy.flash.util.Callback;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import org.bukkit.entity.Player;
+import dev.lbuddyboy.flash.rank.Rankimport
 
+lombok.AllArgsConstructorimport lombok.Getter
 @AllArgsConstructor
 @Getter
-public class RankEdit {
-
-    private Rank rank;
-    private EditorType type;
-
+class RankEdit {
+    private val rank: Rank? = null
+    private val type: EditorType? = null
 }

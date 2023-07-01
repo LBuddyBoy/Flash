@@ -1,40 +1,30 @@
-package dev.lbuddyboy.flash.user.packet;
+package dev.lbuddyboy.flash.user.packet
 
-import dev.lbuddyboy.flash.redis.JedisPacket;
-import dev.lbuddyboy.flash.util.bukkit.CC;
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-
-import java.util.List;
-import java.util.UUID;
+import dev.lbuddyboy.flash.redis.JedisPacket
+import dev.lbuddyboy.flash.util.bukkit.CC
+import lombok.RequiredArgsConstructor
+import lombok.Setter
+import org.bukkit.Bukkit
+import java.util.function.Consumer
 
 @RequiredArgsConstructor
 @Setter
-public class StaffMessagePacket implements JedisPacket {
-
-    private final String message;
-    private List<String> messageList;
-
-    @Override
-    public void onReceive() {
+class StaffMessagePacket : JedisPacket {
+    private val message: String? = null
+    private val messageList: List<String>? = null
+    override fun onReceive() {
         if (message == null) {
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                if (!player.hasPermission("flash.staff")) continue;
-
-                messageList.forEach(s -> player.sendMessage(CC.translate(s)));
+            for (player in Bukkit.getOnlinePlayers()) {
+                if (!player.hasPermission("flash.staff")) continue
+                messageList!!.forEach(Consumer { s: String? -> player.sendMessage(CC.translate(s)) })
             }
-            messageList.forEach(s -> Bukkit.getConsoleSender().sendMessage(CC.translate(s)));
-            return;
+            messageList!!.forEach(Consumer { s: String? -> Bukkit.getConsoleSender().sendMessage(CC.translate(s)) })
+            return
         }
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            if (!player.hasPermission("flash.staff")) continue;
-
-            player.sendMessage(CC.translate(message));
+        for (player in Bukkit.getOnlinePlayers()) {
+            if (!player.hasPermission("flash.staff")) continue
+            player.sendMessage(CC.translate(message))
         }
-        messageList.forEach(s -> Bukkit.getConsoleSender().sendMessage(CC.translate(s)));
+        messageList!!.forEach(Consumer { s: String? -> Bukkit.getConsoleSender().sendMessage(CC.translate(s)) })
     }
-
 }
